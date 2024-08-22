@@ -9,6 +9,9 @@ import Task from './components/Task/Task'
 import Login from './components/Login/Login'
 import SignUp from './components/SignUp/SignUp'
 import Footer from './components/Footer/Footer'
+import Forgot_Password from './components/Forgot Password/Forgot_Password'
+
+import { Toaster } from 'react-hot-toast'
 
 import './App.css'
 
@@ -24,9 +27,11 @@ function App() {
           <Route path="/about" element={<About />} />
           <Route path="/profile/:id" element={<Profile />} />
           <Route path="/tasks" element={<Task />} />
-          <Route path="/login"element={<Login />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/register" element={<SignUp />} />
+          <Route path="/forgot-password" element={<Forgot_Password />} />
         </Routes>
+        <Toaster />
         <Footer />
       </Router>
     </>
