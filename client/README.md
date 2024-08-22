@@ -1,8 +1,26 @@
-# React + Vite
+# KarmaScheduler
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+KarmaScheduler is a powerful and intuitive tool designed to help spiritual professionals manage and organize Karmakand rituals and appointments. With features tailored to handle complex scheduling, bookings, and daily tasks, KarmaScheduler simplifies the process, allowing users to focus on their spiritual duties without the hassle of managing logistics.
 
-Currently, two official plugins are available:
+## Table of Contents
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- [KarmaScheduler](#karmascheduler)
+  - [Table of Contents](#table-of-contents)
+  - [Features](#features)
+  - [Installation](#installation)
+
+## Features
+
+- **Task Management:** Keep track of daily Karmakand rituals and tasks.
+- **Booking System:** Manage long-term bookings with ease, even months in advance.
+- **Calendar View:** Visualize all your appointments and rituals in an easy-to-navigate calendar.
+- **User Authentication:** Secure login and registration system for personalized access.
+- **Notifications:** Stay informed with reminders and updates about upcoming events.
+
+## Installation
+
+To get started with KarmaScheduler, follow these steps:
+
+1. **Clone the Repository:**
+   ```bash
+   git clone https://github.com/your-username/KarmaScheduler.git
