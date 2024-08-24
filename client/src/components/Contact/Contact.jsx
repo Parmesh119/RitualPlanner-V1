@@ -1,13 +1,57 @@
+import { useState } from "react";
 import { Helmet } from "react-helmet"
+import emailjs from '@emailjs/browser';
+import toast from "react-hot-toast";
 
 export default function Contact() {
+
+  const [email, setEmail] = useState("")
+  const [name, setName] = useState("")
+  const [subject, setSubject] = useState("")
+  const [message, setMessage] = useState("")
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!email || !name || !subject || !message) {
+      toast.error("Please provide all the required data...", {
+        position: "top-center"
+      })
+    }
+    const loadingToastId = toast.loading('Sending your message...');
+
+    try {
+      emailjs.sendForm(
+        'service_kwdyvxu',
+        'template_elpa2rz',
+        e.target,
+        'NuAjbPAXYIxgeUmwf'
+      )
+        .then((result) => {
+          console.log(result.text)
+          toast.dismiss(loadingToastId);
+          toast.success("Message sent successfully!")
+          setEmail("")
+          setName("")
+          setSubject("")
+          setMessage("")
+        })
+        .catch((error) => {
+          console.log(error.text)
+          toast.error(error.text)
+        });
+    } catch (error) {
+      console.log(error.text)
+      toast.error("Something went wrong...")
+    }
+  };
+
   return (
     <>
-    <Helmet>
-      <title>
-        Contact Us - RitualPlanner
-      </title>
-    </Helmet>
+      <Helmet>
+        <title>
+          Contact Us - RitualPlanner
+        </title>
+      </Helmet>
       <div>
       </div>
       <section className="bg-white text-black">
@@ -19,7 +63,7 @@ export default function Contact() {
             Got a technical issue? Want to send feedback about a beta feature?
             Need details about our Business plan? Let us know.
           </p>
-          <form className="space-y-8 text-left" >
+          <form className="space-y-8 text-left" onSubmit={handleSubmit} >
             <div>
               <label
                 htmlFor="email"
@@ -32,9 +76,11 @@ export default function Contact() {
                 id="email"
                 name="email"
                 className="shadow-sm border border-gray-300 text-black text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-white dark:border-gray-600 dark:placeholder-black dark:text-black dark:focus:ring-primary-500 dark:focus:border-primary-500 dark:shadow-sm-light"
-                placeholder="name@flowbite.com"
+                placeholder="name@gmail.com"
                 required
                 autoFocus
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
             <div>
@@ -47,10 +93,12 @@ export default function Contact() {
               <input
                 name="name"
                 type="text"
+                value={name}
                 id="name"
                 className="shadow-sm border border-gray-300 text-black text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-white dark:border-gray-600 dark:placeholder-black dark:text-black dark:focus:ring-primary-500 dark:focus:border-primary-500 dark:shadow-sm-light"
                 placeholder="Your name"
                 required
+                onChange={(e) => setName(e.target.value)}
               />
             </div>
             <div>
@@ -63,7 +111,9 @@ export default function Contact() {
               <input
                 type="text"
                 id="subject"
+                value={subject}
                 name="subject"
+                onChange={(e) => setSubject(e.target.value)}
                 className="block p-3 w-full text-sm text-black bg-white rounded-lg border border-gray-300 shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-white dark:border-gray-600 dark:placeholder-black dark:text-black dark:focus:ring-primary-500 dark:focus:border-primary-500 dark:shadow-sm-light"
                 placeholder="Let us know how we can help you"
                 required
@@ -80,6 +130,8 @@ export default function Contact() {
                 id="message"
                 rows="6"
                 name="message"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
                 className="block p-2.5 w-full text-sm text-black bg-white rounded-lg shadow-sm border border-gray-300 focus:ring-primary-500 focus:border-primary-500 dark:bg-white dark:border-gray-600 dark:placeholder-black dark:text-black dark:focus:ring-primary-500 dark:focus:border-primary-500"
                 placeholder="Leave a comment..."
               ></textarea>

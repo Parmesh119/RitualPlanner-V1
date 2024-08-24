@@ -6,6 +6,7 @@ import Contact from './components/Contact/Contact'
 import About from './components/About/About'
 import Profile from './components/Profile/Profile'
 import Task from './components/Task/Task'
+import Notes from './components/Notes/Note'  
 import Login from './components/Login/Login'
 import SignUp from './components/SignUp/SignUp'
 import Footer from './components/Footer/Footer'
@@ -27,6 +28,7 @@ function App() {
           <Route path="/about" element={<About />} />
           <Route path="/profile/:id" element={<Profile />} />
           <Route path="/tasks" element={<Task />} />
+          <Route path="/notes" element={<Notes />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<SignUp />} />
           <Route path="/forgot-password" element={<Forgot_Password />} />

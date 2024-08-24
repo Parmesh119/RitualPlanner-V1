@@ -1,17 +1,81 @@
 
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet";
+import { useState } from "react";
+import toast from 'react-hot-toast'
 
 const LoginForm = () => {
 
+  const navigate = useNavigate()
+
+  const[username, setUsername] = useState("")
+  const[name, setName] = useState("")
+  const[email, setEmail] = useState("")
+  const[number, setNumber] = useState("")
+  const[password, setPassword] = useState("")
+  const[confirmPassword, setConfirmPassword] = useState("")
+
+
+
   function myFunction() {
     var x = document.getElementById("password");
-    if (x.type === "password") {
+    var y = document.getElementById("confirm_password")
+    if (x.type === "password" && y.type === "password") {
       x.type = "text";
+      y.type = "text";
     } else {
       x.type = "password";
+      y.type = "password";
     }
   }
+
+  const handleSubmit = async () => {
+
+    // client side validation
+    if (!name || !email || !password || !number || !username) {
+      return toast.error("Provide All The Data..!", {position:"top-center"});
+    }
+    
+    // email validation
+    if (!email.includes("@")) {
+      return toast.error("Please Enter Valid Credentials..!", {position:"top-center"});
+    }
+
+    // contact validation
+    if (number.length !== 10) {
+      return toast.error("Please Enter Valid Contact Number..!", {position:"top-center"});
+    }
+
+    if(password != confirmPassword) {
+      return toast.error("Password not matched...!", {position: "top-center"})
+    }
+
+    const response = await fetch(import.meta.env.VITE_BASE_URL + '/api/users/register', {
+      method: 'POST',
+      headers: {
+        "content-type": "application/json"
+      },
+      body: JSON.stringify({ username, name, email, number, password})
+    })
+    const signUpData = await response.json()
+    
+    if(signUpData.error) {
+      toast.error(signUpData.error)
+    } else {
+      const loadingToastId = toast.loading('Creating New Account...');
+      setName("")
+      setUsername("")
+      setEmail("")
+      setNumber("")
+      setPassword("")
+      setConfirmPassword("")
+      toast.dismiss(loadingToastId)
+      toast.success(signUpData.success)
+      navigate("/")
+    }
+  }
+
+
 
   return (
     <div className="min-h-screen flex items-center justify-center">
@@ -34,6 +98,27 @@ const LoginForm = () => {
           Nice to meet you! Enter your details to register
         </p>
 
+        {/* Username input */}
+        <div className="mb-4">
+          <label
+            htmlFor="username"
+            className="block text-sm font-semibold text-gray-700 mb-1 text-left"
+          >
+            Username
+          </label>
+          <input
+            type="text"
+            id="username"
+            value={username}
+            name="username"
+            onChange={(e) => setUsername(e.target.value)}
+            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Username"
+            autoFocus
+            required
+          />
+        </div>
+
         {/* Name input */}
         <div className="mb-4">
           <label
@@ -45,9 +130,11 @@ const LoginForm = () => {
           <input
             type="text"
             id="name"
+            value={name}
+            name="name"
+            onChange={(e) => setName(e.target.value)}
             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="Your Name"
-            autoFocus
             required
           />
         </div>
@@ -63,6 +150,9 @@ const LoginForm = () => {
           <input
             type="email"
             id="email"
+            name="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="name@mail.com"
             required
@@ -81,6 +171,9 @@ const LoginForm = () => {
           <input
             type="number"
             id="phone"
+            name="number"
+            value={number}
+            onChange={(e) => setNumber(e.target.value)}
             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="0123456789"
             required
@@ -99,6 +192,9 @@ const LoginForm = () => {
             <input
               type="password"
               id="password"
+              value={password}
+              name="password"
+              onChange={(e) => setPassword(e.target.value)}
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="********"
               required
@@ -112,12 +208,14 @@ const LoginForm = () => {
             htmlFor="confirm_password"
             className="block text-sm font-semibold text-gray-700 mb-1 text-left"
           >
-            Password
+            Confirm Password
           </label>
           <div className="relative">
             <input
               type="password"
               id="confirm_password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="********"
               required
@@ -131,6 +229,7 @@ const LoginForm = () => {
         {/* Login Button */}
         <button
           type="submit"
+          onClick={handleSubmit}
           className="w-full py-2 px-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
         >
           Register
