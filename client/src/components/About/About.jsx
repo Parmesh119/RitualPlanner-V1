@@ -10,14 +10,14 @@ const AboutUs = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center">
           <h1 className="text-4xl font-extrabold text-gray-900 mb-4">About KarmaScheduler</h1>
-          <p className="mt-4 text-lg text-gray-600">
+          <p className="mt-4 text-lg text-gray-600 text-justify">
             KarmaScheduler is designed to simplify the management of Karmakand rituals and ceremonies.
             Our platform offers an intuitive way to schedule, track, and manage rituals, ensuring that
             spiritual professionals can focus on their important work without worrying about the logistics.
           </p>
         </div>
 
-        <div className="mt-10">
+        <div className="mt-10 text-justify">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="bg-gray-100 p-6 rounded-lg shadow-md">
               <h2 className="text-2xl font-bold text-gray-800 mb-3">Our Vision</h2>
@@ -39,7 +39,7 @@ const AboutUs = () => {
           </div>
         </div>
 
-        <div className="mt-16 text-center">
+        <div className="mt-16 text-justify">
           <h2 className="text-3xl font-bold text-gray-900 mb-4">Join Us in Simplifying Karmakand Management</h2>
           <p className="text-lg text-gray-600">
             We`re passionate about making spiritual management easier. Whether you`re a seasoned professional or just starting,

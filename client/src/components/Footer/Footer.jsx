@@ -2,10 +2,10 @@ import { NavLink } from 'react-router-dom';
 
 export default function FooterThree() {
     return (
-        <section className="relative overflow-hidden bg-white py-8">
-            <div className="container relative z-10 mx-auto px-4">
-                <div className="-m-8 flex flex-wrap items-center justify-between px-4">
-                    <div className="w-auto p-8">
+        <footer className="bg-white w-full py-8">
+            <div className="container mx-auto px-4">
+                <div className="flex flex-wrap items-center justify-between px-4">
+                    <div className="w-auto">
                         <NavLink to="/">
                             <div className="inline-flex items-center">
                                 <img
@@ -26,8 +26,8 @@ export default function FooterThree() {
                             </div>
                         </NavLink>
                     </div>
-                    <div className="w-auto p-8">
-                        <ul className="-m-5 flex flex-wrap items-center text-sm text-black" >
+                    <div className="w-auto">
+                        <ul className="flex flex-wrap items-center text-sm text-black">
                             <li className="p-5">
                                 <NavLink className="font-bold text-gray-600 hover:text-gray-700" to="/tasks">
                                     Tasks Management
@@ -48,9 +48,11 @@ export default function FooterThree() {
                 </div>
                 <div>
                     <hr className="my-6 border-black sm:mx-auto dark:border-gray-700 lg:my-8" />
-                    <span className="block text-md font-medium sm:text-center text-black">© 2024 <a href="https://flowbite.com/" className="hover:underline">RitualPlanner</a>. All Rights Reserved.</span>
+                    <span className="block text-md font-medium sm:text-center text-black">
+                        © 2024 <a href="https://flowbite.com/" className="hover:underline">RitualPlanner</a>. All Rights Reserved.
+                    </span>
                 </div>
             </div>
-        </section>
-    )
+        </footer>
+    );
 }

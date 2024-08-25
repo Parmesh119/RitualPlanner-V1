@@ -19,7 +19,7 @@ router.post("/register", validate(signupSchema), async (req, res) => {
         // if(user) return res.status(400).send({error: "User already exists..."})
 
         if (user) {
-            // Determine which field(s) are already taken
+            
             if (user.email === email) return res.status(400).send({ error: "Email is already taken." });
             if (user.username === username) return res.status(400).send({ error: "Username is already taken." });
             if (user.number.toString() === number.toString()) return res.status(400).send({ error: "Number is already taken." });
@@ -42,11 +42,9 @@ router.post("/login", async (req, res) => {
     try {
         let user;
 
-        // Check if the credentials is a valid number
         if (!isNaN(credentials)) {
             user = await User.findOne({ number: credentials });
         } else {
-            // If not a number, search by email or username
             user = await User.findOne({
                 $or: [{ email: credentials }, { username: credentials }]
             });

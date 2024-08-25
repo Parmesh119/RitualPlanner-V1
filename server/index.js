@@ -3,6 +3,7 @@ const cors = require('cors')
 
 const connectToDB = require("./config/mongoDB/connect")
 const users = require("./src/routes/userRoute")
+const notes = require("./src/routes/notesRoute")
 
 // firebase config file
 // const firebase = require("./config/firebase")
@@ -18,5 +19,6 @@ app.get("/", (req, res) => {
 })
 
 app.use("/api/users", users)
+app.use("/api", notes)
 
 app.listen(PORT, connectToDB);
