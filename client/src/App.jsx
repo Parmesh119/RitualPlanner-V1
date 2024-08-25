@@ -11,6 +11,7 @@ import Login from './components/Login/Login'
 import SignUp from './components/SignUp/SignUp'
 import Footer from './components/Footer/Footer'
 import Forgot_Password from './components/Forgot Password/Forgot_Password'
+import T_C from './components/Company/Terms & Conditions/T&C'
 
 import { Toaster } from 'react-hot-toast'
 
@@ -32,6 +33,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<SignUp />} />
           <Route path="/forgot-password" element={<Forgot_Password />} />
+          <Route path="/company/terms-conditions" element={<T_C />} />
         </Routes>
         <Toaster />
         <Footer />

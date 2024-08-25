@@ -8,7 +8,7 @@ export default function Example() {
     <div className="bg-white">
       <Helmet>
         <title>
-        RitualPlanner
+        RitualPlanner - Effortlessly Manage Your Karmakand Rituals and Appointments
         </title>
       </Helmet>
       <div className="relative isolate px-6 pt-14 lg:px-8">

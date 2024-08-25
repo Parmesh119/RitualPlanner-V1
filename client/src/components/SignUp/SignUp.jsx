@@ -8,12 +8,63 @@ const LoginForm = () => {
 
   const navigate = useNavigate()
 
-  const[username, setUsername] = useState("")
-  const[name, setName] = useState("")
-  const[email, setEmail] = useState("")
-  const[number, setNumber] = useState("")
-  const[password, setPassword] = useState("")
-  const[confirmPassword, setConfirmPassword] = useState("")
+  const [username, setUsername] = useState("")
+  const [name, setName] = useState("")
+  const [email, setEmail] = useState("")
+  const [number, setNumber] = useState("")
+  const [password, setPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
+
+  // checkbox cheched or not checking
+  const [ischecked, setIschecked] = useState(false)
+
+  // function for checking
+  const check = (e) => {
+    setIschecked(e.target.checked)
+  }
+
+  // checking password strength
+  const [strength, setStrength] = useState("");
+
+  const evaluatePasswordStrength = (password) => {
+    if (!password) {
+      return setStrength("");
+    }
+
+    let strengthLevel = "Weak";
+    if (password.length >= 8) {
+      strengthLevel = "Medium";
+    }
+    if (
+      password.length >= 8 &&
+      /[A-Z]/.test(password) &&
+      /[a-z]/.test(password) &&
+      /[0-9]/.test(password) &&
+      /[^A-Za-z0-9]/.test(password)
+    ) {
+      strengthLevel = "Strong";
+    }
+
+    setStrength(strengthLevel);
+  };
+
+  const handlePasswordChange = (e) => {
+    const newPassword = e.target.value;
+    setPassword(newPassword);
+    evaluatePasswordStrength(newPassword);
+  };
+
+  const popupStyle = {
+    position: "absolute",
+    top: "40px",
+    left: "0",
+    width: "100%",
+    padding: "10px",
+    borderRadius: "4px",
+    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+    backgroundColor: "#fff",
+    zIndex: 10,
+  };
 
 
 
@@ -33,33 +84,38 @@ const LoginForm = () => {
 
     // client side validation
     if (!name || !email || !password || !number || !username) {
-      return toast.error("Provide All The Data..!", {position:"top-center"});
+      return toast.error("Provide All The Data..!", { position: "top-center" });
     }
-    
+
     // email validation
-    if (!email.includes("@")) {
-      return toast.error("Please Enter Valid Credentials..!", {position:"top-center"});
-    }
+    // if (!email.includes("@")) {
+    //   return toast.error("Please Enter Valid Credentials..!", { position: "top-center" });
+    // }
 
     // contact validation
-    if (number.length !== 10) {
-      return toast.error("Please Enter Valid Contact Number..!", {position:"top-center"});
+    // if (number.length !== 10) {
+    //   return toast.error("Please Enter Valid Contact Number..!", { position: "top-center" });
+    // }
+
+    // if (password != confirmPassword) {
+    //   return toast.error("Password not matched...!", { position: "top-center" })
+    // }
+
+    if (!ischecked) {
+      return toast.error("Accept the Terms & Conditions!", { position: "top-center" })
     }
 
-    if(password != confirmPassword) {
-      return toast.error("Password not matched...!", {position: "top-center"})
-    }
 
     const response = await fetch(import.meta.env.VITE_BASE_URL + '/api/users/register', {
       method: 'POST',
       headers: {
         "content-type": "application/json"
       },
-      body: JSON.stringify({ username, name, email, number, password})
+      body: JSON.stringify({ username, name, email, number, password })
     })
     const signUpData = await response.json()
-    
-    if(signUpData.error) {
+
+    if (signUpData.error) {
       toast.error(signUpData.error)
     } else {
       const loadingToastId = toast.loading('Creating New Account...');
@@ -194,11 +250,25 @@ const LoginForm = () => {
               id="password"
               value={password}
               name="password"
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={handlePasswordChange}
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="********"
               required
             />
+            {password && (
+              <div style={popupStyle}>
+                <p>Password Strength: {strength}</p>
+                {strength === "Weak" && (
+                  <p style={{ color: "red" }}>Consider adding more characters, numbers, or symbols.</p>
+                )}
+                {strength === "Medium" && (
+                  <p style={{ color: "orange" }}>Try adding uppercase letters, numbers, or symbols.</p>
+                )}
+                {strength === "Strong" && (
+                  <p style={{ color: "green" }}>Your password is strong.</p>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
@@ -222,7 +292,10 @@ const LoginForm = () => {
             />
           </div>
           <div className="text-left">
-            <input type="checkbox" onClick={myFunction} className="mt-4 mx-1 p-2 " />Show Password
+            <label><input type="checkbox" onClick={myFunction} className="mt-4 mx-1 p-2 " />Show Password</label>
+          </div>
+          <div className="text-left">
+            <label><input type="checkbox" onChange={check} checked={ischecked} className="mt-4 mx-1 p-2 " />I Accept the <NavLink to="/company/terms-conditions" className="text-blue-900 font-bold underline">Terms & Conditions</NavLink></label>
           </div>
         </div>
 
