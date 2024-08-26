@@ -127,43 +127,53 @@ const Navbar = () => {
               <div className="space-y-2 py-6">
                 {navigation.map((item) => (
                   item.dropdown ? (
-                    <Menu as="div" className="relative inline-block text-left" key={item.name}>
-                      <div>
-                        <Menu.Button className="text-sm font-semibold leading-6 text-gray-900 inline-flex items-center">
-                          {item.name}
-                          <ChevronDownIcon className="-mr-1 h-5 w-5 text-gray-400" aria-hidden="true" />
-                        </Menu.Button>
-                      </div>
-                      <Transition
-                        enter="transition ease-out duration-100"
-                        enterFrom="transform opacity-0 scale-95"
-                        enterTo="transform opacity-100 scale-100"
-                        leave="transition ease-in duration-75"
-                        leaveFrom="transform opacity-100 scale-100"
-                        leaveTo="transform opacity-0 scale-95"
-                      >
-                        <Menu.Items className="absolute right-0 z-20 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                          <div className="py-1">
-                            <Menu.Item>
-                              {({ active }) => (
-                                <NavLink to="/notes/create" className={`${active ? 'bg-gray-100 text-gray-900' : 'text-gray-700'} block px-4 py-2 text-sm`}>
-                                  Create Note
-                                </NavLink>
-                              )}
-                            </Menu.Item>
-                            <Menu.Item>
-                              {({ active }) => (
-                                <NavLink to="/notes/update-delete" className={`${active ? 'bg-gray-100 text-gray-900' : 'text-gray-700'} block px-4 py-2 text-sm`}>
-                                  Update / Delete Note
-                                </NavLink>
-                              )}
-                            </Menu.Item>
-                          </div>
-                        </Menu.Items>
-                      </Transition>
-                    </Menu>
+                    <div key={item.name} className="relative inline-block text-left">
+                      <Menu>
+                        {({ open }) => (
+                          <>
+                            <Menu.Button className="flex items-center justify-between w-full text-sm font-semibold leading-6 text-gray-900">
+                              {item.name}
+                              <ChevronDownIcon
+                                className={`ml-2 h-5 w-5 text-gray-400 transition-transform duration-200 ease-in-out ${
+                                  open ? "transform rotate-180" : ""
+                                }`}
+                                aria-hidden="true"
+                              />
+                            </Menu.Button>
+                            <Transition
+                              show={open}
+                              enter="transition ease-out duration-100"
+                              enterFrom="transform opacity-0 scale-95"
+                              enterTo="transform opacity-100 scale-100"
+                              leave="transition ease-in duration-75"
+                              leaveFrom="transform opacity-100 scale-100"
+                              leaveTo="transform opacity-0 scale-95"
+                            >
+                              <Menu.Items className="mt-2 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                                <div className="py-1">
+                                  <Menu.Item>
+                                    {({ active }) => (
+                                      <NavLink to="/notes/create" className={`${active ? 'bg-gray-100 text-gray-900' : 'text-gray-700'} block px-4 py-2 text-sm`}>
+                                        Create Note
+                                      </NavLink>
+                                    )}
+                                  </Menu.Item>
+                                  <Menu.Item>
+                                    {({ active }) => (
+                                      <NavLink to="/notes/all" className={`${active ? 'bg-gray-100 text-gray-900' : 'text-gray-700'} block px-4 py-2 text-sm`}>
+                                        All Notes
+                                      </NavLink>
+                                    )}
+                                  </Menu.Item>
+                                </div>
+                              </Menu.Items>
+                            </Transition>
+                          </>
+                        )}
+                      </Menu>
+                    </div>
                   ) : (
-                    <NavLink key={item.name} to={item.href} className="text-sm font-semibold leading-6 text-gray-900">
+                    <NavLink key={item.name} to={item.href} className="block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-500">
                       {item.name}
                     </NavLink>
                   )

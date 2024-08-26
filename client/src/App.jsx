@@ -1,4 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
+
 import Navbar from './components/Navbar/Navbar';
 import HomePage from './components/Hero/HomePage';
 import Contact from './components/Contact/Contact';
@@ -13,10 +15,11 @@ import Forgot_Password from './components/Forgot Password/Forgot_Password';
 import T_C from './components/Company/Terms & Conditions/T&C';
 import Delete from './components/Notes/Delete'
 import Update from './components/Notes/Update'
-import { Toaster } from 'react-hot-toast';
-import './App.css';
 import All_notes from './components/Notes/All_notes';
 import One_note from './components/Notes/One_note';
+import New_Password from './components/New-Password/New_Password';
+
+import './App.css';
 
 function App() {
   return (
@@ -37,7 +40,8 @@ function App() {
             <Route path="/notes/detail/:id" element={<One_note />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<SignUp />} />
-            <Route path="/forgot-password" element={<Forgot_Password />} />
+            <Route path="/recover-password/verify-otp" element={<Forgot_Password />} />
+            <Route path="/recover-password/new-password" element={<New_Password />} />
             <Route path="/company/terms-conditions" element={<T_C />} />
           </Routes>
         </main>

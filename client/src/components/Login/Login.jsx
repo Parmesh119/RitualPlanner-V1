@@ -122,7 +122,7 @@ const LoginForm = () => {
 
         <div className="flex justify-between items-center mb-4">
           <NavLink
-            to="/forgot-password"
+            to="/recover-password/verify-otp"
             className="text-sm text-blue-800 font-bold hover:underline"
           >
             Forgot password?
