@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { Helmet } from "react-helmet";
+import {NavLink} from "react-router-dom";
 
 const NoteSection = () => {
   const [person, setPerson] = useState("")
@@ -40,7 +41,7 @@ const NoteSection = () => {
   const addNote = async () => {
 
     const response = await fetch(
-      import.meta.env.VITE_BASE_URL + '/api/notes/create',
+      import.meta.env.VITE_BASE_URL + '/api/note/notes/create',
       {
         method: "POST",
         headers: {
@@ -62,7 +63,7 @@ const NoteSection = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-white py-10">
       <Helmet>
-        <title>Notes - Add notes for personal uses</title>
+        <title>Add Note</title>
       </Helmet>
       <div className="max-w-lg w-full p-5 border rounded-lg shadow-lg bg-white">
         <h2 className="text-2xl font-semibold mb-4 text-center">Add a Note</h2>
@@ -134,10 +135,11 @@ const NoteSection = () => {
         </div>
         <button
           onClick={addNote}
-          className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600"
+          className="w-full font-bold bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 mb-1"
         >
           Add Note
         </button>
+        <NavLink to="/notes/all"><button className="w-full font-bold bg-black text-white py-2 rounded-lg hover:bg-gray-600 mt-1">All Note</button></NavLink>
         {/* <div className="mt-6">
           <h3 className="text-xl font-semibold mb-4">Notes</h3>
           <ul>

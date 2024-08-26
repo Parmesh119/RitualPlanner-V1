@@ -1,7 +1,13 @@
 import { NavLink } from "react-router-dom"
+import { Helmet } from "react-helmet"
 export default function Update_Delete() {
   return (
     <div className="flex justify-center items-center h-screen">
+      <Helmet>
+        <title>
+          All Notes
+        </title>
+      </Helmet>
       <NavLink to="/notes/create"><button className="bg-blue-800 text-white rounded-md py-2 px-4">Add Note</button></NavLink>
 
       <NavLink to="/notes/modify/update/:id"><button className="bg-blue-800 text-white rounded-md py-2 px-4">Update</button></NavLink>

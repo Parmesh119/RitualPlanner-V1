@@ -4,7 +4,7 @@ const validate = require('../middleware/validate-note');
 const noteSchema = require('../validation/notes');
 const router = express.Router();
 
-router.post("/create", validate(noteSchema), async (req, res) => {
+router.post("/notes/create", validate(noteSchema), async (req, res) => {
   const { person, work, noteText, noteDate, reminderDate } = req.body;
 
   try {
