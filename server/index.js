@@ -19,6 +19,6 @@ app.get("/", (req, res) => {
 })
 
 app.use("/api/users", users)
-app.use("/api", notes)
+app.use("/api/notes", notes)
 
 app.listen(PORT, connectToDB);

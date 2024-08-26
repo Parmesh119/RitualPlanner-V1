@@ -1,59 +1,46 @@
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { Helmet } from "react-helmet";
-import axios from 'axios'
 
 const NoteSection = () => {
   const [person, setPerson] = useState("")
   const [work, setWork] = useState("")
-  const [notes, setNotes] = useState([]);
   const [noteText, setNoteText] = useState("");
   const [noteDate, setNoteDate] = useState("");
   const [reminderDate, setReminderDate] = useState("")
-  const[notes_length, setNotesLength] = useState(0)
   
-  const notificationsRef = useRef(new Set()); // Ref to keep track of notified notes
+  // const [notes, setNotes] = useState([]);
+  // const[notes_length, setNotesLength] = useState(0)
+  
+  // const notificationsRef = useRef(new Set()); // Ref to keep track of notified notes
 
-  useEffect(() => {
-    const checkDates = () => {
-      const today = new Date();
-      notes.forEach((note) => {
-        const noteDate = new Date(note.date);
-        const diffTime = Math.abs(noteDate - today);
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  // useEffect(() => {
+  //   const checkDates = () => {
+  //     const today = new Date();
+  //     notes.forEach((note) => {
+  //       const noteDate = new Date(note.date);
+  //       const diffTime = Math.abs(noteDate - today);
+  //       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         
-        if (diffDays <= 3 && !notificationsRef.current.has(note.date)) {
-          toast(`Reminder: You have a note for ${noteDate.toDateString()}`, {
-            icon: "🔔",
-          });
-          notificationsRef.current.add(note.date); // Mark this date as notified
-        }
-      });
-    };
+  //       if (diffDays <= 3 && !notificationsRef.current.has(note.date)) {
+  //         toast(`Reminder: You have a note for ${noteDate.toDateString()}`, {
+  //           icon: "🔔",
+  //         });
+  //         notificationsRef.current.add(note.date); // Mark this date as notified
+  //       }
+  //     });
+  //   };
 
-    checkDates();
-    const interval = setInterval(checkDates, 86400000); // Check every 24 hours
+  //   checkDates();
+  //   const interval = setInterval(checkDates, 86400000); // Check every 24 hours
 
-    return () => clearInterval(interval);
-  }, [notes]);
+  //   return () => clearInterval(interval);
+  // }, [notes]);
 
   const addNote = async () => {
-    
-    // if (!noteText || !noteDate) {
-    //   toast.error("Please enter a note and select a date.");
-    //   return;
-    // }
-    // const newNote = {
-    //   text: noteText,
-    //   date: noteDate,
-    // };
-    // setNotes([...notes, newNote]);
-    // setNoteText("");
-    // setNoteDate("");
-    // setNotesLength(1) 
 
     const response = await fetch(
-      import.meta.env.VITE_BASE_URL + '/api/notes',
+      import.meta.env.VITE_BASE_URL + '/api/notes/create',
       {
         method: "POST",
         headers: {
@@ -62,14 +49,13 @@ const NoteSection = () => {
         body: JSON.stringify({ person, work, noteText, noteDate, reminderDate })
       }
     )
-
     const res = await response.json()
 
     if (res.error) {
       toast.error(res.error);
     } else {
       toast.success(res.success);
-
+      
     }
   };
 
@@ -134,7 +120,7 @@ const NoteSection = () => {
         </div>
         <div className="mb-4">
           <label className="block text-gray-700 font-medium mb-2 text-left">
-            Note
+            Reminder message
           </label>
           <textarea
             className="w-full p-2 border rounded-lg focus:outline-none focus:border-blue-500"
@@ -152,7 +138,7 @@ const NoteSection = () => {
         >
           Add Note
         </button>
-        <div className="mt-6">
+        {/* <div className="mt-6">
           <h3 className="text-xl font-semibold mb-4">Notes</h3>
           <ul>
             {notes_length == 0 ? <p>No notes</p> : notes.map((note, index) => (
@@ -164,7 +150,7 @@ const NoteSection = () => {
               </li>
             ))}
           </ul>
-        </div>
+        </div> */}
       </div>
     </div>
   );
