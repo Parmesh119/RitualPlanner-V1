@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import toast from "react-hot-toast"
 import { useNavigate } from "react-router-dom"
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react'
@@ -6,6 +6,10 @@ import { ExclamationTriangleIcon } from '@heroicons/react/24/outline'
 import Helmet from 'react-helmet'
 
 export default function Delete() {
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
+    
     const [open, setOpen] = useState(true)
 
     const navigate = useNavigate()

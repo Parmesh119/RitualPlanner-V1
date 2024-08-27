@@ -1,8 +1,13 @@
 'use client'
+import { useEffect } from "react"
 import { NavLink } from "react-router-dom"
 import { Helmet } from "react-helmet"
 
 export default function Example() {
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+}, []);
 
   return (
     <div className="bg-white">

@@ -1,5 +1,9 @@
 import Helmet from 'react-helmet'
+import { useEffect } from 'react';
 const AboutUs = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+}, []);
   return (
     <div className="bg-white py-20">
       <Helmet>

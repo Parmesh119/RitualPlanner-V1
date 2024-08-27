@@ -34,6 +34,11 @@ export default function FooterThree() {
                                 </NavLink>
                             </li>
                             <li className="p-5">
+                                <NavLink className="font-bold text-gray-600 hover:text-gray-700" to="/notes/all">
+                                    Notes
+                                </NavLink>
+                            </li>
+                            <li className="p-5">
                                 <NavLink className="font-bold text-gray-600 hover:text-gray-700" to="/about">
                                     About Us
                                 </NavLink>

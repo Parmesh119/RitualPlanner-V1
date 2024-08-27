@@ -1,9 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
 import { Helmet } from "react-helmet";
-import {NavLink} from "react-router-dom";
+import {NavLink, useNavigate} from "react-router-dom";
 
 const NoteSection = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+}, []);
+
+const navigate = useNavigate()
+
   const [person, setPerson] = useState("")
   const [work, setWork] = useState("")
   const [noteText, setNoteText] = useState("");
@@ -56,6 +62,7 @@ const NoteSection = () => {
       toast.error(res.error);
     } else {
       toast.success(res.success);
+      navigate('/notes/all')
       
     }
   };

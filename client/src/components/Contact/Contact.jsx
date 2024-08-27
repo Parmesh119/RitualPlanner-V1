@@ -1,9 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet"
 import emailjs from '@emailjs/browser';
 import toast from "react-hot-toast";
 
 export default function Contact() {
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+}, []);
 
   const [email, setEmail] = useState("")
   const [name, setName] = useState("")
@@ -18,6 +22,7 @@ export default function Contact() {
       })
     }
     const loadingToastId = toast.loading('Sending your message...');
+
 
     try {
       emailjs.sendForm(
