@@ -1,4 +1,4 @@
-import { PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { PencilIcon, TrashIcon, PlusIcon } from '@heroicons/react/24/outline'; // Import PlusIcon
 import { NavLink } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import Loading from '../Loader/Loading';
@@ -30,52 +30,72 @@ const NotesSection = () => {
   }, []);
 
   return (
-    <div className="container mx-auto mt-8 p-4">
-      <Helmet>
-        <title>All Notes</title>
-      </Helmet>
-      <h2 className="text-2xl font-semibold mb-4">All Notes</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        { loading ? (
-          <div className="col-span-full flex items-center justify-center h-48">
-            <Loading />
-          </div>
-        ) : (
-          notes.length === 0 ? (
+    <>
+      <div className="container mx-auto mt-16 p-4">
+        <Helmet>
+          <title>All Notes</title>
+        </Helmet>
+        {/* Header with Add Note Button */}
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-2xl font-bold text-left tracking-wider">All Notes</h2>
+          <NavLink to="/notes/create" className="flex items-center space-x-1 text-blue-600 hover:text-blue-800 text-center">
+            <PlusIcon className="h-6 w-6" />
+            <span className="font-bold ">Add Note</span>
+          </NavLink>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 container mt-6">
+          {loading ? (
             <div className="col-span-full flex items-center justify-center h-48">
-              <span className="text-lg font-semibold text-gray-600">No notes available right now but you can add it if you want by <NavLink className="text-blue-800 font-bold underline" to="/notes/create">clicking on this link</NavLink></span>
+              <Loading />
+            </div>
+          ) : notes.length === 0 ? (
+            <div className="col-span-full flex items-center justify-center h-48">
+              <span className="text-lg font-semibold text-gray-600">
+                No notes available right now but you can add it if you want by{' '}
+                <NavLink className="text-blue-800 font-bold underline" to="/notes/create">
+                  clicking on this link
+                </NavLink>
+              </span>
             </div>
           ) : (
-            notes.map(note => (
-              <div
-                key={note.id}
-                className={`text-black p-4 rounded-lg shadow-md flex flex-col justify-between`}
-              >
-                <div className='text-black text-justify'>
-                  <h3 className="text-xl"><strong>Person Name: </strong>{note.person}</h3>
-                  <p><strong>Work Name:</strong> {note.work}</p>
-                  <p><strong>Note:</strong> {note.noteText}</p>
-                  <p><strong>Work Date:</strong> {format(new Date(note.noteDate), "MMMM dd, yyyy")}</p>
-                  <p><strong>Reminder Date:</strong> {format(new Date(note.reminderDate), "MMMM dd, yyyy")}</p>
+            notes.map((note) => (
+              <div key={note.id} className="text-black p-4 rounded-lg shadow-md flex flex-col justify-between">
+                <div className="text-black text-justify">
+                  <h3 className="text-xl">
+                    <strong>Person Name: </strong>
+                    {note.person}
+                  </h3>
+                  <p>
+                    <strong>Work Name:</strong> {note.work}
+                  </p>
+                  <p>
+                    <strong>Note:</strong> {note.noteText}
+                  </p>
+                  <p>
+                    <strong>Work Date:</strong> {format(new Date(note.noteDate), 'MMMM dd, yyyy')}
+                  </p>
+                  <p>
+                    <strong>Reminder Date:</strong> {format(new Date(note.reminderDate), 'MMMM dd, yyyy')}
+                  </p>
                 </div>
                 <div className="flex justify-end space-x-2 mt-4">
-                  <NavLink to={`/notes/modify/update/:id`}>
-                    <button className="text-black hover:text-gray-700">
+                  <NavLink to={`/notes/modify/update/${note.id}`}>
+                    <abbr title='Update Note'><button className="text-black hover:text-gray-700">
                       <PencilIcon className="h-6 w-6" />
-                    </button>
+                    </button></abbr>
                   </NavLink>
-                  <NavLink to={`/notes/modify/delete/:id`}>
-                    <button className="text-black hover:text-gray-800">
+                  <NavLink to={`/notes/modify/delete/${note.id}`}>
+                    <abbr title="Delete Note"><button className="text-black hover:text-gray-800">
                       <TrashIcon className="h-6 w-6" />
-                    </button>
+                    </button></abbr>
                   </NavLink>
                 </div>
               </div>
-          ))
-        )
-        )}
+            ))
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

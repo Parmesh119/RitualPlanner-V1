@@ -14,6 +14,11 @@ export default function Delete() {
 
     const navigate = useNavigate()
 
+    const handleClose = () => {
+        setOpen(false)
+        navigate("/notes/all")
+    }
+
     const handleConfirm = async (ans) => {
         setOpen(ans)
         if(ans) {
@@ -44,7 +49,7 @@ export default function Delete() {
     }
 
     return (
-        <Dialog open={open} onClose={setOpen} className="relative z-10">
+        <Dialog open={open} onClose={handleClose} className="relative z-10">
             <Helmet>
                 <title>Delete note</title>
             </Helmet>
@@ -69,7 +74,7 @@ export default function Delete() {
                                         Delete Note
                                     </DialogTitle>
                                     <div className="mt-2">
-                                        <p className="text-sm text-gray-500">
+                                        <p className="text-md font-bold tracking-wide text-gray-500">
                                             Are you sure want to delete this note?
                                         </p>
                                     </div>
@@ -80,7 +85,7 @@ export default function Delete() {
                             <button
                                 type="button"
                                 onClick={() => handleConfirm(true)}
-                                className="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto"
+                                className="inline-flex w-full justify-center rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto"
                             >
                                 Yes
                             </button>

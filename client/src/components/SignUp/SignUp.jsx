@@ -1,10 +1,15 @@
 
 import { NavLink, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import toast from 'react-hot-toast'
+import {jwtDecode} from 'jwt-decode'
+import axios from "axios";
 
 const LoginForm = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+}, []);
 
   const navigate = useNavigate()
 
@@ -87,20 +92,6 @@ const LoginForm = () => {
       return toast.error("Provide All The Data..!", { position: "top-center" });
     }
 
-    // email validation
-    // if (!email.includes("@")) {
-    //   return toast.error("Please Enter Valid Credentials..!", { position: "top-center" });
-    // }
-
-    // contact validation
-    // if (number.length !== 10) {
-    //   return toast.error("Please Enter Valid Contact Number..!", { position: "top-center" });
-    // }
-
-    // if (password != confirmPassword) {
-    //   return toast.error("Password not matched...!", { position: "top-center" })
-    // }
-
     if (!ischecked) {
       return toast.error("Accept the Terms & Conditions!", { position: "top-center" })
     }
@@ -128,6 +119,21 @@ const LoginForm = () => {
       toast.dismiss(loadingToastId)
       toast.success(signUpData.success)
       navigate("/")
+
+      const tokens = signUpData?.token
+      localStorage.setItem("token", signUpData?.token)
+      localStorage.setItem("userId", signUpData?.user?._id);
+
+      const decoded = jwtDecode(tokens)
+
+      const res = await fetch(import.meta.env.VITE_BASE_URL + "/api/users/verifyuser", {
+        method: "POST",
+        body: tokens
+      })
+
+
+      localStorage.setItem("userId", decoded.user.id);
+      localStorage.setItem("userEmail", decoded.user.email);
     }
   }
 

@@ -1,10 +1,13 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { Helmet } from "react-helmet";
 import { NavLink } from "react-router-dom";
 
 const LoginForm = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+}, []);
   const [credentials, setCredentials] = useState("");
   const [password, setPassword] = useState("");
 
