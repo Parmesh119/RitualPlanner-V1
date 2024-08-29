@@ -6,6 +6,11 @@ import { ExclamationTriangleIcon } from '@heroicons/react/24/outline'
 import Helmet from 'react-helmet'
 
 export default function Delete() {
+
+    const path = window.location.pathname
+    const _id = path.split("/").pop()
+
+
     useEffect(() => {
         window.scrollTo(0, 0);
     }, []);
@@ -23,13 +28,13 @@ export default function Delete() {
         setOpen(ans)
         if(ans) {
             const response = await fetch(
-                import.meta.env.VITE_BASE_URL + '/api/note/notes/modify/delete/:id',
+                import.meta.env.VITE_BASE_URL + `/api/note/notes/modify/delete/${_id}`,
                 {
                     method: 'DELETE',
                     headers: {
                         "content-type": "application/json"
                     },
-                    body: JSON.stringify({ confirm })
+                    body: JSON.stringify({ _id })
                 },
             )
 

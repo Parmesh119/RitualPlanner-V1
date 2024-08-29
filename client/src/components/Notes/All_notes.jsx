@@ -79,14 +79,14 @@ const NotesSection = () => {
                   </p>
                 </div>
                 <div className="flex justify-end space-x-2 mt-4">
-                  <NavLink to={`/notes/modify/update/${note.id}`}>
+                  <NavLink to={`/notes/modify/update/${note._id}`}>
                     <abbr title='Update Note'><button className="text-black hover:text-gray-700">
                       <PencilIcon className="h-6 w-6" />
                     </button></abbr>
                   </NavLink>
-                  <NavLink to={`/notes/modify/delete/${note.id}`}>
+                  <NavLink to={`/notes/modify/delete/${note._id}`}>
                     <abbr title="Delete Note"><button className="text-black hover:text-gray-800">
-                      <TrashIcon className="h-6 w-6" />
+                      <TrashIcon className="h-6 w-6"  />
                     </button></abbr>
                   </NavLink>
                 </div>

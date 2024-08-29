@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { Toaster, toast } from 'react-hot-toast';
+import { Toaster } from 'react-hot-toast';
 
 import Navbar from './components/Navbar/Navbar';
 import HomePage from './components/Hero/HomePage';
@@ -18,19 +18,20 @@ import Update from './components/Notes/Update'
 import All_notes from './components/Notes/All_notes';
 import One_note from './components/Notes/One_note';
 import New_Password from './components/New-Password/New_Password';
+import Dashboard from './components/Dashboard/Dashboard';
 
 import './App.css';
 
 function App() {
 
-  const ProtectedRoute = () => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      return;
-    } else {
-      return <Navigate to={"/login"} />;
-    }
-  }
+  // const ProtectedRoute = () => {
+  //   const token = localStorage.getItem("token");
+  //   if (token) {
+  //     return;
+  //   } else {
+  //     return <Navigate to={"/login"} />;
+  //   }
+  // }
 
   return (
     <Router>
@@ -42,24 +43,20 @@ function App() {
             <Route path='/contact' element={<Contact />} />
             <Route path="/about" element={<About />} />
             <Route path="/profile/:id" element={
-              <ProtectedRoute>
+              
                 <Profile />
-              </ProtectedRoute>
             } />
             <Route path="/tasks" element={
-              <ProtectedRoute>
-                <Task /></ProtectedRoute>}
+              
+                <Task />}
             />
 
             <Route path="/notes/create" element={
-              <ProtectedRoute>
                 <Create_Notes />
-              </ProtectedRoute>
             } />
 
-            <Route path="/notes/all" element={<ProtectedRoute>
+            <Route path="/notes/all" element={
               <All_notes />
-            </ProtectedRoute>
             } />
             <Route path="/notes/modify/delete/:id" element={<Delete />} />
             <Route path="/notes/modify/update/:id" element={<Update />} />
@@ -69,6 +66,7 @@ function App() {
             <Route path="/recover-password/verify-otp" element={<Forgot_Password />} />
             <Route path="/recover-password/new-password" element={<New_Password />} />
             <Route path="/company/terms-conditions" element={<T_C />} />
+            <Route path="/profile/dashboard" element={<Dashboard />} />
           </Routes>
         </main>
         <Footer />

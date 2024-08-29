@@ -38,4 +38,14 @@ router.get("/notes/all", async (req, res) => {
   }
 })
 
+router.get("/notes/:id", async (req, res) => {
+  try {
+    const note = await Notes.findById({_id: req.params.id})
+    res.json(note)
+  } catch(error) {  
+    console.log(error.message)
+    res.status(500).json({error: "Error while fetching product...!"})
+  }
+})
+
 module.exports = router;
