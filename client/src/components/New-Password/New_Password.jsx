@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
-export default function New_Password() {
+export default function New_Password({email}) {
     const [password, setPassword] = useState("")
     const [confirmPassword, setConfirmPassword] = useState("")
 
@@ -29,12 +29,12 @@ export default function New_Password() {
         //     navigate("/signin")
         // }
 
-        const response = await fetch(import.meta.env.VITE_BASE_URL + "/recover-password/new-password", {
+        const response = await fetch(import.meta.env.VITE_BASE_URL + "/api/recover-password/new-password", {
             method: 'PUT',
             headers: {
                 "content-type": "application/json"
               },
-              body: JSON.stringify({password, confirmPassword})
+              body: JSON.stringify({password, confirmPassword, email})
         })
 
         const res = await response.json()
