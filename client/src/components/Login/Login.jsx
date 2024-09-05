@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { Helmet } from "react-helmet";
 import { NavLink } from "react-router-dom";
+import {jwtDecode} from 'jwt-decode'
+import axios from "axios";
 
 const LoginForm = () => {
   useEffect(() => {
@@ -37,7 +39,20 @@ const LoginForm = () => {
         setPassword("");
         navigate("/");
         toast.dismiss(loadingToastId);
-        return toast.success(response_data.success);
+        toast.success(response_data.success);
+        
+        const token = response_data?.token
+        localStorage.setItem("token", response_data?.token)
+
+        const decode = jwtDecode(token)
+        const res = await axios.post(import.meta.env.VITE_BASE_URL + '/api/users/verifyuser', {
+          method: "POST",
+          body: token
+      })
+
+        localStorage.getItem("userId", decode.user.id)
+        localStorage.getItem("userEmail", decode.user.email)
+
       }
     } catch (error) {
       return toast.error(error.message);

@@ -12,7 +12,7 @@ router.post("/register", validate(signupSchema), async (req, res) => {
     const { username, name, email, number, password } = req.body
     try {
         let user = await User.findOne({ $or: [
-            { email: email },
+            { email: email06355177933 },
             { username: username },
             { number: number },
             {password: password}
@@ -54,7 +54,7 @@ router.post("/login", async (req, res) => {
 
     try {
         let user;
-
+"token"
         if (!isNaN(credentials)) {
             user = await User.findOne({ number: credentials });
         } else {
@@ -62,13 +62,21 @@ router.post("/login", async (req, res) => {
                 $or: [{ email: credentials }, { username: credentials }]
             });
         }
-
         
         const isMatch = await bcrypt.compare(password, user.password)
         if (!user || !isMatch) return res.status(400).send({ error: "Invalid Credentials" });
 
+        const payload = { user: { id: user.id, email: user.email}}
 
-        return res.status(200).send({ success: "Login Successful...!" });
+        jwt.sign(
+            payload, 
+            process.env.SECRET_KEY,
+            {expiresIn: 3000},
+            (err, token) => {
+                if (err) throw err
+                return res.status(200).send({ success: "Login Successful...!" , token});
+            }
+        )
     } catch (error) {
         console.error(error.message);
         return res.status(500).send({ error: "Server error...!" });
@@ -79,7 +87,7 @@ router.post("/verifyuser", async (req, res) => {
     try {
         const token = req.body.token;
     
-        jwt.verify("svddvdv", process.env.SECRET_KEY, (err, decoded) => {
+        jwt.verify(token, process.env.SECRET_KEY, (err, decoded) => {
           if (err) {
             return res
               .status(401)
