@@ -3,11 +3,13 @@ import { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
-export default function New_Password({email}) {
+export default function New_Password() {
     const [password, setPassword] = useState("")
     const [confirmPassword, setConfirmPassword] = useState("")
 
     const navigate = useNavigate()
+
+    const ID = localStorage.getItem('userId')
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -15,26 +17,13 @@ export default function New_Password({email}) {
 
     const updatePassword = async (e) => {
         e.preventDefault()
-        
-        // if (password != confirmPassword) {
-        //     toast.error("New password and Confirm Password are not similar!")
-        //     setPassword("")
-        //     setConfirmPassword("")
-        // } else if (password.length < 8) {
-        //     toast.error("Password length must be grester than or equal to 8!")
-        //     setPassword("")
-        //     setConfirmPassword("")
-        // } else {
-        //     toast.success("Password Updated Successfully!")
-        //     navigate("/signin")
-        // }
 
         const response = await fetch(import.meta.env.VITE_BASE_URL + "/api/recover-password/new-password", {
             method: 'PUT',
             headers: {
                 "content-type": "application/json"
               },
-              body: JSON.stringify({password, confirmPassword, email})
+              body: JSON.stringify({password, confirmPassword, ID})
         })
 
         const res = await response.json()
@@ -67,6 +56,7 @@ export default function New_Password({email}) {
                 <title>
                     Recover Password
                 </title>
+                <link rel="icon" type="image/svg+xml" href="../../assets/logo-color.png" />
             </Helmet>
             <section>
                 <div className="flex items-center justify-center h-screen px-4 py-10 sm:px-6 sm:py-16 lg:px-8 lg:py-24">

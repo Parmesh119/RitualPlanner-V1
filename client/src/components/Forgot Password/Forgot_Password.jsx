@@ -81,7 +81,7 @@ export default function Forgot_Password() {
   const handleVerifyOTP = (e) => {
     e.preventDefault();
     if (otp === new_otp) {
-      navigate("/recover-password/new-password", {email: email});
+      navigate("/recover-password/new-password");
 
       toast.success("OTP Verified!");
     } else {

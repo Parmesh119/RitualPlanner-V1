@@ -1,20 +1,28 @@
-import { useState, Fragment } from 'react';
-import { NavLink } from 'react-router-dom';
+import { Fragment, useState } from 'react';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { Dialog, DialogPanel, Menu, Transition } from '@headlessui/react';
 import { Bars3Icon, XMarkIcon, ChevronDownIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
+import { useAuth } from '../../AuthContext';
 
 const navigation = [
   { name: 'Task Management', href: '/tasks' },
   { name: 'Notes', href: '/notes', dropdown: true },
   { name: 'About Us', href: '/about' },
-  { name: 'Contact Us', href: '/contact' }
+  { name: 'Contact Us', href: '/contact' },
 ];
 
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { isLoggedIn, logout } = useAuth();
+  const navigate = useNavigate();
 
   const handleLinkClick = () => {
     setMobileMenuOpen(false);
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/'); // Redirect to home or any preferred route
   };
 
   return (
@@ -120,25 +128,86 @@ const Navbar = () => {
           )}
         </div>
         <div className="hidden lg:flex lg:flex-1 lg:justify-end">
-          <NavLink to="/login">
-            <button className="text-sm font-semibold leading-6 text-gray-900 inline-flex items-center">
-              Log in / SignUp <ArrowRightIcon className="ml-1 h-5 w-5 text-gray-400" />
-            </button>
-          </NavLink>
+          {isLoggedIn ? (
+            <Menu as="div" className="relative inline-block text-left">
+              <div>
+                <Menu.Button className="text-sm font-semibold leading-6 text-gray-900 inline-flex items-center">
+                  Account <ChevronDownIcon className="-mr-1 h-5 w-5 text-gray-400" aria-hidden="true" />
+                </Menu.Button>
+              </div>
+              <Transition
+                as={Fragment}
+                enter="transition ease-out duration-100"
+                enterFrom="transform opacity-0 scale-95"
+                enterTo="transform opacity-100 scale-100"
+                leave="transition ease-in duration-75"
+                leaveFrom="transform opacity-100 scale-100"
+                leaveTo="transform opacity-0 scale-95"
+              >
+                <Menu.Items className="absolute right-0 z-20 mt-2 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                  <div className="py-1">
+                    <Menu.Item>
+                      {({ active }) => (
+                        <NavLink
+                          to="/profile/:id"
+                          className={`${
+                            active ? 'bg-gray-100 text-gray-900' : 'text-gray-700'
+                          } block px-4 py-2 text-sm`}
+                          onClick={handleLinkClick}
+                        >
+                          Profile
+                        </NavLink>
+                      )}
+                    </Menu.Item>
+                    <Menu.Item>
+                      {({ active }) => (
+                        <button
+                          onClick={handleLogout}
+                          className={`${
+                            active ? 'bg-gray-100 text-gray-900' : 'text-gray-700'
+                          } block w-full text-left px-4 py-2 text-sm`}
+                        >
+                          Logout
+                        </button>
+                      )}
+                    </Menu.Item>
+                  </div>
+                </Menu.Items>
+              </Transition>
+            </Menu>
+          ) : (
+            <NavLink to="/login">
+              <button className="text-sm font-semibold leading-6 text-gray-900 inline-flex items-center">
+                Log in / SignUp <ArrowRightIcon className="ml-1 h-5 w-5 text-gray-400" aria-hidden="true" />
+              </button>
+            </NavLink>
+          )}
         </div>
       </nav>
-      <Dialog open={mobileMenuOpen} onClose={handleLinkClick} className="lg:hidden">
-        <div className="fixed inset-0 z-50" />
-        <DialogPanel className="fixed inset-y-0 right-0 z-50 w-full sm:max-w-sm overflow-y-auto bg-white px-6 py-6 sm:ring-1 sm:ring-gray-900/10">
+
+      <Dialog as="div" open={mobileMenuOpen} onClose={setMobileMenuOpen}>
+        <DialogPanel focus="true" className="fixed inset-0 z-50 overflow-y-auto bg-white px-6 py-6 lg:hidden">
           <div className="flex items-center justify-between">
-            <NavLink to="/" className="-m-1.5 p-1.5" onClick={handleLinkClick}>
-              <span className="sr-only">RitualPlanner</span>
-              <img
-                alt="RitualPlanner"
-                src="https://i.ibb.co/wS8fFBn/logo-color.png"
-                className="h-8 w-auto"
-              />
-            </NavLink>
+            <span className="p-2 flex lg:flex-1">
+              <NavLink to="/" className="-m-1.5 p-1.5 flex">
+                <span className="sr-only">RitualPlanner</span>
+                <img alt="RitualPlanner" src="https://i.ibb.co/wS8fFBn/logo-color.png" className="h-8 w-auto" />
+                <span
+                  style={{
+                    padding: '4px',
+                    fontFamily: 'ui-sans-serif, system-ui, sans-serif',
+                    fontStyle: 'normal',
+                    fontWeight: '600',
+                    color: 'rgb(17, 24, 39)',
+                    lineHeight: '24px',
+                    fontSize: '20px',
+                    letterSpacing: '1.5px',
+                  }}
+                >
+                  RitualPlanner
+                </span>
+              </NavLink>
+            </span>
             <button
               type="button"
               onClick={() => setMobileMenuOpen(false)}
@@ -154,15 +223,10 @@ const Navbar = () => {
                 {navigation.map((item) =>
                   item.dropdown ? (
                     <Menu as="div" className="relative inline-block text-left" key={item.name}>
-                      <div style={{
-                        paddingLeft: "0.8rem"
-                      }}>
+                      <div>
                         <Menu.Button className="text-sm font-semibold leading-6 text-gray-900 inline-flex items-center">
                           {item.name}
-                          <ChevronDownIcon
-                            className="-mr-1 h-5 w-5 text-gray-400"
-                            aria-hidden="true"
-                          />
+                          <ChevronDownIcon className="-mr-1 h-5 w-5 text-gray-400" aria-hidden="true" />
                         </Menu.Button>
                       </div>
                       <Transition
@@ -174,7 +238,7 @@ const Navbar = () => {
                         leaveFrom="transform opacity-100 scale-100"
                         leaveTo="transform opacity-0 scale-95"
                       >
-                        <Menu.Items className="z-20 mt-2 w-full origin-top rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                        <Menu.Items className="absolute right-0 z-20 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                           <div className="py-1">
                             <Menu.Item>
                               {({ active }) => (
@@ -210,7 +274,7 @@ const Navbar = () => {
                     <NavLink
                       key={item.name}
                       to={item.href}
-                      className="block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900"
+                      className="-m-2.5 block p-2.5 text-base font-semibold leading-6 text-gray-900"
                       onClick={handleLinkClick}
                     >
                       {item.name}
@@ -219,11 +283,29 @@ const Navbar = () => {
                 )}
               </div>
               <div className="py-6">
-                <NavLink to="/login" onClick={handleLinkClick}>
-                  <button className="text-sm font-semibold leading-6 text-gray-900 inline-flex items-center">
-                    Log in / SignUp <ArrowRightIcon className="ml-1 h-5 w-5 text-gray-400" />
-                  </button>
-                </NavLink>
+                {isLoggedIn ? (
+                  <>
+                  <NavLink
+                      to="/profile/:id"
+                      className="text-sm font-semibold leading-6 text-gray-900 inline-flex items-center"
+                      onClick={handleLinkClick}
+                    >
+                      Profile
+                    </NavLink>
+                    <button
+                      onClick={handleLogout}
+                      className="text-sm font-semibold leading-6 text-gray-900 inline-flex items-center"
+                    >
+                      Logout <ArrowRightIcon className="ml-1 h-5 w-5 text-gray-400" aria-hidden="true" />
+                    </button>
+                  </>
+                ) : (
+                  <NavLink to="/login">
+                    <button className="text-sm font-semibold leading-6 text-gray-900 inline-flex items-center">
+                      Log in / SignUp <ArrowRightIcon className="ml-1 h-5 w-5 text-gray-400" aria-hidden="true" />
+                    </button>
+                  </NavLink>
+                )}
               </div>
             </div>
           </div>

@@ -12,7 +12,7 @@ router.post("/register", validate(signupSchema), async (req, res) => {
     const { username, name, email, number, password } = req.body
     try {
         let user = await User.findOne({ $or: [
-            { email: email06355177933 },
+            { email: email },
             { username: username },
             { number: number },
             {password: password}

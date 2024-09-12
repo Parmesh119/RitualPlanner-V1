@@ -19,45 +19,57 @@ const LoginForm = () => {
     if (!credentials || !password) {
       return toast.error("Provide all details...!");
     }
+  
     try {
       const response = await fetch(import.meta.env.VITE_BASE_URL + '/api/users/login', {
         method: "POST",
         headers: {
-          "content-type": "application/json"
+          "content-type": "application/json",
         },
-        body: JSON.stringify({ credentials, password })
+        body: JSON.stringify({ credentials, password }),
       });
-
+  
       const response_data = await response.json();
-      console.log(response_data);
-
+  
       if (response_data.error) {
         return toast.error(response_data.error);
       } else {
-        const loadingToastId = toast.loading('Checking Credentials...');
         setCredentials("");
         setPassword("");
-        navigate("/");
-        toast.dismiss(loadingToastId);
         toast.success(response_data.success);
-        
-        const token = response_data?.token
-        localStorage.setItem("token", response_data?.token)
-
-        const decode = jwtDecode(token)
-        const res = await axios.post(import.meta.env.VITE_BASE_URL + '/api/users/verifyuser', {
-          method: "POST",
-          body: token
-      })
-
-        localStorage.getItem("userId", decode.user.id)
-        localStorage.getItem("userEmail", decode.user.email)
-
+  
+        const token = response_data?.token;
+        localStorage.setItem("token", token);
+  
+        // Decoding the token
+        const decode = jwtDecode(token);
+  
+        // Verifying the token with the backend
+        try {
+          const res = await axios.post(
+            import.meta.env.VITE_BASE_URL + "/api/users/verifyuser",
+            { token }
+          );
+  
+          if (res.data.isValid) {
+            // Setting user details in localStorage
+            localStorage.setItem("userId", decode.user.id);
+            localStorage.setItem("userEmail", decode.user.email);
+  
+            // Navigating to the home page after successful verification
+            navigate("/");
+          } else {
+            toast.error("Token verification failed!");
+          }
+        } catch (verifyError) {
+          toast.error(verifyError.response?.data?.error || "Verification failed.");
+        }
       }
     } catch (error) {
-      return toast.error(error.message);
+      toast.error(error.message);
     }
   };
+  
 
   function myFunction() {
     var x = document.getElementById("password");

@@ -24,14 +24,14 @@ import './App.css';
 
 function App() {
 
-  // const ProtectedRoute = () => {
-  //   const token = localStorage.getItem("token");
-  //   if (token) {
-  //     return;
-  //   } else {
-  //     return <Navigate to={"/login"} />;
-  //   }
-  // }
+  const ProtectedRoute = ({children}) => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      return children; 
+    } else {
+      return <Navigate to={"/login"} />;
+    }
+  }
 
   return (
     <Router>
@@ -43,20 +43,28 @@ function App() {
             <Route path='/contact' element={<Contact />} />
             <Route path="/about" element={<About />} />
             <Route path="/profile/:id" element={
-              
+              <ProtectedRoute>
                 <Profile />
+                </ProtectedRoute>
             } />
             <Route path="/tasks" element={
-              
-                <Task />}
+              <ProtectedRoute >
+                <Task />
+                </ProtectedRoute>
+                }
+                
             />
 
             <Route path="/notes/create" element={
+              <ProtectedRoute>
                 <Create_Notes />
+                </ProtectedRoute>
             } />
 
             <Route path="/notes/all" element={
+              <ProtectedRoute >
               <All_notes />
+              </ProtectedRoute>
             } />
             <Route path="/notes/modify/delete/:id" element={<Delete />} />
             <Route path="/notes/modify/update/:id" element={<Update />} />
@@ -66,7 +74,10 @@ function App() {
             <Route path="/recover-password/verify-otp" element={<Forgot_Password />} />
             <Route path="/recover-password/new-password" element={<New_Password />} />
             <Route path="/company/terms-conditions" element={<T_C />} />
-            <Route path="/profile/dashboard" element={<Dashboard />} />
+            <Route path="/profile/dashboard" element={
+              <ProtectedRoute>
+              <Dashboard />
+              </ProtectedRoute>} />
           </Routes>
         </main>
         <Footer />
