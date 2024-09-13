@@ -1,82 +1,107 @@
-// TaskManagement.jsx
 import React, { useState } from 'react';
 
-const TaskManagement = () => {
-  // Sample data - replace with your state management or backend data
-  const [tasks, setTasks] = useState([
-    { id: 1, title: 'Prepare Ritual Materials', status: 'Pending', dueDate: '2024-09-15' },
-    { id: 2, title: 'Meet with Clients', status: 'Completed', dueDate: '2024-09-12' },
-    { id: 3, title: 'Prepare Monthly Schedule', status: 'In Progress', dueDate: '2024-09-20' },
-  ]);
+const TasksDashboard = () => {
+  const [tasks, setTasks] = useState([]);
+  const [newTask, setNewTask] = useState('');
 
-  // Handler functions
-  const handleEdit = (id) => {
-    // Edit task logic here
-    alert(`Edit task with ID: ${id}`);
+  const handleInputChange = (e) => {
+    setNewTask(e.target.value);
   };
 
-  const handleDelete = (id) => {
-    // Delete task logic here
-    setTasks(tasks.filter((task) => task.id !== id));
+  const handleAddTask = () => {
+    if (newTask.trim() !== '') {
+      setTasks([...tasks, { id: Date.now(), name: newTask, completed: false }]);
+      setNewTask('');
+    }
   };
+
+  const handleTaskCompletion = (id) => {
+    setTasks(
+      tasks.map((task) =>
+        task.id === id ? { ...task, completed: !task.completed } : task
+      )
+    );
+  };
+
+  const completedTasks = tasks.filter((task) => task.completed).length;
+  const incompleteTasks = tasks.length - completedTasks;
 
   return (
-    <div className="p-6 bg-white rounded-lg shadow-md">
-      <header className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold text-gray-800">Task Management</h2>
-        <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-          Add New Task
-        </button>
-      </header>
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white border rounded-lg">
-          <thead className="bg-gray-100 text-gray-600">
-            <tr>
-              <th className="py-2 px-4 text-left">Task Title</th>
-              <th className="py-2 px-4 text-left">Status</th>
-              <th className="py-2 px-4 text-left">Due Date</th>
-              <th className="py-2 px-4 text-left">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {tasks.map((task) => (
-              <tr key={task.id} className="border-b">
-                <td className="py-2 px-4">{task.title}</td>
-                <td className="py-2 px-4">
-                  <span
-                    className={`px-2 py-1 rounded ${
-                      task.status === 'Completed'
-                        ? 'bg-green-100 text-green-600'
-                        : task.status === 'In Progress'
-                        ? 'bg-yellow-100 text-yellow-600'
-                        : 'bg-red-100 text-red-600'
-                    }`}
-                  >
-                    {task.status}
-                  </span>
-                </td>
-                <td className="py-2 px-4">{task.dueDate}</td>
-                <td className="py-2 px-4 flex space-x-2">
-                  <button
-                    onClick={() => handleEdit(task.id)}
-                    className="text-blue-500 hover:underline"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(task.id)}
-                    className="text-red-500 hover:underline"
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+    <div className="p-6 py-16">
+      <h1 className="text-2xl font-bold mb-4">Tasks Dashboard</h1>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="bg-white p-4 rounded-md shadow-md">
+          <h2 className="text-lg font-bold mb-2">Total Tasks</h2>
+          <p className="text-4xl font-bold">{tasks.length}</p>
+        </div>
+
+        <div className="bg-white p-4 rounded-md shadow-md">
+          <h2 className="text-lg font-bold mb-2">Completed Tasks</h2>
+          <p className="text-4xl font-bold">{completedTasks}</p>
+        </div>
+
+        <div className="bg-white p-4 rounded-md shadow-md">
+          <h2 className="text-lg font-bold mb-2">Incomplete Tasks</h2>
+          <p className="text-4xl font-bold">{incompleteTasks}</p>
+        </div>
+      </div>
+
+      <div className="mt-8">
+        
+        <div className="flex space-x-6">
+          <input
+            type="text"
+            placeholder="Search Tasks"
+            value={newTask}
+            onChange={handleInputChange}
+            autoFocus
+            className=" flex-1 px-4 py-2 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          
+          <button
+            onClick={handleAddTask}
+            className="flex text-black  font-bold py-2 px-14 rounded-md hover:bg-black hover:text-white"
+            style={{
+              letterSpacing: "1px"
+            }}
+          >
+            <h1>+&nbsp;&nbsp;</h1> Add Task
+          </button>
+        </div>
+      </div>
+
+      <div className="mt-8">
+        <h2 className="text-lg font-bold mb-2">Task List</h2>
+        <ul className="space-y-2">
+          {tasks.map((task) => (
+            <li
+              key={task.id}
+              className={`flex items-center px-4 py-2 rounded-md shadow-md ${
+                task.completed
+                  ? 'bg-green-100 hover:bg-green-200'
+                  : 'bg-white hover:bg-gray-100'
+              }`}
+            >
+              <input
+                type="checkbox"
+                checked={task.completed}
+                onChange={() => handleTaskCompletion(task.id)}
+                className="mr-4"
+              />
+              <span
+                className={`flex-1 ${
+                  task.completed ? 'line-through text-gray-500' : ''
+                }`}
+              >
+                {task.name}
+              </span>
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   );
 };
 
-export default TaskManagement;
+export default TasksDashboard;

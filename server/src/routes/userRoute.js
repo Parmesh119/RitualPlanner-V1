@@ -78,7 +78,6 @@ router.post("/login", async (req, res) => {
             }
         )
     } catch (error) {
-        console.error(error.message);
         return res.status(500).send({ error: "Server error...!" });
     }
 });
@@ -97,7 +96,7 @@ router.post("/verifyuser", async (req, res) => {
           res.json({ isValid: true, decoded });
         });
       } catch (error) {
-        console.log(error);
+        return res.status(500).send({error: "Server error...!"});
       }
 })
 
