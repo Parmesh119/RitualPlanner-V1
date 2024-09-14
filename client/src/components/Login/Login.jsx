@@ -1,102 +1,190 @@
-import React, { useState } from 'react';
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+import { Helmet } from "react-helmet";
+import { NavLink } from "react-router-dom";
+import {jwtDecode} from 'jwt-decode'
+import axios from "axios";
 
-const TasksDashboard = () => {
-  const [tasks, setTasks] = useState([]);
-  const [newTask, setNewTask] = useState('');
+const LoginForm = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+}, []);
+  const [credentials, setCredentials] = useState("");
+  const [password, setPassword] = useState("");
 
-  const handleInputChange = (e) => {
-    setNewTask(e.target.value);
-  };
+  const navigate = useNavigate();
 
-  const handleAddTask = () => {
-    if (newTask.trim() !== '') {
-      setTasks([...tasks, { id: Date.now(), name: newTask, completed: false }]);
-      setNewTask('');
+  const handleSubmit = async () => {
+    if (!credentials || !password) {
+      return toast.error("Provide all details...!");
+    }
+  
+    try {
+      const response = await fetch(import.meta.env.VITE_BASE_URL + '/api/users/login', {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({ credentials, password }),
+      });
+  
+      const response_data = await response.json();
+  
+      if (response_data.error) {
+        return toast.error(response_data.error);
+      } else {
+        setCredentials("");
+        setPassword("");
+        toast.success(response_data.success);
+  
+        const token = response_data?.token;
+        localStorage.setItem("token", token);
+  
+        // Decoding the token
+        const decode = jwtDecode(token);
+  
+        // Verifying the token with the backend
+        try {
+          const res = await axios.post(
+            import.meta.env.VITE_BASE_URL + "/api/users/verifyuser",
+            { token }
+          );
+  
+          if (res.data.isValid) {
+            // Setting user details in localStorage
+            localStorage.setItem("userId", decode.user.id);
+            localStorage.setItem("userEmail", decode.user.email);
+  
+            // Navigating to the home page after successful verification
+            navigate("/");
+          } else {
+            toast.error("Token verification failed!");
+          }
+        } catch (verifyError) {
+          toast.error(verifyError.response?.data?.error || "Verification failed.");
+        }
+      }
+    } catch (error) {
+      toast.error(error.message);
     }
   };
+  
 
-  const handleTaskCompletion = (id) => {
-    setTasks(
-      tasks.map((task) =>
-        task.id === id ? { ...task, completed: !task.completed } : task
-      )
-    );
-  };
-
-  const completedTasks = tasks.filter((task) => task.completed).length;
-  const incompleteTasks = tasks.length - completedTasks;
+  function myFunction() {
+    var x = document.getElementById("password");
+    if (x.type === "password") {
+      x.type = "text";
+    } else {
+      x.type = "password";
+    }
+  }
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Tasks Dashboard</h1>
+    <div className="min-h-screen flex items-center justify-center">
+      <Helmet>
+        <title>Login to Your Account - RitualPlanner</title>
+      </Helmet>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div className="bg-white p-4 rounded-md shadow-md">
-          <h2 className="text-lg font-bold mb-2">Total Tasks</h2>
-          <p className="text-4xl font-bold">{tasks.length}</p>
-        </div>
+      <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+        <img
+          alt="RitualPlanner"
+          src="https://i.ibb.co/wS8fFBn/logo-color.png"
+          className="h-12 w-auto m-auto mb-2"
+        />
+        <h2 className="text-3xl font-semibold text-center text-gray-800 mb-2">
+          Login
+        </h2>
+        <p className="text-center text-gray-500 mb-6">
+          Enter your email, username, or number and password to sign in
+        </p>
 
-        <div className="bg-white p-4 rounded-md shadow-md">
-          <h2 className="text-lg font-bold mb-2">Completed Tasks</h2>
-          <p className="text-4xl font-bold">{completedTasks}</p>
-        </div>
-
-        <div className="bg-white p-4 rounded-md shadow-md">
-          <h2 className="text-lg font-bold mb-2">Incomplete Tasks</h2>
-          <p className="text-4xl font-bold">{incompleteTasks}</p>
-        </div>
-      </div>
-
-      <div className="mt-8">
-        <h2 className="text-lg font-bold mb-2">Add a New Task</h2>
-        <div className="flex">
+        <div className="mb-4">
+          <label
+            htmlFor="credentials"
+            className="block text-sm font-semibold text-gray-700 mb-1 text-left"
+          >
+            Enter Email / Username / Number
+          </label>
           <input
             type="text"
-            placeholder="Add a new task"
-            value={newTask}
-            onChange={handleInputChange}
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            id="credentials"
+            value={credentials}
+            onChange={(e) => setCredentials(e.target.value)}
+            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Enter your email / username / number"
+            autoFocus
+            required
           />
-          <button
-            onClick={handleAddTask}
-            className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-r-md"
-          >
-            Add
-          </button>
         </div>
-      </div>
 
-      <div className="mt-8">
-        <h2 className="text-lg font-bold mb-2">Task List</h2>
-        <ul className="space-y-2">
-          {tasks.map((task) => (
-            <li
-              key={task.id}
-              className={`flex items-center px-4 py-2 rounded-md shadow-md ${
-                task.completed
-                  ? 'bg-green-100 hover:bg-green-200'
-                  : 'bg-white hover:bg-gray-100'
-              }`}
+        <div className="mb-4">
+          <label
+            htmlFor="password"
+            className="block text-sm font-semibold text-gray-700 mb-1 text-left"
+          >
+            Password
+          </label>
+          <div className="relative">
+            <input
+              type="password"
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="********"
+              required
+            />
+          </div>
+          <label><div className="text-left">
+            <input type="checkbox" onClick={myFunction} className="mt-4 mx-1 p-2" />
+            Show Password
+          </div></label>
+        </div>
+
+        <button
+          type="submit"
+          onClick={handleSubmit}
+          className="w-full py-2 px-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
+        >
+          Login
+        </button>
+
+        <div className="flex justify-between items-center mb-4">
+          <NavLink
+            to="/recover-password/verify-otp"
+            className="text-sm text-blue-800 font-bold hover:underline"
+          >
+            Forgot password?
+          </NavLink>
+        </div>
+
+        <button
+          type="button"
+          className="w-full py-2 px-4 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-500 flex justify-center items-center mb-4"
+        >
+          <img
+            src="https://logowik.com/content/uploads/images/985_google_g_icon.jpg"
+            alt="Google Logo"
+            className="w-45 h-8 mr-2"
+          />
+          Login With Google
+        </button>
+
+        <div className="text-center">
+          <p className="text-sm text-gray-500">
+            Don’t have an account?{" "}
+            <NavLink
+              to="/register"
+              className="text-blue-800 font-semibold hover:underline"
             >
-              <input
-                type="checkbox"
-                checked={task.completed}
-                onChange={() => handleTaskCompletion(task.id)}
-                className="mr-4"
-              />
-              <span
-                className={`flex-1 ${
-                  task.completed ? 'line-through text-gray-500' : ''
-                }`}
-              >
-                {task.name}
-              </span>
-            </li>
-          ))}
-        </ul>
+              Create account
+            </NavLink>
+          </p>
+        </div>
       </div>
     </div>
   );
 };
 
-export default TasksDashboard;
+export default LoginForm;
