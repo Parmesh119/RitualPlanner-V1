@@ -21,6 +21,8 @@ import New_Password from './components/New-Password/New_Password';
 import Dashboard from './components/Dashboard/Dashboard';
 
 import './App.css';
+import Notification from './components/Notification/Notification';
+import AddTask from './components/Task/AddTask';
 
 function App() {
 
@@ -61,6 +63,14 @@ function App() {
                 </ProtectedRoute>
             } />
 
+            <Route path="/notifications" element={
+              <ProtectedRoute>
+                <Notification />
+              </ProtectedRoute>
+            } />
+
+            <Route path="/tasks/add" element={<AddTask />} />
+
             <Route path="/notes/all" element={
               <ProtectedRoute >
               <All_notes />
@@ -74,7 +84,7 @@ function App() {
             <Route path="/recover-password/verify-otp" element={<Forgot_Password />} />
             <Route path="/recover-password/new-password" element={<New_Password />} />
             <Route path="/company/terms-conditions" element={<T_C />} />
-            <Route path="/profile/dashboard" element={
+            <Route path="/profile/:id/dashboard" element={
               <ProtectedRoute>
               <Dashboard />
               </ProtectedRoute>} />

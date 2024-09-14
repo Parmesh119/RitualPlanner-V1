@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { Helmet } from 'react-helmet';
+import { NavLink } from 'react-router-dom';
 
 const TasksDashboard = () => {
   const [tasks, setTasks] = useState([]);
@@ -28,6 +30,11 @@ const TasksDashboard = () => {
 
   return (
     <div className="p-6 py-16">
+      <Helmet>
+        <title>
+          Task Management | RitualPlanner
+        </title>
+      </Helmet>
       <h1 className="text-2xl font-bold mb-4">Tasks Dashboard</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -66,7 +73,7 @@ const TasksDashboard = () => {
               letterSpacing: "1px"
             }}
           >
-            <h1>+&nbsp;&nbsp;</h1> Add Task
+            <NavLink to="/tasks/add" className="flex"><h1>+&nbsp;&nbsp;</h1> Add Task</NavLink>
           </button>
         </div>
       </div>

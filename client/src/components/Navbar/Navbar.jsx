@@ -1,7 +1,7 @@
 import { Fragment, useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { Dialog, DialogPanel, Menu, Transition } from '@headlessui/react';
-import { Bars3Icon, XMarkIcon, ChevronDownIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
+import { Bars3Icon, XMarkIcon, ChevronDownIcon, ArrowRightIcon, BellIcon } from '@heroicons/react/24/outline';
 import { useAuth } from '../../AuthContext';
 
 const navigation = [
@@ -24,6 +24,8 @@ const Navbar = () => {
     logout();
     navigate('/'); // Redirect to home or any preferred route
   };
+
+  const id = localStorage.getItem('userId')
 
   return (
     <header className="absolute inset-x-0 top-0 z-50">
@@ -130,7 +132,8 @@ const Navbar = () => {
         <div className="hidden lg:flex lg:flex-1 lg:justify-end">
           {isLoggedIn ? (
             <Menu as="div" className="relative inline-block text-left">
-              <div>
+              <div className='flex gap-4'>
+                <NavLink to="/notifications"><abbr title="Notifications"><BellIcon  className="cursor-pointer h-8 w-8 font-bold text-black border border-gray-700 rounded-full p-1"></BellIcon></abbr></NavLink>
                 <Menu.Button className="text-sm font-semibold leading-6 text-gray-900 inline-flex items-center">
                   Account <ChevronDownIcon className="-mr-1 h-5 w-5 text-gray-400" aria-hidden="true" />
                 </Menu.Button>
@@ -146,10 +149,22 @@ const Navbar = () => {
               >
                 <Menu.Items className="absolute right-0 z-20 mt-2 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                   <div className="py-1">
-                    <Menu.Item>
+                  <Menu.Item className="font-bold">
                       {({ active }) => (
                         <NavLink
-                          to="/profile/:id"
+                          to={`/profile/${id}/dashboard`}
+                          className={`${
+                            active ? 'bg-gray-100 text-gray-900' : 'text-gray-700'
+                          } block w-full text-left px-4 py-2 text-sm`}
+                        >
+                          Dashboard
+                        </NavLink>
+                      )}
+                    </Menu.Item>
+                    <Menu.Item className="font-bold">
+                      {({ active }) => (
+                        <NavLink
+                          to={`/profile/${id}`}
                           className={`${
                             active ? 'bg-gray-100 text-gray-900' : 'text-gray-700'
                           } block px-4 py-2 text-sm`}
@@ -159,7 +174,19 @@ const Navbar = () => {
                         </NavLink>
                       )}
                     </Menu.Item>
-                    <Menu.Item>
+                    <Menu.Item className="font-bold">
+                      {({ active }) => (
+                        <NavLink
+                          to="/setting"
+                          className={`${
+                            active ? 'bg-gray-100 text-gray-900' : 'text-gray-700'
+                          } block w-full text-left px-4 py-2 text-sm`}
+                        >
+                          Setting
+                        </NavLink>
+                      )}
+                    </Menu.Item>
+                    <Menu.Item className="font-bold">
                       {({ active }) => (
                         <button
                           onClick={handleLogout}
