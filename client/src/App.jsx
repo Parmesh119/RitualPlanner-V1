@@ -23,6 +23,7 @@ import Dashboard from './components/Dashboard/Dashboard';
 import './App.css';
 import Notification from './components/Notification/Notification';
 import AddTask from './components/Task/AddTask';
+import SettingsPage from './components/Setting/Setting';
 
 function App() {
 
@@ -88,6 +89,7 @@ function App() {
               <ProtectedRoute>
               <Dashboard />
               </ProtectedRoute>} />
+              <Route path="/profile/:id/setting" element={<SettingsPage />} />
           </Routes>
         </main>
         <Footer />

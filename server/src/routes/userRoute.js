@@ -92,7 +92,6 @@ router.post("/verifyuser", async (req, res) => {
               .status(401)
               .json({ isValid: false, error: "Invalid token" });
           }
-          console.log(decoded)
           res.json({ isValid: true, decoded });
         });
       } catch (error) {

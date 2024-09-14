@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { FaTwitter, FaLinkedin, FaInstagram } from 'react-icons/fa';
 import { AiOutlineSetting } from 'react-icons/ai';
+import { Helmet } from 'react-helmet';
 
 const ProfilePageAdvanced = () => {
   const [user, setUser] = useState({
@@ -30,6 +31,11 @@ const ProfilePageAdvanced = () => {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-12">
+      <Helmet>
+        <title>
+          {user.name + " | RitualPlanner"}
+        </title>
+      </Helmet>
       {/* Profile Banner Section */}
       <div className="relative bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 rounded-lg mb-8 h-48 md:h-60">
         <div className="absolute bottom-0 left-0 flex items-center space-x-6 p-6">

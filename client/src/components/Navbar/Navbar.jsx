@@ -5,6 +5,7 @@ import { Bars3Icon, XMarkIcon, ChevronDownIcon, ArrowRightIcon, BellIcon } from 
 import { useAuth } from '../../AuthContext';
 
 const navigation = [
+  { name: 'Home', href: "/" },
   { name: 'Task Management', href: '/tasks' },
   { name: 'Notes', href: '/notes', dropdown: true },
   { name: 'About Us', href: '/about' },
@@ -28,11 +29,13 @@ const Navbar = () => {
   const id = localStorage.getItem('userId')
 
   return (
-    <header className="absolute inset-x-0 top-0 z-50">
+    <header className="absolute inset-x-0 top-0 z-50" style={{
+      position: "fixed"
+    }}>
       <nav aria-label="Global" className="flex items-center justify-between p-6 lg:px-8">
         <div className="flex lg:flex-1">
           <span className="p-2 flex lg:flex-1">
-            <NavLink to="/" className="-m-1.5 p-1.5 flex" onClick={handleLinkClick}>
+            <span className="-m-1.5 p-1.5 flex" onClick={handleLinkClick}>
               <span className="sr-only">RitualPlanner</span>
               <img
                 alt="RitualPlanner"
@@ -53,7 +56,7 @@ const Navbar = () => {
               >
                 RitualPlanner
               </span>
-            </NavLink>
+            </span>
           </span>
         </div>
         <div className="flex lg:hidden">
@@ -177,7 +180,7 @@ const Navbar = () => {
                     <Menu.Item className="font-bold">
                       {({ active }) => (
                         <NavLink
-                          to="/setting"
+                          to={`/profile/${id}/setting`}
                           className={`${
                             active ? 'bg-gray-100 text-gray-900' : 'text-gray-700'
                           } block w-full text-left px-4 py-2 text-sm`}
