@@ -1,7 +1,7 @@
 const express = require('express');
-const Notes = require('../models/note');
-const validate = require('../middleware/validate-note');
-const noteSchema = require('../validation/notes');
+const Notes = require('../../models/note');
+const validate = require('../../middleware/validate-note');
+const noteSchema = require('../../validation/notes');
 const router = express.Router();
 
 router.post("/notes/create", validate(noteSchema), async (req, res) => {

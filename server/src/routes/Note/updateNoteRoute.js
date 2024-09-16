@@ -1,9 +1,9 @@
 const express = require('express')
 const router = express.Router()
 
-const Notes = require('../models/note')
-const validate = require('../middleware/validate-note');
-const noteSchema = require('../validation/notes');
+const Notes = require('../../models/note')
+const validate = require('../../middleware/validate-note');
+const noteSchema = require('../../validation/notes');
 
 router.put("/notes/modify/update/:id", validate(noteSchema) , async (req, res) => {
     const { id } = req.params; 

@@ -1,85 +1,92 @@
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
+import Helmet from 'react-helmet'
+import { NavLink, useNavigate } from 'react-router-dom';
 
-const TaskAddForm = ({ loggedInUser }) => {
+const TaskAddForm = () => {
   // State for form fields
   const [taskName, setTaskName] = useState('');
   const [description, setDescription] = useState('');
   const [date, setDate] = useState('');
   const [amount, setAmount] = useState('');
   const [location, setLocation] = useState('');
-  const [assignee, setAssignee] = useState(loggedInUser); // Initially assign the logged-in user
+  const [assignee, setAssignee] = useState(''); // Initially empty
+  const [assignUser, setAssignUser] = useState(''); // Store logged-in user
   const [isOwnTask, setIsOwnTask] = useState(true); // Toggle for own task or someone else
 
-  const Email = localStorage.getItem('userEmail')
-    let assign_user = ""
+  const Email = localStorage.getItem('userEmail');
+
+  const navigate = useNavigate()
 
   useEffect(() => {
-    const handleAssigneeOwn = async () => {
+    const fetchLoggedInUser = async () => {
       try {
-        const response = await fetch(import.meta.env.VITE_BASE_URL + '/api/users/getLoggedInUser', {
-          method: "POST",
-        headers: {
-          "content-type": "application/json",
-        },
-        body: JSON.stringify({ Email })
-        })
+        const response = await fetch(import.meta.env.VITE_BASE_URL + '/api/users/tasks/getLoggedInUser', {
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json',
+          },
+          body: JSON.stringify({ Email }),
+        });
 
-        const response_data = await response.json();
+        const responseData = await response.json();
 
-        if(!response_data) {
-          toast.error(response_data.error)
+        if (!responseData.success) {
+          toast.error(responseData.error);
         } else {
-          assign_user = response_data
+          setAssignUser(responseData.success); // Set the fetched user
+          setAssignee(responseData.success); // Set assignee to logged-in user initially
         }
-      } catch(error) {
-        console.log(error.message)
+      } catch (error) {
+        console.log(error.message);
       }
-    }
-
-    handleAssigneeOwn()
-  }, [])
-
-  // Handle form submission
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const newTask = {
-      taskName,
-      description,
-      date,
-      amount,
-      location,
-      assignee,
     };
 
-    // Handle the form data here (save to DB, state, etc.)
-    console.log("New Task Created: ", newTask);
+    fetchLoggedInUser();
+  }, [Email]);
 
-    // Reset form after submission
-    setTaskName('');
-    setDescription('');
-    setDate('');
-    setAmount('');
-    setLocation('');
-    setAssignee(loggedInUser); // Reset to logged-in user for future tasks
-    setIsOwnTask(true); // Reset toggle
+  // Handle form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const response = await fetch(import.meta.env.VITE_BASE_URL + '/api/users/tasks/add', {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({ taskName, description, date, amount, location, assignUser })
+    })
+
+    const res = await response.json()
+
+    if (res.error) {
+      toast.error(res.error);
+    } else {
+      toast.success(res.success);
+      navigate('/tasks')
+      
+    }
   };
 
   // Handle the toggle change
   const handleToggleChange = () => {
-    setIsOwnTask(!isOwnTask);
-    if (!isOwnTask) {
-      setAssignee(loggedInUser); // If it's user's own task, set the assignee to logged-in user
+    setIsOwnTask((prevIsOwnTask) => !prevIsOwnTask);
+    if (isOwnTask) {
+      setAssignee(''); // Clear assignee if it's for someone else
     } else {
-      setAssignee(''); // Reset the assignee for someone else
+      setAssignee(assignUser); // Reset to logged-in user when toggled back
     }
   };
 
   return (
     <div className="max-w-lg mx-auto p-8 bg-white rounded-lg py-20 shadow-md">
+      <Helmet>
+        <title>
+          Add Task | Task Management
+        </title>
+      </Helmet>
       <h2 className="text-2xl font-bold mb-6">Add Completed Task</h2>
       <form onSubmit={handleSubmit} className="space-y-4 text-left">
-        
         {/* Task Name */}
         <div>
           <label className="block text-gray-700">Task Name</label>
@@ -126,7 +133,7 @@ const TaskAddForm = ({ loggedInUser }) => {
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
             className="w-full p-2 border border-gray-300 rounded-md"
-            placeholder="Enter amount earned"
+            placeholder="0/-"
             required
           />
         </div>
@@ -146,9 +153,7 @@ const TaskAddForm = ({ loggedInUser }) => {
 
         {/* Toggle for Task Ownership */}
         <div className="flex items-center justify-between">
-          <label className="block text-gray-700">
-            Is this your task?
-          </label>
+          <label className="block text-gray-700">Is this your task?</label>
           <div className="flex items-center">
             <input
               type="checkbox"
@@ -166,8 +171,8 @@ const TaskAddForm = ({ loggedInUser }) => {
             <label className="block text-gray-700">Assignee (Yourself)</label>
             <input
               type="text"
-              value={assign_user}
-              className="w-full p-2 border border-gray-300 rounded-md"
+              className="w-full p-2 border border-gray-300 rounded-md text-black"
+              value={assignUser} // Display the fetched user value
               readOnly
             />
           </div>
@@ -186,12 +191,18 @@ const TaskAddForm = ({ loggedInUser }) => {
         )}
 
         {/* Submit Button */}
-        <div className="text-right">
+        <div className='flex gap-2 justify-around'>
+        <NavLink to="/tasks"><button
+            type="submit"
+            className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-black"
+          >
+            Go to All Task
+          </button></NavLink>
           <button
             type="submit"
             className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-500"
           >
-            Add Completed Task
+            Add Task
           </button>
         </div>
       </form>

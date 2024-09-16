@@ -22,12 +22,11 @@ const NotesSection = () => {
       setLoading(false); // Ensure loading is turned off even if there's an error
     }
   };
-  
+
   const [notes, setNotes] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("")
-  
- 
+  const [search, setSearch] = useState("");
+
   useEffect(() => {
     getAllNotes();
   }, []);
@@ -39,15 +38,27 @@ const NotesSection = () => {
           <title>All Notes</title>
         </Helmet>
         {/* Header with Add Note Button */}
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-bold text-left tracking-wider">All Notes</h2>
-          <input placeholder='Search Notes by Person Name' name="search" value={search} id="search" onChange={(e) => setSearch(e.target.value)}   className='rounded-lg py-2 px-4 w-80 mr-2 focus:ring-blue-500 border-gray-300 border' />
-          <NavLink to="/notes/create" className="flex items-center space-x-1 text-blue-600 hover:text-blue-800 text-center">
-            <PlusIcon className="h-6 w-6" />
-            <span className="font-bold ">Add Note</span>
-          </NavLink>
+        <div className="flex flex-col lg:flex-row justify-between items-center mb-4">
+          <h2 className="text-2xl font-bold text-left tracking-wider mb-4 lg:mb-0">
+            All Notes
+          </h2>
+          <div className="flex flex-col lg:flex-row space-y-6 lg:space-y-0 lg:space-x-4 items-center w-full lg:w-auto">
+            <input
+              placeholder="Search Notes by Person Name"
+              name="search"
+              value={search}
+              id="search"
+              onChange={(e) => setSearch(e.target.value)}
+              className="rounded-lg py-2 px-4 w-full lg:w-80 focus:ring-blue-500 border-gray-300 border"
+            />
+            <NavLink to="/notes/create" className="flex items-center space-x-1 text-blue-600 hover:text-blue-800">
+              <PlusIcon className="h-6 w-6" />
+              <span className="font-bold">Add Note</span>
+            </NavLink>
+          </div>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 container mt-6">
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
           {loading ? (
             <div className="col-span-full flex items-center justify-center h-48">
               <Loading />
@@ -62,42 +73,48 @@ const NotesSection = () => {
               </span>
             </div>
           ) : (
-            notes.filter((val) => {
-              return search === "" ? val : val.person.toLowerCase().includes(search.toLowerCase())
-            }).map((note) => (
-              <div key={note.id} className="text-black p-4 rounded-lg shadow-md flex flex-col justify-between">
-                <div className="text-black text-justify">
-                  <h3 className="text-xl">
-                    <strong>Person Name: </strong>
-                    {note.person}
-                  </h3>
-                  <p>
-                    <strong>Work Name:</strong> {note.work}
-                  </p>
-                  <p>
-                    <strong>Note:</strong> {note.noteText}
-                  </p>
-                  <p>
-                    <strong>Work Date:</strong> {format(new Date(note.noteDate), 'MMMM dd, yyyy')}
-                  </p>
-                  <p>
-                    <strong>Reminder Date:</strong> {format(new Date(note.reminderDate), 'MMMM dd, yyyy')}
-                  </p>
+            notes
+              .filter((val) =>
+                search === "" ? val : val.person.toLowerCase().includes(search.toLowerCase())
+              )
+              .map((note) => (
+                <div key={note.id} className="bg-white text-black p-4 rounded-lg shadow-md flex flex-col justify-between">
+                  <div className="text-black text-justify">
+                    <h3 className="text-xl">
+                      <strong>Person Name: </strong>
+                      {note.person}
+                    </h3>
+                    <p>
+                      <strong>Work Name:</strong> {note.work}
+                    </p>
+                    <p>
+                      <strong>Note:</strong> {note.noteText}
+                    </p>
+                    <p>
+                      <strong>Work Date:</strong> {format(new Date(note.noteDate), 'MMMM dd, yyyy')}
+                    </p>
+                    <p>
+                      <strong>Reminder Date:</strong> {format(new Date(note.reminderDate), 'MMMM dd, yyyy')}
+                    </p>
+                  </div>
+                  <div className="flex justify-end space-x-2 mt-4">
+                    <NavLink to={`/notes/modify/update/${note._id}`}>
+                      <abbr title="Update Note">
+                        <button className="text-black hover:text-gray-700">
+                          <PencilIcon className="h-6 w-6" />
+                        </button>
+                      </abbr>
+                    </NavLink>
+                    <NavLink to={`/notes/modify/delete/${note._id}`}>
+                      <abbr title="Delete Note">
+                        <button className="text-black hover:text-gray-800">
+                          <TrashIcon className="h-6 w-6" />
+                        </button>
+                      </abbr>
+                    </NavLink>
+                  </div>
                 </div>
-                <div className="flex justify-end space-x-2 mt-4">
-                  <NavLink to={`/notes/modify/update/${note._id}`}>
-                    <abbr title='Update Note'><button className="text-black hover:text-gray-700">
-                      <PencilIcon className="h-6 w-6" />
-                    </button></abbr>
-                  </NavLink>
-                  <NavLink to={`/notes/modify/delete/${note._id}`}>
-                    <abbr title="Delete Note"><button className="text-black hover:text-gray-800">
-                      <TrashIcon className="h-6 w-6"  />
-                    </button></abbr>
-                  </NavLink>
-                </div>
-              </div>
-            ))
+              ))
           )}
         </div>
       </div>
