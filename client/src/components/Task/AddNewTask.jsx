@@ -82,10 +82,10 @@ const TaskAddForm = () => {
     <div className="max-w-lg mx-auto p-8 bg-white rounded-lg py-20 shadow-md">
       <Helmet>
         <title>
-           Completed Task | Task Management
+            New Task | Task Management
         </title>
       </Helmet>
-      <h2 className="text-2xl font-bold mb-6">Add Completed Task</h2>
+      <h2 className="text-2xl font-bold mb-6">Add New Task</h2>
       <form onSubmit={handleSubmit} className="space-y-4 text-left">
         {/* Task Name */}
         <div>

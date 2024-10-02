@@ -19,11 +19,13 @@ import All_notes from './components/Notes/All_notes';
 import One_note from './components/Notes/One_note';
 import New_Password from './components/New-Password/New_Password';
 import Dashboard from './components/Dashboard/Dashboard';
-
-import './App.css';
 import Notification from './components/Notification/Notification';
 import AddTask from './components/Task/AddTask';
 import SettingsPage from './components/Setting/Setting';
+import AddNewTask from './components/Task/AddNewTask'
+
+import './App.css';
+import CookieConsent from './components/Cookie/Cookie';
 
 function App() {
 
@@ -40,6 +42,7 @@ function App() {
     <Router>
       <div className="flex flex-col min-h-screen">
         <Navbar />
+            <CookieConsent />
         <main className="flex-grow">
           <Routes>
             <Route path='/' element={<HomePage />} />
@@ -70,7 +73,8 @@ function App() {
               </ProtectedRoute>
             } />
 
-            <Route path="/tasks/add" element={<AddTask />} />
+            <Route path="/tasks/add/complete" element={<AddTask />} />
+            <Route path="/tasks/add/new" element={<AddNewTask />} />
 
             <Route path="/notes/all" element={
               <ProtectedRoute >
