@@ -23,9 +23,9 @@ import Notification from './components/Notification/Notification';
 import AddTask from './components/Task/AddTask';
 import SettingsPage from './components/Setting/Setting';
 import AddNewTask from './components/Task/AddNewTask'
+import CookieConsent from './components/Cookie/Cookie';
 
 import './App.css';
-import CookieConsent from './components/Cookie/Cookie';
 
 function App() {
 
