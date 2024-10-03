@@ -16,6 +16,8 @@ const TaskAddForm = () => {
 
   const Email = localStorage.getItem('userEmail');
 
+  const today = new Date().toISOString().split('T')[0];
+
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -49,7 +51,7 @@ const TaskAddForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const response = await fetch(import.meta.env.VITE_BASE_URL + '/api/users/tasks/add', {
+    const response = await fetch(import.meta.env.VITE_BASE_URL + '/api/users/tasks/add/completed', {
       method: "POST",
       headers: {
         "content-type": "application/json",
@@ -118,6 +120,7 @@ const TaskAddForm = () => {
           <label className="block text-gray-700">Date (Task Completed)</label>
           <input
             type="date"
+            max={today}
             value={date}
             onChange={(e) => setDate(e.target.value)}
             className="w-full p-2 border border-gray-300 rounded-md"

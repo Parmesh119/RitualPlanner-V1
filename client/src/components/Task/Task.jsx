@@ -9,42 +9,51 @@ const TasksDashboard = () => {
   const [tasks, setTasks] = useState([]);
   const [filteredTasks, setFilteredTasks] = useState([]);
   const [filter, setFilter] = useState('All'); // For filtering tasks
-  const [search, setSearch] = useState("")
-  const [loading, setLoading] = useState(true)
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
 
   const fetchTasks = async () => {
     try {
       const response = await axios.get(import.meta.env.VITE_BASE_URL + '/api/users/tasks', {
         method: "GET",
         headers: {
-          'content-type': 'application/json',
-        }
+          'Content-Type': 'application/json',
+        },
       });
       setTasks(response.data.tasks);
-      setLoading(false) 
       setFilteredTasks(response.data.tasks); // Initially show all tasks
+      setLoading(false);
     } catch (error) {
       console.error("Error fetching tasks:", error.message);
     }
   };
 
   useEffect(() => {
-    // Fetch tasks from the backend when the component mounts
     fetchTasks();
   }, []);
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
+  useEffect(() => {
+    // Filter tasks whenever tasks or filter changes
+    handleFilterChange(filter);
+  }, [tasks, filter]);
+
   const handleFilterChange = (filterOption) => {
     setFilter(filterOption);
+    let newFilteredTasks;
+
     if (filterOption === 'Upcoming') {
-      setFilteredTasks(tasks.filter(task => new Date(task.date) > new Date()));
+      newFilteredTasks = tasks.filter(task => new Date(task.date) > new Date());
     } else if (filterOption === 'Finished') {
-      setFilteredTasks(tasks.filter(task => new Date(task.date) <= new Date()));
+      newFilteredTasks = tasks.filter(task => new Date(task.date) <= new Date());
     } else {
-      setFilteredTasks(tasks);
+      newFilteredTasks = tasks; // 'All'
     }
+
+    setFilteredTasks(newFilteredTasks);
   };
 
   return (
@@ -79,25 +88,18 @@ const TasksDashboard = () => {
         <div className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4">
           <input
             type="text"
-            placeholder="Search Tasks"
+            placeholder="Search Tasks by Person Name only"
             autoFocus
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="flex-1 px-4 py-2 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-
-          <button
-            className="w-full sm:w-auto flex items-center justify-center text-white bg-blue-600 font-bold py-2 px-4 sm:px-14 rounded-md hover:bg-blue-500 hover:text-white"
-            style={{ letterSpacing: "1px" }}
-          >
+          <button className="w-full sm:w-auto flex items-center justify-center text-white bg-blue-600 font-bold py-2 px-4 sm:px-14 rounded-md hover:bg-blue-500 hover:text-white">
             <NavLink to="/tasks/add/complete" className="flex">
               <h1>+&nbsp;&nbsp;</h1> Add Completed Task
             </NavLink>
           </button>
-          <button
-            className="w-full sm:w-auto flex items-center justify-center text-white bg-blue-600 font-bold py-2 px-4 sm:px-14 rounded-md hover:bg-blue-500 hover:text-white"
-            style={{ letterSpacing: "1px" }}
-          >
+          <button className="w-full sm:w-auto flex items-center justify-center text-white bg-blue-600 font-bold py-2 px-4 sm:px-14 rounded-md hover:bg-blue-500 hover:text-white">
             <NavLink to="/tasks/add/new" className="flex">
               <h1>+&nbsp;&nbsp;</h1> Add New Task
             </NavLink>
@@ -133,43 +135,42 @@ const TasksDashboard = () => {
       <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {loading ? (
           <div className="col-span-full flex items-center justify-center h-48">
-          <Loader />
-        </div>
+            <Loader />
+          </div>
         ) : filteredTasks.length === 0 ? (
-          <p style={{
-            textAlign: "center",
-            marginLeft: "50%"
-          }}>No Task available right now but you can add it if you want by{' '}
-          <NavLink className="text-blue-800 font-bold underline" to="/tasks/add/complete">
-            clicking on this link
-          </NavLink></p>
+          <p style={{ textAlign: "center", marginLeft: "50%" }}>
+            No Task available right now but you can add it if you want by{' '}
+            <NavLink className="text-blue-800 font-bold underline" to="/tasks/add/new">
+              clicking on this link
+            </NavLink>
+          </p>
         ) : (
           filteredTasks
-              .filter((val) =>
-                search === "" ? val : val.taskName.toLowerCase().includes(search.toLowerCase())
-              ).map((data, index) => (
-            <div key={index} className="bg-white p-4 rounded-md shadow-md text-justify">
-              <h3 className="font-bold">Task Name: {data.taskName}</h3>
-              <p className='font-bold'>Description: {data.description}</p>
-              <p className="font-bold">Location: {data.location}</p>
-              <p className="font-bold"> Assigned User: {data.assignUser}</p>
-              <p className="font-bold">Amount: {data.amount}</p>
-              <p className="font-bold">Date: {new Date(data.date).toLocaleDateString()}</p>
-              {/* Edit and Delete Buttons */}
-              <div className="flex justify-end space-x-2 mt-4">
-                <abbr title="Update Note">
-                  <button className="text-black hover:text-gray-700">
-                    <PencilIcon className="h-6 w-6" />
-                  </button>
-                </abbr>
-                <abbr title="Delete Note">
-                  <button className="text-black hover:text-gray-800">
-                    <TrashIcon className="h-6 w-6" />
-                  </button>
-                </abbr>
+            .filter((val) =>
+              search === "" ? val : val.taskName.toLowerCase().includes(search.toLowerCase())
+            ).map((data, index) => (
+              <div key={index} className="bg-white p-4 rounded-md shadow-md text-justify">
+                <h3 className="font-bold">Task Name: {data.taskName}</h3>
+                <p className='font-bold'>Description: {data.description}</p>
+                <p className="font-bold">Location: {data.location}</p>
+                <p className="font-bold">Assigned User: {data.assignUser}</p>
+                <p className="font-bold">Amount: {data.amount}</p>
+                <p className="font-bold">Date: {new Date(data.date).toLocaleDateString()}</p>
+                {/* Edit and Delete Buttons */}
+                <div className="flex justify-end space-x-2 mt-4">
+                  <abbr title="Update Note">
+                    <button className="text-black hover:text-gray-700">
+                      <PencilIcon className="h-6 w-6" />
+                    </button>
+                  </abbr>
+                  <abbr title="Delete Note">
+                    <button className="text-black hover:text-gray-800">
+                      <TrashIcon className="h-6 w-6" />
+                    </button>
+                  </abbr>
+                </div>
               </div>
-            </div>
-          ))
+            ))
         )}
       </div>
     </div>

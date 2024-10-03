@@ -1,7 +1,7 @@
 const express = require('express')
 const Router = express.Router()
 const User = require('../../models/user')
-const Task = require('../../models/Task')
+const Task = require('../../models/CompletedTask')
 
 Router.post('/tasks/getLoggedInUser', async (req, res) => {
     const {Email} = req.body
@@ -15,7 +15,7 @@ Router.post('/tasks/getLoggedInUser', async (req, res) => {
     }
 })
 
-Router.post('/tasks/add', async (req, res) => {
+Router.post('/tasks/add/completed', async (req, res) => {
     const {taskName, description, date, amount, location, assignUser} = req.body
 
     try {
@@ -34,7 +34,7 @@ Router.post('/tasks/add', async (req, res) => {
       
           const newTask = new Task({ taskName, description, date, amount, location, assignUser });
           await newTask.save();
-          res.status(200).send({ success: "Note added successfully", data: newTask });
+          res.status(200).send({ success: "Completed Task added successfully", data: newTask });
     } catch(error) {
         console.log(error.message)
         return res.status(500).send({ error: "Server error...!" });

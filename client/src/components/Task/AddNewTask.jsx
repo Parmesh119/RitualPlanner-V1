@@ -8,15 +8,16 @@ const TaskAddForm = () => {
   const [taskName, setTaskName] = useState('');
   const [description, setDescription] = useState('');
   const [date, setDate] = useState('');
-  const [amount, setAmount] = useState('');
   const [location, setLocation] = useState('');
   const [assignee, setAssignee] = useState(''); // Initially empty
   const [assignUser, setAssignUser] = useState(''); // Store logged-in user
   const [isOwnTask, setIsOwnTask] = useState(true); // Toggle for own task or someone else
+  const [amount, setAmount] = useState('')
 
   const Email = localStorage.getItem('userEmail');
 
   const navigate = useNavigate()
+  const today = new Date().toISOString().split('T')[0];
 
   useEffect(() => {
     const fetchLoggedInUser = async () => {
@@ -49,7 +50,7 @@ const TaskAddForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const response = await fetch(import.meta.env.VITE_BASE_URL + '/api/users/tasks/add', {
+    const response = await fetch(import.meta.env.VITE_BASE_URL + '/api/users/tasks/add/new', {
       method: "POST",
       headers: {
         "content-type": "application/json",
@@ -119,21 +120,9 @@ const TaskAddForm = () => {
           <input
             type="date"
             value={date}
+            min={today}
             onChange={(e) => setDate(e.target.value)}
             className="w-full p-2 border border-gray-300 rounded-md"
-            required
-          />
-        </div>
-
-        {/* Amount Earned */}
-        <div>
-          <label className="block text-gray-700">Amount Earned</label>
-          <input
-            type="number"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded-md"
-            placeholder="0/-"
             required
           />
         </div>
@@ -167,6 +156,7 @@ const TaskAddForm = () => {
 
         {/* Assignee (conditionally rendered) */}
         {isOwnTask ? (
+          <>
           <div>
             <label className="block text-gray-700">Assignee (Yourself)</label>
             <input
@@ -176,6 +166,17 @@ const TaskAddForm = () => {
               readOnly
             />
           </div>
+          <div>
+          <label className="block text-gray-700">Amount</label>
+          <input
+            type="number"
+            className="w-full p-2 border border-gray-300 rounded-md text-black"
+            value={amount} // Display the fetched user value
+            onChange={(e) => setAmount(e.target.value)}
+            placeholder='Amount for your own task - 0/-'
+          />
+        </div>
+        </>
         ) : (
           <div>
             <label className="block text-gray-700">Assignee (Someone Else)</label>

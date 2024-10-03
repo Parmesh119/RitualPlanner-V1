@@ -1,6 +1,6 @@
 const express = require('express');
 const Router = express.Router();
-const Task = require('../../models/Task');
+const Task = require('../../models/CompletedTask');
 
 Router.get("/tasks", async (req, res) => {
     try {

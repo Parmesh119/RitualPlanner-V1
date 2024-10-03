@@ -48,6 +48,7 @@ const NotesSection = () => {
               name="search"
               value={search}
               id="search"
+              autoFocus
               onChange={(e) => setSearch(e.target.value)}
               className="rounded-lg py-2 px-4 w-full lg:w-80 focus:ring-blue-500 border-gray-300 border"
             />
