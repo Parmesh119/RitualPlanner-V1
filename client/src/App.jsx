@@ -85,7 +85,10 @@ function App() {
 
             <Route path="/tasks/add/complete" element={<AddTask />} />
             <Route path="/tasks/add/new" element={<AddNewTask />} />
-            <Route path="/calendar-view" element={<Calendar_View />} />
+            <Route path="/calendar-view" element={
+              <ProtectedRoute >
+              <Calendar_View />
+              </ProtectedRoute>} />
 
             <Route path="/notes/all" element={
               <ProtectedRoute >

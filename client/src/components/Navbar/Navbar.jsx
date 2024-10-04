@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react';
+import { Fragment, useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { Dialog, DialogPanel, Menu, Transition } from '@headlessui/react';
 import { Bars3Icon, XMarkIcon, ChevronDownIcon, ArrowRightIcon, BellIcon } from '@heroicons/react/24/outline';
@@ -15,6 +15,9 @@ const navigation = [
 ];
 
 const Navbar = () => {
+  const id = localStorage.getItem('userId')
+
+  const [isLogin, setIsLogin] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   const { isLoggedIn, logout } = useAuth();
@@ -29,7 +32,18 @@ const Navbar = () => {
     navigate('/'); // Redirect to home or any preferred route
   };
 
-  const id = localStorage.getItem('userId')
+  const Onlogin = () => {
+    if(localStorage.getItem('token')) {
+      setIsLogin(true)
+    } else {
+      setIsLogin(false)
+    }
+  }
+
+  useEffect(() => {
+    Onlogin()
+  }, [localStorage.getItem('token'), localStorage.getItem('userId')])
+
 
   return (
     <header className="absolute inset-x-0 top-0 z-50" style={{
@@ -240,7 +254,7 @@ const Navbar = () => {
           )))}
         </div>
         <div className="hidden lg:flex lg:flex-1 lg:justify-end">
-          {isLoggedIn ? (
+          {isLogin ? (
             <Menu as="div" className="relative inline-block text-left">
               <div className='flex gap-4'>
                 <NavLink to="/notifications"><abbr title="Notifications"><BellIcon className="cursor-pointer h-8 w-8 font-bold text-black border border-gray-700 rounded-full p-1 " ></BellIcon></abbr></NavLink>
