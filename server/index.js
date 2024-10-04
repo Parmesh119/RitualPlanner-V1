@@ -20,7 +20,7 @@ app.use(express.json())
 app.use(
     cors({
       origin: [
-        "https://ritual-planner.vercel.app/",
+        "https://ritual-planner.vercel.app",
         "http://localhost:5173",
       ],
       methods: ["POST", "GET", "DELETE"],
