@@ -532,8 +532,9 @@ const Navbar = () => {
                 )))}
               </div>
               <div className="py-6">
-                {isLoggedIn ? (
+                {isLogin ? (
                   <>
+                  <span className='flex flex-col space-y-2'>
                     <NavLink
                       to="/profile/:id"
                       className="text-sm font-semibold leading-6 text-gray-900 inline-flex items-center"
@@ -545,8 +546,9 @@ const Navbar = () => {
                       onClick={handleLogout}
                       className="text-sm font-semibold leading-6 text-gray-900 inline-flex items-center"
                     >
-                      Logout <ArrowRightIcon className="ml-1 h-5 w-5 text-gray-400" aria-hidden="true" />
+                      Logout
                     </button>
+                    </span>
                   </>
                 ) : (
                   <NavLink to="/login">
