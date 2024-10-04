@@ -23,8 +23,6 @@ app.use(
         "https://ritual-planner.vercel.app",
         "http://localhost:5173",
       ],
-      methods: ["POST", "GET", "DELETE"],
-      credentials: true,
     })
   );
 app.get("/", (req, res) => {
