@@ -24,6 +24,8 @@ import AddTask from './components/Task/AddTask';
 import SettingsPage from './components/Setting/Setting';
 import AddNewTask from './components/Task/AddNewTask'
 import CookieConsent from './components/Cookie/Cookie';
+import DeletTask from './components/Task/DeleteTask'
+import UpdateTask from './components/Task/UpdateTask'
 
 import './App.css';
 
@@ -60,6 +62,13 @@ function App() {
                 }
                 
             />
+
+            <Route path="/tasks/modify/delete/:id" element={
+              <DeletTask />
+            } />
+            <Route path="/tasks/modify/update/:id" element={
+              <UpdateTask />
+            } />
 
             <Route path="/notes/create" element={
               <ProtectedRoute>

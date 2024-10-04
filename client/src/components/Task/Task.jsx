@@ -146,28 +146,26 @@ const TasksDashboard = () => {
           </p>
         ) : (
           filteredTasks
-            .filter((val) =>
-              search === "" ? val : val.taskName.toLowerCase().includes(search.toLowerCase())
-            ).map((data, index) => (
+            .filter(val => search === "" || val.taskName.toLowerCase().includes(search.toLowerCase()))
+            .map((data, index) => (
               <div key={index} className="bg-white p-4 rounded-md shadow-md text-justify">
                 <h3 className="font-bold">Task Name: {data.taskName}</h3>
-                <p className='font-bold'>Description: {data.description}</p>
+                <p className="font-bold">Description: {data.description}</p>
                 <p className="font-bold">Location: {data.location}</p>
                 <p className="font-bold">Assigned User: {data.assignUser}</p>
-                <p className="font-bold">Amount: {data.amount}</p>
+                <p className="font-bold">Amount: {data.amount == "undefined" ? 0 : data.amount}</p>
                 <p className="font-bold">Date: {new Date(data.date).toLocaleDateString()}</p>
-                {/* Edit and Delete Buttons */}
                 <div className="flex justify-end space-x-2 mt-4">
-                  <abbr title="Update Note">
+                  <NavLink to={`/tasks/modify/update/${data._id}`}><abbr title="Update Note">
                     <button className="text-black hover:text-gray-700">
                       <PencilIcon className="h-6 w-6" />
                     </button>
-                  </abbr>
-                  <abbr title="Delete Note">
+                  </abbr></NavLink>
+                  <NavLink to={`/tasks/modify/delete/${data._id}`}><abbr title="Delete Note">
                     <button className="text-black hover:text-gray-800">
                       <TrashIcon className="h-6 w-6" />
                     </button>
-                  </abbr>
+                  </abbr></NavLink>
                 </div>
               </div>
             ))

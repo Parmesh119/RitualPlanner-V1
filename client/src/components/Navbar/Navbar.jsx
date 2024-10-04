@@ -9,6 +9,7 @@ const navigation = [
   { name: 'Task Management', href: '/tasks', dropdown: true },
   { name: "Client Management", href: "/clients"},
   { name: "Expense Tracker", href: "/expense"},
+  { name: "History", href: "/history"},
   { name: 'Notes', href: '/notes', dropdown: true },
   { name: 'More', href:'/more', dropdown: true} 
 ];
@@ -34,7 +35,7 @@ const Navbar = () => {
     <header className="absolute inset-x-0 top-0 z-50" style={{
       position: "fixed"
     }}>
-      <nav aria-label="Global" className="flex items-center justify-between p-6 lg:px-20">
+      <nav aria-label="Global" className="flex items-center justify-between p-6 lg:px-6">
         <div className="flex lg:flex-1">
           <span className="p-2 flex lg:flex-1">
             <span className="-m-1.5 p-1.5 flex" onClick={handleLinkClick}>
