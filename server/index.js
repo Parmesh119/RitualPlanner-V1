@@ -17,8 +17,16 @@ const app = express()
 const PORT = process.env.PORT || 3002
 
 app.use(express.json())
-app.use(cors())
-
+app.use(
+    cors({
+      origin: [
+        "https://ritual-planner.vercel.app/",
+        "http://localhost:5173",
+      ],
+      methods: ["POST", "GET", "DELETE"],
+      credentials: true,
+    })
+  );
 app.get("/", (req, res) => {
     res.send("RitualPlanner")
 })
