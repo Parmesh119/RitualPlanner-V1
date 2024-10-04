@@ -37,7 +37,7 @@ const TaskAddForm = () => {
           toast.error(responseData.error);
         } else {
           setAssignUser(responseData.success); // Set the fetched user
-          setAssignee(responseData.success); // Set assignee to logged-in user initially
+           // Set assignee to logged-in user initially
         }
       } catch (error) {
         console.log(error.message);
@@ -51,12 +51,14 @@ const TaskAddForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    let finalAssignUser = isOwnTask ? assignUser : assignee
+
     const response = await fetch(import.meta.env.VITE_BASE_URL + '/api/users/tasks/add/completed', {
       method: "POST",
       headers: {
         "content-type": "application/json",
       },
-      body: JSON.stringify({ taskName, description, date, amount, location, assignUser })
+      body: JSON.stringify({ taskName, description, date, amount, location, finalAssignUser })
     })
 
     const res = await response.json()

@@ -56,7 +56,7 @@ export default function Delete() {
     return (
         <Dialog open={open} onClose={handleClose} className="relative z-10">
             <Helmet>
-                <title>Delete note</title>
+                <title>Delete Task</title>
             </Helmet>
             <DialogBackdrop
                 transition

@@ -78,10 +78,10 @@ export default function Update() {
     <>
       <div className="min-h-screen flex items-center justify-center bg-white py-10">
         <Helmet>
-          <title>Update Note</title>
+          <title>Update Task</title>
         </Helmet>
         <div className="max-w-lg w-full p-5 border rounded-lg shadow-lg bg-white">
-          <h2 className="text-2xl font-semibold mb-4 text-center">Update Note</h2>
+          <h2 className="text-2xl font-semibold mb-4 text-center">Update Task</h2>
           <div className="mb-4">
             <label className="block text-gray-700 font-medium mb-2 text-left">
               Name of the person

@@ -21,7 +21,7 @@ const taskSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    assignUser: {
+    finalAssignUser: {
         type: String,
         required: true
     }

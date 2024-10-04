@@ -26,6 +26,7 @@ import AddNewTask from './components/Task/AddNewTask'
 import CookieConsent from './components/Cookie/Cookie';
 import DeletTask from './components/Task/DeleteTask'
 import UpdateTask from './components/Task/UpdateTask'
+import Calendar_View from './components/Task/Calendar_View'
 
 import './App.css';
 
@@ -84,6 +85,7 @@ function App() {
 
             <Route path="/tasks/add/complete" element={<AddTask />} />
             <Route path="/tasks/add/new" element={<AddNewTask />} />
+            <Route path="/calendar-view" element={<Calendar_View />} />
 
             <Route path="/notes/all" element={
               <ProtectedRoute >

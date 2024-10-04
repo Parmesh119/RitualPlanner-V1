@@ -131,44 +131,61 @@ const TasksDashboard = () => {
         </div>
       </div>
 
-      {/* Task List in Grid View */}
-      <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {/* Task List in Table View */}
+      <div className="mt-8">
         {loading ? (
           <div className="col-span-full flex items-center justify-center h-48">
             <Loader />
           </div>
         ) : filteredTasks.length === 0 ? (
-          <p style={{ textAlign: "center", marginLeft: "50%" }}>
+          <p style={{ textAlign: "start", marginLeft: "32%", padding: "5rem 10px" }}>
             No Task available right now but you can add it if you want by{' '}
             <NavLink className="text-blue-800 font-bold underline" to="/tasks/add/new">
               clicking on this link
             </NavLink>
           </p>
         ) : (
-          filteredTasks
-            .filter(val => search === "" || val.taskName.toLowerCase().includes(search.toLowerCase()))
-            .map((data, index) => (
-              <div key={index} className="bg-white p-4 rounded-md shadow-md text-justify">
-                <h3 className="font-bold">Task Name: {data.taskName}</h3>
-                <p className="font-bold">Description: {data.description}</p>
-                <p className="font-bold">Location: {data.location}</p>
-                <p className="font-bold">Assigned User: {data.assignUser}</p>
-                <p className="font-bold">Amount: {data.amount == "undefined" ? 0 : data.amount}</p>
-                <p className="font-bold">Date: {new Date(data.date).toLocaleDateString()}</p>
-                <div className="flex justify-end space-x-2 mt-4">
-                  <NavLink to={`/tasks/modify/update/${data._id}`}><abbr title="Update Note">
-                    <button className="text-black hover:text-gray-700">
-                      <PencilIcon className="h-6 w-6" />
-                    </button>
-                  </abbr></NavLink>
-                  <NavLink to={`/tasks/modify/delete/${data._id}`}><abbr title="Delete Note">
-                    <button className="text-black hover:text-gray-800">
-                      <TrashIcon className="h-6 w-6" />
-                    </button>
-                  </abbr></NavLink>
-                </div>
-              </div>
-            ))
+          <table className="min-w-full bg-white border border-gray-200">
+            <thead>
+              <tr className="w-full bg-gray-100 border-b">
+                <th className="py-2 px-4">Sr. No.</th>
+                <th className="py-2 px-4">Task Name</th>
+                <th className="py-2 px-4">Description</th>
+                <th className="py-2 px-4">Location</th>
+                <th className="py-2 px-4">Assigned User</th>
+                <th className="py-2 px-4">Amount</th>
+                <th className="py-2 px-4">Date</th>
+                <th className="py-2 px-4">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredTasks
+                .filter(val => search === "" || val.taskName.toLowerCase().includes(search.toLowerCase()))
+                .map((data, index) => (
+                  <tr key={index} className="text-center border-b">
+                    <td className="py-2 px-4">{index + 1}</td>
+                    <td className="py-2 px-4">{data.taskName}</td>
+                    <td className="py-2 px-4">{data.description}</td>
+                    <td className="py-2 px-4">{data.location}</td>
+                    <td className="py-2 px-4">{data.finalAssignUser}</td>
+                    <td className="py-2 px-4">{data.amount == "undefined" ? 0 : data.amount}</td>
+                    <td className="py-2 px-4">{new Date(data.date).toLocaleDateString()}</td>
+                    <td className="py-2 px-4 flex justify-center space-x-2">
+                      <NavLink to={`/tasks/modify/update/${data._id}`}><abbr title="Update Note">
+                        <button className="text-black hover:text-gray-700">
+                          <PencilIcon className="h-6 w-6" />
+                        </button>
+                      </abbr></NavLink>
+                      <NavLink to={`/tasks/modify/delete/${data._id}`}><abbr title="Delete Note">
+                        <button className="text-black hover:text-gray-800">
+                          <TrashIcon className="h-6 w-6" />
+                        </button>
+                      </abbr></NavLink>
+                    </td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
         )}
       </div>
     </div>

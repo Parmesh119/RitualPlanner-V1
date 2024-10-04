@@ -16,7 +16,7 @@ Router.get("/tasks", async (req, res) => {
             date: task.date,
             amount: task.amount,
             location: task.location,
-            assignUser: task.assignUser
+            finalAssignUser: task.finalAssignUser
         }));
 
         const NewTasks = newTasks.map(task => ({
@@ -24,9 +24,9 @@ Router.get("/tasks", async (req, res) => {
             taskName: task.taskName,
             description: task.description,
             date: task.date,
-            amount: task.amount,
+            amount: typeof task.amount == 'undefined' ? 0 : task.amount,
             location: task.location,
-            assignUser: task.assignUser
+            finalAssignUser: task.finalAssignUser
         }))
         
         const allTasks = [...CompletedTasks, ...NewTasks]

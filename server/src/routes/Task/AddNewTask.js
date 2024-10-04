@@ -3,7 +3,7 @@ const Router = express.Router()
 const NewTask = require('../../models/NewTask')
 
 Router.post('/tasks/add/new', async (req, res) => {
-    const {taskName, description, date, amount, location, assignUser} = req.body
+    const {taskName, description, date, amount, location, finalAssignUser} = req.body
 
     try {
         const existingTask = await NewTask.findOne({
@@ -12,14 +12,14 @@ Router.post('/tasks/add/new', async (req, res) => {
             date,
             amount,
             location,
-            assignUser
+            finalAssignUser
           });
       
           if (existingTask) {
             return res.status(400).send({ error: "Data already exists!" });
           }
       
-          const newTask = new NewTask({ taskName, description, date, amount, location, assignUser });
+          const newTask = new NewTask({ taskName, description, date, amount, location, finalAssignUser });
           await newTask.save();
           res.status(200).send({ success: "New Task added successfully", data: newTask });
     } catch(error) {
