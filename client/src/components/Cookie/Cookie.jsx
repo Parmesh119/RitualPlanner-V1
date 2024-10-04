@@ -22,22 +22,21 @@ const CookieConsent = () => {
   }
 
   return (
-    <div className="fixed bottom-0 left-0 w-full bg-gray-800 text-white p-4">
-      <div className="flex justify-between items-center">
-        <p>
+    <div className="fixed bottom-0 left-0 w-full bg-gray-800 text-white p-4 z-50"> {/* Added z-50 */}
+      <div className="flex flex-col md:flex-row justify-between items-center">
+        <p className="text-center md:text-left"> {/* Center text on small screens */}
           This website uses cookies to ensure you get the best experience on our website.{' '}
-          <a href="/privacy-policy" className="underline">
-            Learn more
-          </a>
+          <a href="/privacy-policy" className="underline">Learn more</a>
         </p>
         <button
           onClick={handleAcceptCookies}
-          className="bg-blue-500 px-4 py-2 rounded-md ml-4 hover:bg-blue-400"
+          className="bg-blue-500 px-4 py-2 rounded-md mt-2 md:mt-0 hover:bg-blue-400"
         >
           Accept
         </button>
       </div>
     </div>
+
   );
 };
 

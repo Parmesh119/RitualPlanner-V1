@@ -16,6 +16,16 @@ const UpdateTask = require('./src/routes/Task/UpdateTask')
 const app = express()
 const PORT = process.env.PORT || 3002
 
+app.use(
+    cors({
+      origin: [
+        "https://ritual-planner.vercel.app/",
+        "http://localhost:5173",
+      ],
+      methods: ["POST", "GET", "DELETE"],
+      credentials: true,
+    })
+  );
 app.use(express.json())
 app.use(cors())
 
