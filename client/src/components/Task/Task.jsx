@@ -12,6 +12,9 @@ const TasksDashboard = () => {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
 
+  let total_amount_earn = 0;
+  let month_amount_earn = 0;
+
   const fetchTasks = async () => {
     try {
       const response = await axios.get(import.meta.env.VITE_BASE_URL + '/api/users/tasks', {
@@ -22,6 +25,7 @@ const TasksDashboard = () => {
       });
       setTasks(response.data.tasks);
       setFilteredTasks(response.data.tasks); // Initially show all tasks
+      find_total_and_month_amount()
       setLoading(false);
     } catch (error) {
       console.error("Error fetching tasks:", error.message);
@@ -31,6 +35,13 @@ const TasksDashboard = () => {
   useEffect(() => {
     fetchTasks();
   }, []);
+
+  const find_total_and_month_amount = () => {
+    total_amount_earn += tasks.forEach((data) => {
+      return data.amount
+    })
+  }
+
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -64,7 +75,7 @@ const TasksDashboard = () => {
   <h1 className="text-xl sm:text-2xl font-bold mb-4">Tasks Dashboard</h1>
 
   {/* Task Statistics */}
-  <div className="grid sm:p-6 grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+  <div className="grid sm:p-6 grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2">
     <div className="bg-white p-4 rounded-md shadow-md">
       <h2 className="text-lg font-bold mb-2">Total Tasks</h2>
       <p className="text-2xl sm:text-4xl font-bold">{tasks.length}</p>
@@ -81,6 +92,18 @@ const TasksDashboard = () => {
         {tasks.filter(task => new Date(task.date) > new Date()).length}
       </p>
     </div>
+    <div className="bg-white p-4 rounded-md shadow-md">
+      <h2 className="text-lg font-bold mb-2">Total Amount Earned</h2>
+      <p className="text-2xl sm:text-4xl font-bold">
+        {total_amount_earn}
+      </p>
+    </div>
+    <div className="bg-white p-4 rounded-md shadow-md">
+      <h2 className="text-lg font-bold mb-2">Amount Earned This Month</h2>
+      <p className="text-2xl sm:text-4xl font-bold">
+        {tasks.filter(task => new Date(task.date) > new Date()).length}
+      </p>
+    </div>
   </div>
 
   {/* Search and Add Task Button */}
@@ -89,10 +112,9 @@ const TasksDashboard = () => {
       <input
         type="text"
         placeholder="Search Tasks by Person Name only"
-        autoFocus
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        className="flex-1 px-4 py-2 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="flex-1 px-4 py-2 border border-blue-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
       <button className="w-full sm:w-auto flex items-center justify-center text-white bg-blue-600 font-bold py-2 px-4 sm:px-14 rounded-md hover:bg-blue-500 hover:text-white">
         <NavLink to="/tasks/add/complete" className="flex">

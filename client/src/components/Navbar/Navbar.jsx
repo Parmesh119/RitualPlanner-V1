@@ -47,9 +47,9 @@ const Navbar = () => {
 
   return (
     <header className="absolute inset-x-0 top-0 z-50" style={{
-      position: "fixed"
+      position: "relative",
     }}>
-      <nav aria-label="Global" className="flex items-center justify-between p-6 lg:px-6">
+      <nav aria-label="Global" className="flex items-center justify-between p-1 lg:px-4">
         <div className="flex lg:flex-1">
           <span className="p-2 flex lg:flex-1">
             <span className="-m-1.5 p-1.5 flex" onClick={handleLinkClick}>
@@ -78,7 +78,7 @@ const Navbar = () => {
         </div>
 
         <div className="flex lg:hidden gap-2">
-        <NavLink to="/notifications"><abbr title="Notifications"><BellIcon className="cursor-pointer h-8 w-8 font-bold text-black border border-gray-700 rounded-full p-1 " ></BellIcon></abbr></NavLink>
+        <NavLink to="/notifications"><abbr title="Notifications"><BellIcon className="cursor-pointer h-8 w-8 font-bold text-black border border-gray-700 rounded-full p-1 "  ></BellIcon></abbr></NavLink>
           <button
             type="button"
             onClick={() => setMobileMenuOpen(true)}
@@ -259,7 +259,7 @@ const Navbar = () => {
           {isLogin ? (
             <Menu as="div" className="relative inline-block text-left">
               <div className='flex gap-4'>
-                <NavLink to="/notifications"><abbr title="Notifications"><BellIcon className="cursor-pointer h-8 w-8 font-bold text-black border border-gray-700 rounded-full p-1 " ></BellIcon></abbr></NavLink>
+                <NavLink to="/notifications"><abbr title="Notifications"><BellIcon className="cursor-pointer h-8 w-8 font-bold text-black border border-gray-700 rounded-full p-1 "  ></BellIcon></abbr></NavLink>
                 <Menu.Button className="text-sm font-semibold leading-6 text-gray-900 inline-flex items-center">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-8">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />

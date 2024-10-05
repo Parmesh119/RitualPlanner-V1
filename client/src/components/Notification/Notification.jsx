@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { FaBell, FaTimes } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 
 const notificationsData = Array.from({ length: 25 }, (_, i) => ({
   id: i + 1,
@@ -13,6 +14,14 @@ const Notifications = () => {
   const [selectedTab, setSelectedTab] = useState('All'); // Manage tabs
   const [notifications, setNotifications] = useState(notificationsData);
   const [currentPage, setCurrentPage] = useState(1);
+  const [isOpen, setIsOpen] = useState(true)
+
+  const navigate = useNavigate()
+
+  const toggleNotification = () => {
+    setIsOpen(!isOpen)
+    navigate(-1)
+  }
   const notificationsPerPage = 5;
 
   // Calculate total pages
@@ -38,11 +47,14 @@ const Notifications = () => {
   };
 
   return (
+    <>
+    {
+      isOpen && 
     <div className="flex justify-center items-center h-screen bg-white text-white">
-      <div className="bg-gray-800 rounded-lg p-8 w-full max-w-2xl shadow-lg"> {/* Increased padding and width */}
+      <div className="bg-gray-800 rounded-lg p-10 mb-20 sm:mt-20 w-full max-w-2xl shadow-lg"> {/* Increased padding and width */}
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">Notifications</h2>
-          <span className="text-blue-400 cursor-pointer">Help</span>
+          <span className="text-blue-400 cursor-pointer" onClick={toggleNotification}>Close</span>
         </div>
 
         {/* Tabs */}
@@ -82,11 +94,11 @@ const Notifications = () => {
                   {notification.name.charAt(0)}
                 </div>
                 <div>
-                  <p className="text-sm font-semibold">{notification.name}</p>
-                  <p className="text-gray-400 text-xs">{notification.message}</p>
+                  <p className="text-sm font-semibold text-start tracking-wide">{notification.name}</p>
+                  <p className="text-gray-400 text-xs font-bold ">{notification.message}</p>
                 </div>
               </div>
-              <div className="text-gray-400 text-xs">
+              <div className="text-gray-400 text-sm font-bold">
                 {notification.time}
               </div>
               <button onClick={() => handleCloseNotification(notification.id)} className="text-gray-500 hover:text-red-500">
@@ -116,6 +128,8 @@ const Notifications = () => {
         </div>
       </div>
     </div>
+    }
+    </>
   );
 };
 
