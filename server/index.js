@@ -12,9 +12,10 @@ const AllTask = require('./src/routes/Task/AllTask')
 const AddNewTask = require('./src/routes/Task/AddNewTask')
 const DeleteTask = require('./src/routes/Task/DeleteTask')
 const UpdateTask = require('./src/routes/Task/UpdateTask')
+const DeleteAllTask = require('./src/routes/Task/DeleteAllTask')
 
 const app = express()
-const PORT = process.env.PORT || 3002
+const PORT = process.env.PORT || 3001
 
 app.use(express.json())
 app.use(
@@ -29,8 +30,8 @@ app.get("/", (req, res) => {
     res.send("RitualPlanner")
 })
 
-app.use("/api/users", users, AddCompletedTaskRoute, AllTask, AddNewTask)
-app.use("/api/task", DeleteTask, UpdateTask)
+app.use("/api/users", users)
+app.use("/api/task", AllTask, AddNewTask, DeleteTask, UpdateTask, AddCompletedTaskRoute, DeleteAllTask)
 app.use("/api/note", notes, deleteNotes, updateNoteRoute)
 app.use("/api", updatePasswordRoute)
 

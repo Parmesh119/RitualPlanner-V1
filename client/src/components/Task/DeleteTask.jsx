@@ -76,11 +76,11 @@ export default function Delete() {
                                 </div>
                                 <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
                                     <DialogTitle as="h3" className="text-base font-semibold leading-6 text-gray-900">
-                                        Delete Note
+                                        Delete Task
                                     </DialogTitle>
                                     <div className="mt-2">
                                         <p className="text-md font-bold tracking-wide text-gray-500">
-                                            Are you sure want to delete this note?
+                                            Are you sure want to delete this task?
                                         </p>
                                     </div>
                                 </div>

@@ -40,6 +40,23 @@ const Navbar = () => {
     }
   }
 
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 50) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
   useEffect(() => {
     Onlogin()
   }, [localStorage.getItem('token'), localStorage.getItem('userId')])
@@ -49,7 +66,7 @@ const Navbar = () => {
     <header className="absolute inset-x-0 top-0 z-50" style={{
       position: "relative",
     }}>
-      <nav aria-label="Global" className="flex items-center justify-between p-1 lg:px-4">
+      <nav aria-label="Global" className="flex items-center justify-between p-1 lg:px-4 ">
         <div className="flex lg:flex-1">
           <span className="p-2 flex lg:flex-1">
             <span className="-m-1.5 p-1.5 flex" onClick={handleLinkClick}>
@@ -88,14 +105,14 @@ const Navbar = () => {
             <Bars3Icon aria-hidden="true" className="h-6 w-6" />
           </button>
         </div>
-        <div className="hidden lg:flex lg:gap-x-20">
+        <div className={`hidden navbar lg:flex lg:gap-x-20 ${isScrolled ? 'rounded-full p-4 px-10 m-auto items-center bg-gray-700' : 'bg-zinc-700 text-white p-4 px-10 rounded-full'} `} >
           {navigation.map((item) =>
             item.dropdown && item.name === 'Notes' ? (
               <Menu as="div" className="relative inline-block text-left" key={item.name}>
                 <div>
-                  <Menu.Button className="text-sm font-semibold leading-6 text-gray-900 inline-flex items-center">
+                  <Menu.Button className="text-sm font-semibold leading-6 gap-2 inline-flex items-center">
                     {item.name}
-                    <ChevronDownIcon className="-mr-1 h-5 w-5 text-gray-400" aria-hidden="true" />
+                    <ChevronDownIcon className="-mr-1 h-5 w-5 text-white" aria-hidden="true" />
                   </Menu.Button>
                 </div>
                 <Transition
@@ -117,7 +134,7 @@ const Navbar = () => {
                               } block px-4 py-2 text-sm`}
                             onClick={handleLinkClick}
                           >
-                            Create Note
+                            Create Not
                           </NavLink>
                         )}
                       </Menu.Item>
@@ -141,9 +158,9 @@ const Navbar = () => {
             ) : (
               item.name === "Task Management" ? <Menu as="div" className="relative inline-block text-left" key={item.name}>
                 <div>
-                  <Menu.Button className="text-sm font-semibold leading-6 text-gray-900 inline-flex items-center">
+                  <Menu.Button className="text-sm font-semibold leading-6 text-white gap-2 inline-flex items-center">
                     {item.name}
-                    <ChevronDownIcon className="-mr-1 h-5 w-5 text-gray-400" aria-hidden="true" />
+                    <ChevronDownIcon className="-mr-1 h-5 w-5 text-white" aria-hidden="true" />
                   </Menu.Button>
                 </div>
                 <Transition
@@ -187,9 +204,9 @@ const Navbar = () => {
               </Menu>
                 : (item.name === 'More' ? <Menu as="div" className="relative inline-block text-left" key={item.name}>
                   <div>
-                    <Menu.Button className="text-sm font-semibold leading-6 text-gray-900 inline-flex items-center">
+                    <Menu.Button  className="text-sm font-semibold leading-6 text-white gap-2 inline-flex items-center">
                       {item.name}
-                      <ChevronDownIcon className="-mr-1 h-5 w-5 text-gray-400" aria-hidden="true" />
+                      <ChevronDownIcon className="-mr-1 h-5 w-5 text-white" aria-hidden="true" />
                     </Menu.Button>
                   </div>
                   <Transition
@@ -247,7 +264,7 @@ const Navbar = () => {
                     <NavLink
                       key={item.name}
                       to={item.href}
-                      className="text-sm font-semibold leading-6 text-gray-900"
+                      className="text-sm font-semibold leading-6 text-white tracking-wide"
                       onClick={handleLinkClick}
                     >
                       {item.name}
@@ -264,7 +281,7 @@ const Navbar = () => {
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-8">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                   </svg>
-                  <ChevronDownIcon className="-mr-1 h-5 w-5 text-gray-400" aria-hidden="true" />
+                  <ChevronDownIcon className="-mr-1 h-5 w-5 text-black" aria-hidden="true" />
                 </Menu.Button>
               </div>
               <Transition

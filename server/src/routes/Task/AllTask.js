@@ -24,7 +24,7 @@ Router.get("/tasks", async (req, res) => {
             taskName: task.taskName,
             description: task.description,
             date: task.date,
-            amount: typeof task.amount == 'undefined' ? 0 : task.amount,
+            amount: task.amount,
             location: task.location,
             finalAssignUser: task.finalAssignUser
         }))

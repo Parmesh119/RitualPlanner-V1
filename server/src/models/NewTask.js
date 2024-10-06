@@ -14,7 +14,8 @@ const NewtaskSchema = new mongoose.Schema({
         required: true
     },
     amount: {
-        type: Number
+        type: Number,
+        default: 0
     },
     location: {
         type: String,

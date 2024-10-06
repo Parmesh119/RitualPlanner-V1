@@ -51,7 +51,7 @@ const Notifications = () => {
     {
       isOpen && 
     <div className="flex justify-center items-center h-screen bg-white text-white">
-      <div className="bg-gray-800 rounded-lg p-10 mb-20 sm:mt-20 w-full max-w-2xl shadow-lg"> {/* Increased padding and width */}
+      <div className="bg-gray-800 rounded-lg p-10 mb-20 sm:mt-20 mt-16 w-full max-w-2xl shadow-lg justify-center items-center"> {/* Increased padding and width */}
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">Notifications</h2>
           <span className="text-blue-400 cursor-pointer" onClick={toggleNotification}>Close</span>

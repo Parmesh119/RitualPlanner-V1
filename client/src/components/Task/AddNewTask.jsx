@@ -4,6 +4,10 @@ import Helmet from 'react-helmet'
 import { NavLink, useNavigate } from 'react-router-dom';
 
 const TaskAddForm = () => {
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   // State for form fields
   const [taskName, setTaskName] = useState('');
   const [description, setDescription] = useState('');
@@ -22,7 +26,7 @@ const TaskAddForm = () => {
   useEffect(() => {
     const fetchLoggedInUser = async () => {
       try {
-        const response = await fetch(import.meta.env.VITE_BASE_URL + '/api/users/tasks/getLoggedInUser', {
+        const response = await fetch(import.meta.env.VITE_BASE_URL + '/api/task/tasks/getLoggedInUser', {
           method: 'POST',
           headers: {
             'content-type': 'application/json',
@@ -51,7 +55,7 @@ const TaskAddForm = () => {
 
     let finalAssignUser = isOwnTask ? assignUser : assignee
 
-    const response = await fetch(import.meta.env.VITE_BASE_URL + '/api/users/tasks/add/new', {
+    const response = await fetch(import.meta.env.VITE_BASE_URL + '/api/task/tasks/add/new', {
       method: "POST",
       headers: {
         "content-type": "application/json",
