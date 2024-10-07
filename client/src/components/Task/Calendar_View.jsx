@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { format, endOfMonth, addMonths, subMonths, isToday, startOfMonth, getDay, subDays } from 'date-fns';
+import { format, endOfMonth, addMonths, subMonths, isToday, startOfMonth, getDay, subDays, isBefore, isAfter } from 'date-fns';
 import axios from 'axios';
 import { NavLink } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
@@ -12,24 +12,29 @@ const Calendar = () => {
   const [newComment, setNewComment] = useState('');
   const [editCommentIndex, setEditCommentIndex] = useState(null);
   const [isCommentSectionVisible, setIsCommentSectionVisible] = useState(false);
+  const [taskDetails, setTaskDetails] = useState(null); // State for task details
+  const [newTask, setNewTask] = useState(''); // State for new task input
+  const [isNewTaskVisible, setIsNewTaskVisible] = useState(false); // State for showing new task input
 
   // Fetch tasks from backend
   const fetchTasks = async () => {
     try {
-      const response = await axios.get('/api/tasks'); // Replace with your API endpoint
-      if (Array.isArray(response.data)) {
-        setTasks(response.data);
-      } else {
-        console.error("Expected an array but got:", response.data);
-      }
+      const response = await axios.get(import.meta.env.VITE_BASE_URL + '/api/task/tasks', {
+        method: "GET",
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      setTasks(response.data.tasks);
     } catch (error) {
-      console.error("Error fetching tasks:", error);
+      console.error("Error fetching tasks:", error.message);
     }
   };
 
   useEffect(() => {
     fetchTasks();
   }, []);
+  
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -50,6 +55,17 @@ const Calendar = () => {
     setIsCommentSectionVisible(true);
     setNewComment('');
     setEditCommentIndex(null);
+
+    // Check for tasks on the selected date
+    const taskForDate = tasks.find(task => format(new Date(task.date), 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd'));
+    
+    if (taskForDate) {
+      setTaskDetails(taskForDate); // Set task details if they exist
+      setIsNewTaskVisible(false); // Hide new task input
+    } else {
+      setTaskDetails(null); // Clear task details if no task exists
+      setIsNewTaskVisible(true); // Show new task input
+    }
   };
 
   const handleCommentChange = (e) => {
@@ -107,10 +123,33 @@ const Calendar = () => {
     setIsCommentSectionVisible(false);
     setNewComment('');
     setEditCommentIndex(null);
+    setTaskDetails(null); // Clear task details
+    setNewTask(''); // Clear new task input
+    setIsNewTaskVisible(false); // Hide new task input
   };
 
   const reopenCommentsSection = () => {
     setIsCommentSectionVisible(true);
+  };
+
+  const handleNewTaskChange = (e) => {
+    setNewTask(e.target.value);
+  };
+
+  const addNewTask = () => {
+    if (newTask.trim()) {
+      // You can replace this part with an API call to add the task
+      const newTaskObject = {
+        date: format(selectedDate, 'yyyy-MM-dd'),
+        task: newTask,
+        completed: false // Set completed status as needed
+      };
+
+      setTasks([...tasks, newTaskObject]); // Update the local state
+      setNewTask('');
+      setIsNewTaskVisible(false); // Hide the new task input
+      alert("Task added successfully!"); // You can replace this with a toast notification
+    }
   };
 
   return (
@@ -143,16 +182,15 @@ const Calendar = () => {
           
           {getDaysInMonth().map((date, index) => {
             const taskForDate = tasks.find(task => format(new Date(task.date), 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd'));
-            const isTaskCompleted = taskForDate && taskForDate.completed;
-            const isNewTask = taskForDate && !taskForDate.completed;
+            const isCompletedTask = taskForDate && isBefore(new Date(taskForDate.date), new Date());
+            const isUpcomingTask = taskForDate && isAfter(new Date(taskForDate.date), new Date());
   
             return (
               <div 
                 key={index} 
-                className={`py-4 px-1 border rounded-lg ${isToday(date) ? 'bg-blue-200' : ''} ${isTaskCompleted ? 'bg-green-200' : isNewTask ? 'bg-yellow-200' : ''}`}
+                className={`py-4 px-1 border rounded-lg ${isToday(date) ? 'bg-blue-200' : ''} 
+                ${isCompletedTask ? 'bg-green-200' : isUpcomingTask ? 'bg-yellow-200' : ''}`}
                 onClick={() => handleClick(date)}
-                onMouseEnter={() => setHoveredDate(date)}
-                onMouseLeave={() => setHoveredDate(null)}
               >
                 <span>{format(date, 'd')}</span>
                 {comments[format(date, 'yyyy-MM-dd')] && comments[format(date, 'yyyy-MM-dd')].length > 0 && <span className="text-xs">💬</span>}
@@ -162,57 +200,82 @@ const Calendar = () => {
         </div>
       </div>
   
-      {/* Comments Section */}
+      {/* Comments and Task Details Section */}
       <div className="w-full md:w-1/3 ml-0 md:ml-4">
         {selectedDate && (
-          <div className="p-4 border rounded-lg bg-white shadow">
-            <div className="flex justify-between items-center">
-              <h3 className="font-bold text-lg">{`Comments for ${format(selectedDate, 'MMMM d, yyyy')}`}</h3>
-              {/* Close button for PC view */}
-              <button className="text-red-500 hidden md:block" onClick={closeCommentsSection}>Close</button>
-              {/* Close button for mobile view */}
-              <button className="text-red-500 md:hidden ml-4" onClick={closeCommentsSection}>X</button>
-            </div>
+          <div className="p-4 border rounded-lg bg-white shadow-md">
+            <h3 className="font-bold text-lg">{format(selectedDate, 'MMMM d, yyyy')}</h3>
+            
+            {taskDetails ? (
+              <div className="mt-2">
+                <h4 className="font-semibold">Task Details:</h4>
+                <p>{taskDetails.task}</p>
+              </div>
+            ) : (
+              <div className="mt-2">
+                <h4 className="font-semibold">No Task Found!</h4>
+                {isNewTaskVisible && (
+                  <div>
+                    <NavLink to="/tasks/add/complete"><button 
+                      className="bg-blue-500 text-white px-4 py-2 rounded mt-2"
+                    >
+                      Add Completed Task
+                    </button></NavLink>
+                    &nbsp;&nbsp;OR&nbsp;&nbsp;
+                    <NavLink to="/tasks/add/new"><button 
+                      className="bg-blue-500 text-white px-4 py-2 rounded mt-2"
+                    >
+                      Add New Task
+                    </button></NavLink>
+                  </div>
+                )}
+              </div>
+            )}
   
-            {comments[format(selectedDate, 'yyyy-MM-dd')] && comments[format(selectedDate, 'yyyy-MM-dd')].length > 0 ? (
-              <div className="space-y-2 pt-4">
-                {comments[format(selectedDate, 'yyyy-MM-dd')].map((comment, index) => (
-                  <div key={index} className="flex justify-between items-center text-gray-600">
-                    <p>{comment}</p>
+            {isCommentSectionVisible && (
+              <div className="mt-4">
+                <h4 className="font-semibold">Comments:</h4>
+                <div className="mt-2">
+                  <input 
+                    type="text" 
+                    value={newComment} 
+                    onChange={handleCommentChange} 
+                    placeholder="Add a comment..." 
+                    className="border rounded px-2 py-1 w-full"
+                  />
+                  {editCommentIndex !== null ? (
+                    <button 
+                      onClick={updateComment} 
+                      className="bg-blue-500 text-white px-4 py-2 rounded mt-2"
+                    >
+                      Update Comment
+                    </button>
+                  ) : (
+                    <button 
+                      onClick={addComment} 
+                      className="bg-blue-500 text-white px-4 py-2 rounded mt-2"
+                    >
+                      Add Comment
+                    </button>
+                  )}
+                </div>
+                {comments[format(selectedDate, 'yyyy-MM-dd')] && comments[format(selectedDate, 'yyyy-MM-dd')].map((comment, index) => (
+                  <div key={index} className="flex justify-between items-center mt-2">
+                    <span>{comment}</span>
                     <div>
-                      <button className="bg-yellow-500 text-white px-2 py-1 rounded mr-2" onClick={() => editComment(index)}>Edit</button>
-                      <button className="bg-red-500 text-white px-2 py-1 rounded" onClick={() => deleteComment(index)}>Delete</button>
+                      <button onClick={() => editComment(index)} className="text-blue-500">Edit</button>
+                      <button onClick={() => deleteComment(index)} className="text-red-500 ml-2">Delete</button>
                     </div>
                   </div>
                 ))}
               </div>
-            ) : (
-              <p className='mt-4'>No comments. Would you like to add?</p>
             )}
-  
-            {isCommentSectionVisible ? (
-              <>
-                <textarea 
-                  placeholder="Add a comment..." 
-                  value={newComment}
-                  onChange={handleCommentChange}
-                  className="border rounded p-2 w-full mt-2"
-                />
-                <button 
-                  onClick={editCommentIndex !== null ? updateComment : addComment} 
-                  className="bg-blue-500 text-white px-4 py-2 rounded mt-2"
-                >
-                  {editCommentIndex !== null ? 'Update Comment' : 'Add Comment'}
-                </button>
-              </>
-            ) : (
-              <button 
-                onClick={reopenCommentsSection} 
-                className="bg-blue-500 text-white px-4 py-2 rounded mt-2"
-              >
-                Add Comment
-              </button>
-            )}
+            <button 
+              onClick={closeCommentsSection} 
+              className="bg-gray-500 text-white px-4 py-2 rounded mt-2"
+            >
+              Close
+            </button>
           </div>
         )}
       </div>
