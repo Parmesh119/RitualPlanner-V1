@@ -13,6 +13,8 @@ const TaskAddForm = () => {
   const [description, setDescription] = useState('');
   const [date, setDate] = useState('');
   const [location, setLocation] = useState('');
+  // const [startTime, setStartTime] = useState('');
+  // const [endTime, setEndTime] = useState('')
   const [assignee, setAssignee] = useState(''); // Initially empty
   const [assignUser, setAssignUser] = useState(''); // Store logged-in user
   const [isOwnTask, setIsOwnTask] = useState(true); // Toggle for own task or someone else
@@ -103,6 +105,7 @@ const TaskAddForm = () => {
             className="w-full p-2 border border-gray-300 rounded-md"
             placeholder="Enter task name"
             required
+            autoFocus
           />
         </div>
 
@@ -144,6 +147,31 @@ const TaskAddForm = () => {
             required
           />
         </div>
+
+        {/* Start Time of work */}
+        {/* <div className='flex flex-row justify-between'>
+          <span className='text-end'>
+        <label className="block text-gray-700">Start Time </label>
+        <input
+          type="time"
+          value={startTime}
+          onChange={(e) => setStartTime(e.target.value)}
+          className="w-50 py-2 px-1 border border-gray-300 rounded-md"
+          required />
+        
+        </span>
+        End Time of work
+        <span className='mt-6 lg:mt-8 tracking-wide text-md text-center'>Time of you work</span>
+        <span className='text-center'>
+        <label className="block text-gray-700 " >End Time</label>
+        <input
+          type="time"
+          value={endTime}
+          onChange={(e) => setEndTime(e.target.value)}
+          className="w-50 py-2 px-1 border border-gray-300 rounded-md"
+          required />
+          </span>
+        </div> */}
 
         {/* Toggle for Task Ownership */}
         <div className="flex items-center justify-between">

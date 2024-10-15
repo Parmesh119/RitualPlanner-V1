@@ -1,9 +1,8 @@
 import { Fragment, useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { Dialog, DialogPanel, Menu, Transition } from '@headlessui/react';
-import { Bars3Icon, XMarkIcon, ChevronDownIcon, ArrowRightIcon, BellIcon } from '@heroicons/react/24/outline';
+import { Bars3Icon, XMarkIcon, ChevronDownIcon, ChevronUpIcon, ArrowRightIcon, BellIcon, MoonIcon } from '@heroicons/react/24/outline';
 import { useAuth } from '../../AuthContext';
-import Notification from '../Notification/Notification';
 
 const navigation = [
   { name: 'Task Management', href: '/tasks', dropdown: true },
@@ -19,11 +18,32 @@ const Navbar = () => {
 
   const [isLogin, setIsLogin] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isDropDownOpen1, setDropDownOpen1] = useState(false)
+  const [isDropDownOpen2, setDropDownOpen2] = useState(false)
+  const [isDropDownOpen3, setDropDownOpen3] = useState(false)
+  const [isDropDownOpen4, setDropDownOpen4] = useState(false)
+
+  const changeDropDown1 = () => {
+    setDropDownOpen1(!isDropDownOpen1)
+  }
+
+  const changeDropDown2 = () => {
+    setDropDownOpen2(!isDropDownOpen2)
+  }
+
+  const changeDropDown3 = () => {
+    setDropDownOpen3(!isDropDownOpen3)
+  }
+
+  const changeDropDown4 = () => {
+    setDropDownOpen4(!isDropDownOpen4)
+  }
 
   const { isLoggedIn, logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLinkClick = () => {
+    
     setMobileMenuOpen(false);
   };
 
@@ -61,6 +81,10 @@ const Navbar = () => {
     Onlogin()
   }, [localStorage.getItem('token'), localStorage.getItem('userId')])
 
+  const toggleDarkModeLightMode = () => {
+    
+  }
+
 
   return (
     <header className="absolute inset-x-0 top-0 z-50" style={{
@@ -94,7 +118,8 @@ const Navbar = () => {
           </span>
         </div>
 
-        <div className="flex lg:hidden gap-2">
+        <div className="flex lg:hidden gap-1">
+        <abbr title="Dark mode"><MoonIcon className="cursor-pointer h-8 w-8 font-bold text-black border border-gray-700 rounded-full p-1"></MoonIcon></abbr>
         <NavLink to="/notifications"><abbr title="Notifications"><BellIcon className="cursor-pointer h-8 w-8 font-bold text-black border border-gray-700 rounded-full p-1 "  ></BellIcon></abbr></NavLink>
           <button
             type="button"
@@ -110,9 +135,9 @@ const Navbar = () => {
             item.dropdown && item.name === 'Notes' ? (
               <Menu as="div" className="relative inline-block text-left" key={item.name}>
                 <div>
-                  <Menu.Button className="text-sm font-semibold leading-6 gap-2 inline-flex items-center">
+                  <Menu.Button className="text-sm font-semibold leading-6 gap-2 inline-flex items-center" onClick={changeDropDown1}>
                     {item.name}
-                    <ChevronDownIcon className="-mr-1 h-5 w-5 text-white" aria-hidden="true" />
+                    {isDropDownOpen1 ? <ChevronUpIcon className="-mr-1 h-5 w-5 text-white" aria-hidden="true" /> : <ChevronDownIcon className="-mr-1 h-5 w-5 text-white" aria-hidden="true" />}
                   </Menu.Button>
                 </div>
                 <Transition
@@ -125,8 +150,8 @@ const Navbar = () => {
                   leaveTo="transform opacity-0 scale-95"
                 >
                   <Menu.Items className="absolute right-0 z-20 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none font-bold tracking-wide">
-                    <div className="py-1">
-                      <Menu.Item>
+                    <div className="py-1" >
+                      <Menu.Item onClick={changeDropDown1}>
                         {({ active }) => (
                           <NavLink
                             to="/notes/create"
@@ -138,7 +163,7 @@ const Navbar = () => {
                           </NavLink>
                         )}
                       </Menu.Item>
-                      <Menu.Item>
+                      <Menu.Item onClick={changeDropDown1}  >
                         {({ active }) => (
                           <NavLink
                             to="/notes/all"
@@ -158,9 +183,9 @@ const Navbar = () => {
             ) : (
               item.name === "Task Management" ? <Menu as="div" className="relative inline-block text-left" key={item.name}>
                 <div>
-                  <Menu.Button className="text-sm font-semibold leading-6 text-white gap-2 inline-flex items-center">
+                  <Menu.Button className="text-sm font-semibold leading-6 text-white gap-2 inline-flex items-center" onClick={changeDropDown2}>
                     {item.name}
-                    <ChevronDownIcon className="-mr-1 h-5 w-5 text-white" aria-hidden="true" />
+                    {isDropDownOpen2 ? <ChevronUpIcon className="-mr-1 h-5 w-5 text-white" aria-hidden="true" /> : <ChevronDownIcon className="-mr-1 h-5 w-5 text-white" aria-hidden="true" />}
                   </Menu.Button>
                 </div>
                 <Transition
@@ -174,7 +199,7 @@ const Navbar = () => {
                 >
                   <Menu.Items className="absolute right-0 z-20 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none font-bold tracking-wide">
                     <div className="py-1">
-                      <Menu.Item>
+                      <Menu.Item onClick={changeDropDown2}>
                         {({ active }) => (
                           <NavLink
                             to="/tasks"
@@ -186,7 +211,7 @@ const Navbar = () => {
                           </NavLink>
                         )}
                       </Menu.Item>
-                      <Menu.Item>
+                      <Menu.Item onClick={changeDropDown2}>
                         {({ active }) => (
                           <NavLink
                             to="/calendar-view"
@@ -204,9 +229,9 @@ const Navbar = () => {
               </Menu>
                 : (item.name === 'More' ? <Menu as="div" className="relative inline-block text-left" key={item.name}>
                   <div>
-                    <Menu.Button  className="text-sm font-semibold leading-6 text-white gap-2 inline-flex items-center">
+                    <Menu.Button  className="text-sm font-semibold leading-6 text-white gap-2 inline-flex items-center" onClick={changeDropDown3}>
                       {item.name}
-                      <ChevronDownIcon className="-mr-1 h-5 w-5 text-white" aria-hidden="true" />
+                      {isDropDownOpen3 ? <ChevronUpIcon className="-mr-1 h-5 w-5 text-white" aria-hidden="true" /> : <ChevronDownIcon className="-mr-1 h-5 w-5 text-white" aria-hidden="true" />}
                     </Menu.Button>
                   </div>
                   <Transition
@@ -220,7 +245,7 @@ const Navbar = () => {
                   >
                     <Menu.Items className="font-bold tracking-wide absolute right-0 z-20 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                       <div className="py-1">
-                        <Menu.Item>
+                        <Menu.Item onClick={changeDropDown3}>
                           {({ active }) => (
                             <NavLink
                               to="/bookings"
@@ -232,7 +257,7 @@ const Navbar = () => {
                             </NavLink>
                           )}
                         </Menu.Item>
-                        <Menu.Item>
+                        <Menu.Item onClick={changeDropDown3}>
                           {({ active }) => (
                             <NavLink
                               to="/about"
@@ -244,7 +269,7 @@ const Navbar = () => {
                             </NavLink>
                           )}
                         </Menu.Item>
-                        <Menu.Item>
+                        <Menu.Item onClick={changeDropDown3}>
                           {({ active }) => (
                             <NavLink
                               to="/contact"
@@ -275,13 +300,14 @@ const Navbar = () => {
         <div className="hidden lg:flex lg:flex-1 lg:justify-end">
           {isLogin ? (
             <Menu as="div" className="relative inline-block text-left">
-              <div className='flex gap-4'>
+              <div className='flex gap-6'>
+                <abbr title="Dark mode"><MoonIcon className="cursor-pointer h-8 w-8 font-bold text-black border border-gray-700 rounded-full p-1" onClick={toggleDarkModeLightMode}></MoonIcon></abbr>
                 <NavLink to="/notifications"><abbr title="Notifications"><BellIcon className="cursor-pointer h-8 w-8 font-bold text-black border border-gray-700 rounded-full p-1 "  ></BellIcon></abbr></NavLink>
-                <Menu.Button className="text-sm font-semibold leading-6 text-gray-900 inline-flex items-center">
+                <Menu.Button className="text-sm font-semibold leading-6 text-gray-900 inline-flex items-center" onClick={changeDropDown4}>
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-8">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                   </svg>
-                  <ChevronDownIcon className="-mr-1 h-5 w-5 text-black" aria-hidden="true" />
+                  {isDropDownOpen4 ? <ChevronUpIcon className="-mr-1 h-5 w-5 text-black" aria-hidden="true" /> : <ChevronDownIcon className="-mr-1 h-5 w-5 text-black" aria-hidden="true" />}
                 </Menu.Button>
               </div>
               <Transition
@@ -295,7 +321,7 @@ const Navbar = () => {
               >
                 <Menu.Items className="absolute right-0 z-20 mt-2 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                   <div className="py-1">
-                    <Menu.Item className="font-bold">
+                    <Menu.Item className="font-bold" onClick={changeDropDown4}>
                       {({ active }) => (
                         <NavLink
                           to={`/profile/${id}/dashboard`}
@@ -306,7 +332,7 @@ const Navbar = () => {
                         </NavLink>
                       )}
                     </Menu.Item>
-                    <Menu.Item className="font-bold">
+                    <Menu.Item className="font-bold" onClick={changeDropDown4}>
                       {({ active }) => (
                         <NavLink
                           to={`/profile/${id}`}
@@ -318,7 +344,7 @@ const Navbar = () => {
                         </NavLink>
                       )}
                     </Menu.Item>
-                    <Menu.Item className="font-bold">
+                    <Menu.Item className="font-bold" onClick={changeDropDown4}>
                       {({ active }) => (
                         <NavLink
                           to={`/profile/${id}/setting`}
@@ -329,7 +355,7 @@ const Navbar = () => {
                         </NavLink>
                       )}
                     </Menu.Item>
-                    <Menu.Item className="font-bold">
+                    <Menu.Item className="font-bold"onClick={changeDropDown4}>
                       {({ active }) => (
                         <button
                           onClick={handleLogout}
@@ -393,9 +419,9 @@ const Navbar = () => {
                   item.dropdown && item.name === 'Notes' ? (
                     <Menu as="div" className="relative flex flex-col text-left pt-2" key={item.name}>
                       <div>
-                        <Menu.Button className="font-semibold leading-6 text-gray-900 inline-flex items-center -m-2.5 p-2.5 text-base">
+                        <Menu.Button className="font-semibold gap-1 leading-6 text-gray-900 inline-flex items-center -m-2.5 p-2.5 text-base" onClick={changeDropDown1}>
                           {item.name}
-                          <ChevronDownIcon className="-mr-1 h-5 w-5 text-gray-400" aria-hidden="true" />
+                          {isDropDownOpen1 ? <ChevronUpIcon className="-mr-1 h-5 w-5 text-black" aria-hidden="true" /> : <ChevronDownIcon className="-mr-1 h-5 w-5 text-black" aria-hidden="true" />}
                         </Menu.Button>
                       </div>
                       <Transition
@@ -407,9 +433,9 @@ const Navbar = () => {
                         leaveFrom="transform opacity-100 scale-100"
                         leaveTo="transform opacity-0 scale-95"
                       >
-                        <Menu.Items className="font-bold tracking-wide absolute right-0 left-1 z-20 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                        <Menu.Items className="font-bold tracking-wide absolute right-0 left-1 z-20 mt-8 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none" >
                           <div className="py-1">
-                            <Menu.Item>
+                            <Menu.Item onClick={changeDropDown1}>
                               {({ active }) => (
                                 <NavLink
                                   to="/notes/create"
@@ -421,7 +447,7 @@ const Navbar = () => {
                                 </NavLink>
                               )}
                             </Menu.Item>
-                            <Menu.Item>
+                            <Menu.Item onClick={changeDropDown1}>
                               {({ active }) => (
                                 <NavLink
                                   to="/notes/all"
@@ -440,9 +466,9 @@ const Navbar = () => {
                   ) : item.name === "Task Management" ? (
                     <Menu as="div" className="relative inline-block text-left pb-3" key={item.name}>
                       <div>
-                        <Menu.Button className="font-semibold leading-6 text-gray-900 inline-flex items-center -m-2.5 p-2.5 text-base">
+                        <Menu.Button className="font-semibold gap-1 leading-6 text-gray-900 inline-flex items-center -m-2.5 p-2.5 text-base" onClick={changeDropDown2}>
                           {item.name}
-                          <ChevronDownIcon className="-mr-1 h-5 w-5 text-gray-400" aria-hidden="true" />
+                          {isDropDownOpen2 ? <ChevronUpIcon className="-mr-1 h-5 w-5 text-black" aria-hidden="true" /> : <ChevronDownIcon className="-mr-1 h-5 w-5 text-black" aria-hidden="true" />}
                         </Menu.Button>
                       </div>
                       <Transition
@@ -456,7 +482,7 @@ const Navbar = () => {
                       >
                         <Menu.Items className="font-bold tracking-wide absolute right-0 left-1 z-20 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                           <div className="py-1">
-                            <Menu.Item>
+                            <Menu.Item onClick={changeDropDown2}>
                               {({ active }) => (
                                 <NavLink
                                   to="/tasks"
@@ -468,7 +494,7 @@ const Navbar = () => {
                                 </NavLink>
                               )}
                             </Menu.Item>
-                            <Menu.Item>
+                            <Menu.Item onClick={changeDropDown2}>
                               {({ active }) => (
                                 <NavLink
                                   to="/"
@@ -487,9 +513,9 @@ const Navbar = () => {
                   ) : item.name === "More" ? (
                     <Menu as="div" className="relative inline-block text-left pt-4" key={item.name}>
                       <div>
-                        <Menu.Button className="font-semibold leading-6 text-gray-900 inline-flex items-center -m-2.5 p-2.5 text-base">
+                        <Menu.Button className="font-semibold gap-1 leading-6 text-gray-900 inline-flex items-center -m-2.5 p-2.5 text-base" onClick={changeDropDown3}>
                           {item.name}
-                          <ChevronDownIcon className="-mr-1 h-5 w-5 text-gray-400" aria-hidden="true" />
+                          {isDropDownOpen3 ? <ChevronUpIcon className="-mr-1 h-5 w-5 text-black" aria-hidden="true" /> : <ChevronDownIcon className="-mr-1 h-5 w-5 text-black" aria-hidden="true" />}
                         </Menu.Button>
                       </div>
                       <Transition
@@ -503,7 +529,7 @@ const Navbar = () => {
                       >
                         <Menu.Items className="font-bold tracking-wide absolute right-0 left-1 z-20 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                           <div className="py-1">
-                            <Menu.Item>
+                            <Menu.Item onClick={changeDropDown3}>
                               {({ active }) => (
                                 <NavLink
                                   to="/bookings"
@@ -515,7 +541,7 @@ const Navbar = () => {
                                 </NavLink>
                               )}
                             </Menu.Item>
-                            <Menu.Item>
+                            <Menu.Item onClick={changeDropDown3}>
                               {({ active }) => (
                                 <NavLink
                                   to="/about"
@@ -527,7 +553,7 @@ const Navbar = () => {
                                 </NavLink>
                               )}
                             </Menu.Item>
-                            <Menu.Item>
+                            <Menu.Item onClick={changeDropDown3}>
                               {({ active }) => (
                                 <NavLink
                                   to="/contact"
@@ -562,12 +588,12 @@ const Navbar = () => {
                       <Menu as="div" className="relative inline-block text-left">
                         <div>
                           
-                          <Menu.Button className="font-semibold leading-6 text-gray-900 inline-flex items-center -m-2.5 p-2.5 text-base">
+                          <Menu.Button onClick={changeDropDown4} className="font-semibold gap-1 leading-6 text-gray-900 inline-flex items-center -m-2.5 p-2.5 text-base">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-8">
                               <path strokeLinecap="round" strokeLinejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                             </svg>
 
-                            <ChevronDownIcon className="-mr-1 h-5 w-5 text-gray-400" aria-hidden="true" />
+                            {isDropDownOpen4 ? <ChevronUpIcon className="-mr-1 h-5 w-5 text-black" aria-hidden="true" /> : <ChevronDownIcon className="-mr-1 h-5 w-5 text-black" aria-hidden="true" />}
                           </Menu.Button>
                         </div>
                         <Transition
@@ -579,9 +605,9 @@ const Navbar = () => {
                           leaveFrom="transform opacity-100 scale-100"
                           leaveTo="transform opacity-0 scale-95"
                         >
-                          <Menu.Items className="absolute right-0 left-1 z-20 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                          <Menu.Items className="absolute text-black font-bold tracking-wide right-0 left-1 z-20 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                             <div className="py-1">
-                              <Menu.Item>
+                              <Menu.Item onClick={changeDropDown4}>
                                 {({ active }) => (
                                   <NavLink
                                     to={`profile/${id}/dashboard`}
@@ -593,7 +619,7 @@ const Navbar = () => {
                                   </NavLink>
                                 )}
                               </Menu.Item>
-                              <Menu.Item>
+                              <Menu.Item onClick={changeDropDown4}>
                                 {({ active }) => (
                                   <NavLink
                                     to="/profile"
@@ -605,7 +631,7 @@ const Navbar = () => {
                                   </NavLink>
                                 )}
                               </Menu.Item>
-                              <Menu.Item>
+                              <Menu.Item onClick={changeDropDown4}>
                                 {({ active }) => (
                                   <NavLink
                                     to="/settings"
@@ -617,7 +643,7 @@ const Navbar = () => {
                                   </NavLink>
                                 )}
                               </Menu.Item>
-                              <Menu.Item>
+                              <Menu.Item onClick={changeDropDown4}>
                                 {({ active }) => (
                                   <NavLink
                                     to="/logout"

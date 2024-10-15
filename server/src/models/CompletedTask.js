@@ -21,6 +21,13 @@ const taskSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    // start: {
+    //     type: Date, required: true
+    // },
+    // end: {
+    //     type: Date, 
+    //     required: true
+    // },
     finalAssignUser: {
         type: String,
         required: true

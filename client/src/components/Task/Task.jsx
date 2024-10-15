@@ -124,27 +124,27 @@ const TasksDashboard = () => {
     if (selectAll) {
       setSelectedTasks([]);
     } else {
-        const allTaskIds = tasks.map(task => task._id);
-        setSelectedTasks(allTaskIds);
+      const allTaskIds = tasks.map(task => task._id);
+      setSelectedTasks(allTaskIds);
     }
     setSelectAll(!selectAll);
   };
 
   const handleAllDelete = async () => {
 
-    if(confirm("Are you sure want to delete your all tasks?")) {
+    if (confirm("Are you sure want to delete your all tasks?")) {
       try {
         const response = await fetch(import.meta.env.VITE_BASE_URL + '/api/task/tasks/delete/all', {
           method: 'DELETE',
           headers: {
-              "content-type": "application/json"
+            "content-type": "application/json"
           },
           body: JSON.stringify(selectedTasks)
         })
 
         const res = await response.json()
 
-        if(res.error) {
+        if (res.error) {
           toast.error(res.error)
           navigate("/tasks")
           setSelectAll(false)
@@ -156,7 +156,7 @@ const TasksDashboard = () => {
           setSelectAll(false)
           setSelectedTasks([]);
         }
-      } catch(error) {
+      } catch (error) {
         toast.error(error.message)
         navigate("/tasks")
         setSelectAll(false)
@@ -166,7 +166,7 @@ const TasksDashboard = () => {
       navigate(-1)
     }
   }
-    
+
 
   return (
     <div className="p-4 sm:p-16 py-10">
@@ -316,6 +316,7 @@ const TasksDashboard = () => {
           <table className="min-w-full bg-white border border-gray-200">
             <thead>
               <tr>
+                <th className="py-2 px-4"><></></th>
                 <th className="py-2 px-4">Sr. No.</th>
                 <th className="py-2 px-4">Name</th>
                 <th className="py-2 px-4">Description</th>
@@ -323,12 +324,18 @@ const TasksDashboard = () => {
                 <th className="py-2 px-4">Assigned User</th>
                 <th className="py-2 px-4">Amount</th>
                 <th className="py-2 px-4">Date</th>
+                {/* <th className="py-2 px-4">Start Time</th>
+                <th className="py-2 px-4">End Time </th> */}
                 <th className="py-2 px-4">Actions</th>
               </tr>
             </thead>
             <tbody>
+
               {currentTasks.filter(val => search === "" || val.taskName.toLowerCase().includes(search.toLowerCase())).map((data, index) => (
-                <tr key={data._id} className="text-center border-b"  style={{ backgroundColor: selectAll || selectedTasks.includes(data._id) ? 'lightblue' : 'transparent' }}>
+                <tr key={data._id} className="text-center border-b" style={{ backgroundColor: selectAll || selectedTasks.includes(data._id) ? 'lightblue' : 'transparent' }}>
+                  <td className='py-2 px-4'><abbr title='Pin the task'><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" className="bi bi-pin" viewBox="0 0 16 16">
+                    <path d="M4.146.146A.5.5 0 0 1 4.5 0h7a.5.5 0 0 1 .5.5c0 .68-.342 1.174-.646 1.479-.126.125-.25.224-.354.298v4.431l.078.048c.203.127.476.314.751.555C12.36 7.775 13 8.527 13 9.5a.5.5 0 0 1-.5.5h-4v4.5c0 .276-.224 1.5-.5 1.5s-.5-1.224-.5-1.5V10h-4a.5.5 0 0 1-.5-.5c0-.973.64-1.725 1.17-2.189A6 6 0 0 1 5 6.708V2.277a3 3 0 0 1-.354-.298C4.342 1.674 4 1.179 4 .5a.5.5 0 0 1 .146-.354m1.58 1.408-.002-.001zm-.002-.001.002.001A.5.5 0 0 1 6 2v5a.5.5 0 0 1-.276.447h-.002l-.012.007-.054.03a5 5 0 0 0-.827.58c-.318.278-.585.596-.725.936h7.792c-.14-.34-.407-.658-.725-.936a5 5 0 0 0-.881-.61l-.012-.006h-.002A.5.5 0 0 1 10 7V2a.5.5 0 0 1 .295-.458 1.8 1.8 0 0 0 .351-.271c.08-.08.155-.17.214-.271H5.14q.091.15.214.271a1.8 1.8 0 0 0 .37.282" />
+                  </svg></abbr></td>
                   <td className="py-2 px-4">{index + 1 + indexOfFirstTask}</td>
                   <td className="py-2 px-4">{data.taskName}</td>
                   <td className="py-2 px-4">{data.description}</td>
@@ -336,6 +343,8 @@ const TasksDashboard = () => {
                   <td className="py-2 px-4">{data.finalAssignUser}</td>
                   <td className="py-2 px-4">{data.amount}</td>
                   <td className="py-2 px-4">{new Date(data.date).toLocaleDateString()}</td>
+                  {/* <td className="py-2 px-4">{data.start}</td>
+                  <td className="py-2 px-4">{data.end}</td> */}
                   <td className="py-2 px-4 flex justify-center space-x-2">
                     <NavLink to={`/tasks/modify/update/${data._id}`}>
                       <abbr title="Update Note">
