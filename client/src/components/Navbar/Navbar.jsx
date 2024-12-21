@@ -3,6 +3,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { Dialog, DialogPanel, Menu, Transition } from '@headlessui/react';
 import { Bars3Icon, XMarkIcon, ChevronDownIcon, ChevronUpIcon, ArrowRightIcon, BellIcon, MoonIcon } from '@heroicons/react/24/outline';
 import { useAuth } from '../../AuthContext';
+import toast from 'react-hot-toast';
 
 const navigation = [
   { name: 'Task Management', href: '/tasks', dropdown: true },
@@ -48,8 +49,13 @@ const Navbar = () => {
   };
 
   const handleLogout = () => {
-    logout();
+    // logout();
     navigate('/'); // Redirect to home or any preferred route
+    setIsLogin(false)
+    localStorage.removeItem("userEmail")
+    localStorage.removeItem("userId")
+    localStorage.removeItem("token")
+    toast.success("User Loggedout Successfully..!");
   };
 
   const Onlogin = () => {
@@ -649,7 +655,7 @@ const Navbar = () => {
                                     to="/logout"
                                     className={`${active ? 'bg-gray-100 text-gray-900' : 'text-gray-700'
                                       } block px-4 py-2 text-sm`}
-                                    onClick={handleLinkClick}
+                                    onClick={handleLogout}
                                   >
                                     Logout
                                   </NavLink>

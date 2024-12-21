@@ -196,19 +196,19 @@ const TasksDashboard = () => {
         <div className="bg-white p-4 rounded-md shadow-md">
           <h2 className="text-lg font-bold mb-2">Total Amount Earned (Completed tasks)</h2>
           <p className="text-2xl sm:text-4xl font-bold">
-            {totalAmountEarn}
+          &#2352; {totalAmountEarn}
           </p>
         </div>
         <div className="bg-white p-4 rounded-md shadow-md">
           <h2 className="text-lg font-bold mb-2">Amount Earned This Month</h2>
           <p className="text-2xl sm:text-4xl font-bold">
-            {monthAmountEarn}
+          &#2352; {monthAmountEarn}
           </p>
         </div>
         <div className="bg-white p-4 rounded-md shadow-md">
           <h2 className="text-lg font-bold mb-2">Amount Earned Previous Month</h2>
           <p className="text-2xl sm:text-4xl font-bold">
-            {previousMonth}
+          &#2352; {previousMonth}
           </p>
         </div>
       </div>
@@ -380,7 +380,7 @@ const TasksDashboard = () => {
         <span className='font-bold tracking-wide'>Page {currentPage} of {totalPages > 0 ? totalPages : 1}</span>
         <button
           onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-          disabled={currentPage === totalPages}
+          disabled={currentPage >= totalPages}
           className="px-4 py-2 bg-blue-600 text-white rounded disabled:bg-gray-400"
         >
           Next

@@ -41,15 +41,6 @@ function App() {
     }
   }
 
-  const ProtectedLoginSignUpRoute = () => {
-    const token = localStorage.getItem('token')
-    if(token) {
-      return <Navigate to={"/"} />
-    } else {
-      return <Navigate to={"/login"} />
-    }
-  }
-
   return (
     <Router>
       <div className="flex flex-col min-h-screen example">
@@ -108,14 +99,10 @@ function App() {
             <Route path="/notes/modify/update/:id" element={<Update />} />
             <Route path="/notes/detail/:id" element={<One_note />} />
             <Route path="/login" element={
-              <ProtectedLoginSignUpRoute>
               <Login />
-              </ProtectedLoginSignUpRoute>
               } />
             <Route path="/register" element={
-              <ProtectedLoginSignUpRoute>
               <SignUp />
-              </ProtectedLoginSignUpRoute>
               } />
             <Route path="/recover-password/verify-otp" element={<Forgot_Password />} />
             <Route path="/recover-password/new-password" element={<New_Password />} />
