@@ -15,6 +15,7 @@ const LoginForm = () => {
 
   const navigate = useNavigate();
 
+  // axios.defaults.withCredentials = true;
   const handleSubmit = async () => {
     if (!credentials || !password) {
       return toast.error("Provide all details...!");
