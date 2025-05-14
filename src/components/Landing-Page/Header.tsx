@@ -38,8 +38,18 @@ export default function Header() {
     }
   }, [])
 
-  const handleNavItemClick = () => {
+  const handleNavItemClick = (sectionId?: string) => {
     setIsMobileMenuOpen(false)
+
+    if (sectionId) {
+      const element = document.getElementById(sectionId)
+      if (element) {
+        element.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+        })
+      }
+    }
   }
 
   return (
@@ -47,7 +57,7 @@ export default function Header() {
       <nav className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <Link to="/" className="text-xl font-bold flex flex-row gap-2" onClick={handleNavItemClick}>
+          <Link to="/" className="text-xl font-bold flex flex-row gap-2" onClick={() => handleNavItemClick()}>
             <img src="https://i.ibb.co/wS8fFBn/logo-color.png" alt="RitualPlanner" width={50} height={50} />
             <span className='mt-1'>RitualPlanner</span>
           </Link>
@@ -55,16 +65,28 @@ export default function Header() {
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
             <div className="flex items-center space-x-10">
-              <Link to="/" className="text-gray-600 hover:text-gray-900 transition-colors">
+              <button
+                onClick={() => handleNavItemClick('about')}
+                className="text-gray-600 hover:text-gray-900 transition-colors"
+              >
                 About
-              </Link>
-              <Link to="/" className="text-gray-600 hover:text-gray-900 transition-colors">
+              </button>
+              <button
+                onClick={() => handleNavItemClick('contact')}
+                className="text-gray-600 hover:text-gray-900 transition-colors"
+              >
                 Contact
-              </Link>
+              </button>
+              <button
+                onClick={() => handleNavItemClick('faq')}
+                className="text-gray-600 hover:text-gray-900 transition-colors"
+              >
+                FAQ
+              </button>
             </div>
             <div className="flex items-center space-x-4">
-              <Button variant="outline" className='cursor-pointer' onClick={handleNavItemClick}>Login</Button>
-              <Button className='cursor-pointer' onClick={handleNavItemClick}>Sign Up</Button>
+              <Button variant="outline" className='cursor-pointer' onClick={() => handleNavItemClick()}>Login</Button>
+              <Button className='cursor-pointer' onClick={() => handleNavItemClick()}>Sign Up</Button>
             </div>
           </div>
 
@@ -86,30 +108,27 @@ export default function Header() {
         {/* Mobile Navigation */}
         {isMobileMenuOpen && (
           <div ref={mobileMenuRef} className="md:hidden pt-4 pb-3 space-y-4">
-            <Link
-              to="/"
-              className="block py-2 text-gray-600 hover:text-gray-900 transition-colors"
-              onClick={handleNavItemClick}
+            <button
+              onClick={() => handleNavItemClick('about')}
+              className="block w-full text-left py-2 text-gray-600 hover:text-gray-900 transition-colors"
             >
               About
-            </Link>
-            <Link
-              to="/"
-              className="block py-2 text-gray-600 hover:text-gray-900 transition-colors"
-              onClick={handleNavItemClick}
+            </button>
+            <button
+              onClick={() => handleNavItemClick('contact')}
+              className="block w-full text-left py-2 text-gray-600 hover:text-gray-900 transition-colors"
             >
               Contact
-            </Link>
-            <Link
-              to="/"
-              className="block py-2 text-gray-600 hover:text-gray-900 transition-colors"
-              onClick={handleNavItemClick}
+            </button>
+            <button
+              onClick={() => handleNavItemClick('faq')}
+              className="block w-full text-left py-2 text-gray-600 hover:text-gray-900 transition-colors"
             >
-              Services
-            </Link>
+              FAQ
+            </button>
             <div className="space-y-2 pt-2">
-              <Button variant="outline" className="w-full" onClick={handleNavItemClick}>Login</Button>
-              <Button className="w-full" onClick={handleNavItemClick}>Sign Up</Button>
+              <Button variant="outline" className="w-full" onClick={() => handleNavItemClick()}>Login</Button>
+              <Button className="w-full" onClick={() => handleNavItemClick()}>Sign Up</Button>
             </div>
           </div>
         )}
