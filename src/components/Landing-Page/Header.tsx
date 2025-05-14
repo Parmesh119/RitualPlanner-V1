@@ -61,9 +61,6 @@ export default function Header() {
               <Link to="/" className="text-gray-600 hover:text-gray-900 transition-colors">
                 Contact
               </Link>
-              <Link to="/" className="text-gray-600 hover:text-gray-900 transition-colors">
-                Services
-              </Link>
             </div>
             <div className="flex items-center space-x-4">
               <Button variant="outline" className='cursor-pointer' onClick={handleNavItemClick}>Login</Button>
