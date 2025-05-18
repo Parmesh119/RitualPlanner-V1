@@ -1,26 +1,31 @@
-import { useState } from "react"
 import { useMutation } from "@tanstack/react-query"
 import { Send, Mail, User, MessageSquare } from "lucide-react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
 
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { Container } from "@/components/ui/container"
 import { Card, CardContent } from "@/components/ui/card"
-
-interface ContactFormData {
-    name: string
-    email: string
-    subject: string
-    message: string
-}
+import { contactFormSchema, type ContactFormData } from "@/schemas/ContactUs"
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormMessage,
+} from "@/components/ui/form"
 
 export default function Contact() {
-    const [formData, setFormData] = useState<ContactFormData>({
-        name: "",
-        email: "",
-        subject: "",
-        message: "",
+    const form = useForm<ContactFormData>({
+        resolver: zodResolver(contactFormSchema),
+        defaultValues: {
+            name: "",
+            email: "",
+            subject: "",
+            message: "",
+        },
     })
 
     const contactMutation = useMutation({
@@ -40,16 +45,8 @@ export default function Contact() {
         },
     })
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault()
-        contactMutation.mutate(formData)
-    }
-
-    const handleChange = (
-        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-    ) => {
-        const { name, value } = e.target
-        setFormData((prev) => ({ ...prev, [name]: value }))
+    const onSubmit = (data: ContactFormData) => {
+        contactMutation.mutate(data)
     }
 
     return (
@@ -67,88 +64,114 @@ export default function Contact() {
 
                 <Card>
                     <CardContent className="p-6">
-                        <form onSubmit={handleSubmit} className="space-y-6">
-                            <div className="space-y-2">
-                                <div className="relative">
-                                    <User className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                                    <Input
-                                        name="name"
-                                        placeholder="Your Name"
-                                        value={formData.name}
-                                        onChange={handleChange}
-                                        className="pl-10"
-                                        required
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="space-y-2">
-                                <div className="relative">
-                                    <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                                    <Input
-                                        name="email"
-                                        type="email"
-                                        placeholder="Your Email"
-                                        value={formData.email}
-                                        onChange={handleChange}
-                                        className="pl-10"
-                                        required
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="space-y-2">
-                                <div className="relative">
-                                    <MessageSquare className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                                    <Input
-                                        name="subject"
-                                        placeholder="Subject"
-                                        value={formData.subject}
-                                        onChange={handleChange}
-                                        className="pl-10"
-                                        required
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="space-y-2">
-                                <Textarea
-                                    name="message"
-                                    placeholder="Your Message"
-                                    value={formData.message}
-                                    onChange={handleChange}
-                                    className="min-h-[150px]"
-                                    required
+                        <Form {...form}>
+                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                                <FormField
+                                    control={form.control}
+                                    name="name"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <div className="relative">
+                                                <User className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                                                <FormControl>
+                                                    <Input
+                                                        placeholder="Your Name"
+                                                        className="pl-10"
+                                                        {...field}
+                                                    />
+                                                </FormControl>
+                                            </div>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
                                 />
-                            </div>
 
-                            <Button
-                                type="submit"
-                                className="w-full"
-                                disabled={contactMutation.isPending}
-                            >
-                                {contactMutation.isPending ? (
-                                    "Sending..."
-                                ) : (
-                                    <>
-                                        Send Message
-                                        <Send className="ml-2 h-4 w-4" />
-                                    </>
+                                <FormField
+                                    control={form.control}
+                                    name="email"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <div className="relative">
+                                                <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                                                <FormControl>
+                                                    <Input
+                                                        type="email"
+                                                        placeholder="Your Email"
+                                                        className="pl-10"
+                                                        {...field}
+                                                    />
+                                                </FormControl>
+                                            </div>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                <FormField
+                                    control={form.control}
+                                    name="subject"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <div className="relative">
+                                                <MessageSquare className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                                                <FormControl>
+                                                    <Input
+                                                        placeholder="Subject"
+                                                        className="pl-10"
+                                                        {...field}
+                                                    />
+                                                </FormControl>
+                                            </div>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                <FormField
+                                    control={form.control}
+                                    name="message"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormControl>
+                                                <Textarea
+                                                    placeholder="Your Message"
+                                                    className="min-h-[150px]"
+                                                    {...field}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                <Button
+                                    type="submit"
+                                    className="w-full"
+                                    disabled={contactMutation.isPending}
+                                >
+                                    {contactMutation.isPending ? (
+                                        "Sending..."
+                                    ) : (
+                                        <>
+                                            Send Message
+                                            <Send className="ml-2 h-4 w-4" />
+                                        </>
+                                    )}
+                                </Button>
+
+                                {contactMutation.isSuccess && (
+                                    <p className="text-green-600 text-center mt-4">
+                                        Message sent successfully!
+                                    </p>
                                 )}
-                            </Button>
 
-                            {contactMutation.isSuccess && (
-                                <p className="text-green-600 text-center mt-4">
-                                    Message sent successfully!
-                                </p>
-                            )}
-
-                            {contactMutation.isError && (
-                                <p className="text-red-600 text-center mt-4">
-                                    Failed to send message. Please try again.
-                                </p>
-                            )}
-                        </form>
+                                {contactMutation.isError && (
+                                    <p className="text-red-600 text-center mt-4">
+                                        Failed to send message. Please try again.
+                                    </p>
+                                )}
+                            </form>
+                        </Form>
                     </CardContent>
                 </Card>
             </div>

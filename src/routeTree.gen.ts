@@ -11,11 +11,20 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as AppRouteImport } from './routes/app/route'
 import { Route as IndexImport } from './routes/index'
-import { Route as RoutesAuthRegisterImport } from './routes/routes/auth/register'
-import { Route as RoutesAuthLoginImport } from './routes/routes/auth/login'
+import { Route as AuthRegisterImport } from './routes/auth/register'
+import { Route as AuthLoginImport } from './routes/auth/login'
+import { Route as AuthForgotPasswordImport } from './routes/auth/forgot-password'
+import { Route as AppDashboardIndexImport } from './routes/app/dashboard/index'
 
 // Create/Update Routes
+
+const AppRouteRoute = AppRouteImport.update({
+  id: '/app',
+  path: '/app',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const IndexRoute = IndexImport.update({
   id: '/',
@@ -23,16 +32,28 @@ const IndexRoute = IndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const RoutesAuthRegisterRoute = RoutesAuthRegisterImport.update({
-  id: '/routes/auth/register',
-  path: '/routes/auth/register',
+const AuthRegisterRoute = AuthRegisterImport.update({
+  id: '/auth/register',
+  path: '/auth/register',
   getParentRoute: () => rootRoute,
 } as any)
 
-const RoutesAuthLoginRoute = RoutesAuthLoginImport.update({
-  id: '/routes/auth/login',
-  path: '/routes/auth/login',
+const AuthLoginRoute = AuthLoginImport.update({
+  id: '/auth/login',
+  path: '/auth/login',
   getParentRoute: () => rootRoute,
+} as any)
+
+const AuthForgotPasswordRoute = AuthForgotPasswordImport.update({
+  id: '/auth/forgot-password',
+  path: '/auth/forgot-password',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const AppDashboardIndexRoute = AppDashboardIndexImport.update({
+  id: '/dashboard/',
+  path: '/dashboard/',
+  getParentRoute: () => AppRouteRoute,
 } as any)
 
 // Populate the FileRoutesByPath interface
@@ -46,63 +67,128 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
-    '/routes/auth/login': {
-      id: '/routes/auth/login'
-      path: '/routes/auth/login'
-      fullPath: '/routes/auth/login'
-      preLoaderRoute: typeof RoutesAuthLoginImport
+    '/app': {
+      id: '/app'
+      path: '/app'
+      fullPath: '/app'
+      preLoaderRoute: typeof AppRouteImport
       parentRoute: typeof rootRoute
     }
-    '/routes/auth/register': {
-      id: '/routes/auth/register'
-      path: '/routes/auth/register'
-      fullPath: '/routes/auth/register'
-      preLoaderRoute: typeof RoutesAuthRegisterImport
+    '/auth/forgot-password': {
+      id: '/auth/forgot-password'
+      path: '/auth/forgot-password'
+      fullPath: '/auth/forgot-password'
+      preLoaderRoute: typeof AuthForgotPasswordImport
       parentRoute: typeof rootRoute
+    }
+    '/auth/login': {
+      id: '/auth/login'
+      path: '/auth/login'
+      fullPath: '/auth/login'
+      preLoaderRoute: typeof AuthLoginImport
+      parentRoute: typeof rootRoute
+    }
+    '/auth/register': {
+      id: '/auth/register'
+      path: '/auth/register'
+      fullPath: '/auth/register'
+      preLoaderRoute: typeof AuthRegisterImport
+      parentRoute: typeof rootRoute
+    }
+    '/app/dashboard/': {
+      id: '/app/dashboard/'
+      path: '/dashboard'
+      fullPath: '/app/dashboard'
+      preLoaderRoute: typeof AppDashboardIndexImport
+      parentRoute: typeof AppRouteImport
     }
   }
 }
 
 // Create and export the route tree
 
+interface AppRouteRouteChildren {
+  AppDashboardIndexRoute: typeof AppDashboardIndexRoute
+}
+
+const AppRouteRouteChildren: AppRouteRouteChildren = {
+  AppDashboardIndexRoute: AppDashboardIndexRoute,
+}
+
+const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
+  AppRouteRouteChildren,
+)
+
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/routes/auth/login': typeof RoutesAuthLoginRoute
-  '/routes/auth/register': typeof RoutesAuthRegisterRoute
+  '/app': typeof AppRouteRouteWithChildren
+  '/auth/forgot-password': typeof AuthForgotPasswordRoute
+  '/auth/login': typeof AuthLoginRoute
+  '/auth/register': typeof AuthRegisterRoute
+  '/app/dashboard': typeof AppDashboardIndexRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/routes/auth/login': typeof RoutesAuthLoginRoute
-  '/routes/auth/register': typeof RoutesAuthRegisterRoute
+  '/app': typeof AppRouteRouteWithChildren
+  '/auth/forgot-password': typeof AuthForgotPasswordRoute
+  '/auth/login': typeof AuthLoginRoute
+  '/auth/register': typeof AuthRegisterRoute
+  '/app/dashboard': typeof AppDashboardIndexRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
-  '/routes/auth/login': typeof RoutesAuthLoginRoute
-  '/routes/auth/register': typeof RoutesAuthRegisterRoute
+  '/app': typeof AppRouteRouteWithChildren
+  '/auth/forgot-password': typeof AuthForgotPasswordRoute
+  '/auth/login': typeof AuthLoginRoute
+  '/auth/register': typeof AuthRegisterRoute
+  '/app/dashboard/': typeof AppDashboardIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/routes/auth/login' | '/routes/auth/register'
+  fullPaths:
+    | '/'
+    | '/app'
+    | '/auth/forgot-password'
+    | '/auth/login'
+    | '/auth/register'
+    | '/app/dashboard'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/routes/auth/login' | '/routes/auth/register'
-  id: '__root__' | '/' | '/routes/auth/login' | '/routes/auth/register'
+  to:
+    | '/'
+    | '/app'
+    | '/auth/forgot-password'
+    | '/auth/login'
+    | '/auth/register'
+    | '/app/dashboard'
+  id:
+    | '__root__'
+    | '/'
+    | '/app'
+    | '/auth/forgot-password'
+    | '/auth/login'
+    | '/auth/register'
+    | '/app/dashboard/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  RoutesAuthLoginRoute: typeof RoutesAuthLoginRoute
-  RoutesAuthRegisterRoute: typeof RoutesAuthRegisterRoute
+  AppRouteRoute: typeof AppRouteRouteWithChildren
+  AuthForgotPasswordRoute: typeof AuthForgotPasswordRoute
+  AuthLoginRoute: typeof AuthLoginRoute
+  AuthRegisterRoute: typeof AuthRegisterRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  RoutesAuthLoginRoute: RoutesAuthLoginRoute,
-  RoutesAuthRegisterRoute: RoutesAuthRegisterRoute,
+  AppRouteRoute: AppRouteRouteWithChildren,
+  AuthForgotPasswordRoute: AuthForgotPasswordRoute,
+  AuthLoginRoute: AuthLoginRoute,
+  AuthRegisterRoute: AuthRegisterRoute,
 }
 
 export const routeTree = rootRoute
@@ -116,18 +202,33 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
-        "/routes/auth/login",
-        "/routes/auth/register"
+        "/app",
+        "/auth/forgot-password",
+        "/auth/login",
+        "/auth/register"
       ]
     },
     "/": {
       "filePath": "index.tsx"
     },
-    "/routes/auth/login": {
-      "filePath": "routes/auth/login.tsx"
+    "/app": {
+      "filePath": "app/route.tsx",
+      "children": [
+        "/app/dashboard/"
+      ]
     },
-    "/routes/auth/register": {
-      "filePath": "routes/auth/register.tsx"
+    "/auth/forgot-password": {
+      "filePath": "auth/forgot-password.tsx"
+    },
+    "/auth/login": {
+      "filePath": "auth/login.tsx"
+    },
+    "/auth/register": {
+      "filePath": "auth/register.tsx"
+    },
+    "/app/dashboard/": {
+      "filePath": "app/dashboard/index.tsx",
+      "parent": "/app"
     }
   }
 }

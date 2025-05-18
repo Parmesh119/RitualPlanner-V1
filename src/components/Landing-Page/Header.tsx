@@ -85,8 +85,8 @@ export default function Header() {
               </button>
             </div>
             <div className="flex items-center space-x-4">
-              <Button variant="outline" className='cursor-pointer' onClick={() => handleNavItemClick()}>Login</Button>
-              <Button className='cursor-pointer' onClick={() => handleNavItemClick()}>Sign Up</Button>
+              <Link to="/auth/login"><Button variant="outline" className='cursor-pointer' >Login</Button></Link>
+              <Link to="/auth/register"><Button className='cursor-pointer' >Sign Up</Button></Link>
             </div>
           </div>
 
