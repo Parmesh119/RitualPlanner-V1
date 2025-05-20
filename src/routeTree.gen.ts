@@ -16,6 +16,7 @@ import { Route as IndexImport } from './routes/index'
 import { Route as AuthRegisterImport } from './routes/auth/register'
 import { Route as AuthLoginImport } from './routes/auth/login'
 import { Route as AuthForgotPasswordImport } from './routes/auth/forgot-password'
+import { Route as AppTasksIndexImport } from './routes/app/tasks/index'
 import { Route as AppDashboardIndexImport } from './routes/app/dashboard/index'
 
 // Create/Update Routes
@@ -48,6 +49,12 @@ const AuthForgotPasswordRoute = AuthForgotPasswordImport.update({
   id: '/auth/forgot-password',
   path: '/auth/forgot-password',
   getParentRoute: () => rootRoute,
+} as any)
+
+const AppTasksIndexRoute = AppTasksIndexImport.update({
+  id: '/tasks/',
+  path: '/tasks/',
+  getParentRoute: () => AppRouteRoute,
 } as any)
 
 const AppDashboardIndexRoute = AppDashboardIndexImport.update({
@@ -102,6 +109,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppDashboardIndexImport
       parentRoute: typeof AppRouteImport
     }
+    '/app/tasks/': {
+      id: '/app/tasks/'
+      path: '/tasks'
+      fullPath: '/app/tasks'
+      preLoaderRoute: typeof AppTasksIndexImport
+      parentRoute: typeof AppRouteImport
+    }
   }
 }
 
@@ -109,10 +123,12 @@ declare module '@tanstack/react-router' {
 
 interface AppRouteRouteChildren {
   AppDashboardIndexRoute: typeof AppDashboardIndexRoute
+  AppTasksIndexRoute: typeof AppTasksIndexRoute
 }
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppDashboardIndexRoute: AppDashboardIndexRoute,
+  AppTasksIndexRoute: AppTasksIndexRoute,
 }
 
 const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
@@ -126,6 +142,7 @@ export interface FileRoutesByFullPath {
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
   '/app/dashboard': typeof AppDashboardIndexRoute
+  '/app/tasks': typeof AppTasksIndexRoute
 }
 
 export interface FileRoutesByTo {
@@ -135,6 +152,7 @@ export interface FileRoutesByTo {
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
   '/app/dashboard': typeof AppDashboardIndexRoute
+  '/app/tasks': typeof AppTasksIndexRoute
 }
 
 export interface FileRoutesById {
@@ -145,6 +163,7 @@ export interface FileRoutesById {
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
   '/app/dashboard/': typeof AppDashboardIndexRoute
+  '/app/tasks/': typeof AppTasksIndexRoute
 }
 
 export interface FileRouteTypes {
@@ -156,6 +175,7 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/register'
     | '/app/dashboard'
+    | '/app/tasks'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -164,6 +184,7 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/register'
     | '/app/dashboard'
+    | '/app/tasks'
   id:
     | '__root__'
     | '/'
@@ -172,6 +193,7 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/register'
     | '/app/dashboard/'
+    | '/app/tasks/'
   fileRoutesById: FileRoutesById
 }
 
@@ -214,7 +236,8 @@ export const routeTree = rootRoute
     "/app": {
       "filePath": "app/route.tsx",
       "children": [
-        "/app/dashboard/"
+        "/app/dashboard/",
+        "/app/tasks/"
       ]
     },
     "/auth/forgot-password": {
@@ -228,6 +251,10 @@ export const routeTree = rootRoute
     },
     "/app/dashboard/": {
       "filePath": "app/dashboard/index.tsx",
+      "parent": "/app"
+    },
+    "/app/tasks/": {
+      "filePath": "app/tasks/index.tsx",
       "parent": "/app"
     }
   }

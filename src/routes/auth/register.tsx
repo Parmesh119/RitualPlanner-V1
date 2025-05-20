@@ -66,13 +66,13 @@ function RegisterPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-md bg-white shadow-lg text-black">
         <CardHeader className="space-y-1 flex flex-col items-center justify-center">
           <img src="https://i.ibb.co/wS8fFBn/logo-color.png" alt="RitualPlanner" className="w-22 h-16" />
           <CardTitle className="text-2xl font-bold text-center">
             Create an account
           </CardTitle>
-          <CardDescription className="text-center">
+          <CardDescription className="text-center text-gray-900">
             Enter your details to create your account
           </CardDescription>
         </CardHeader>
@@ -85,11 +85,11 @@ function RegisterPage() {
                 render={({ field }) => (
                   <FormItem>
                     <div className="relative">
-                      <User className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                      <User className="absolute left-3 top-2 h-5 w-5 text-black" />
                       <FormControl>
                         <Input
                           placeholder="Full Name"
-                          className="pl-10"
+                          className="pl-10 placeholder:text-black"
                           {...field}
                         />
                       </FormControl>
@@ -105,12 +105,12 @@ function RegisterPage() {
                 render={({ field }) => (
                   <FormItem>
                     <div className="relative">
-                      <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                      <Mail className="absolute left-3 top-2 h-5 w-5 text-black" />
                       <FormControl>
                         <Input
                           type="email"
                           placeholder="Email"
-                          className="pl-10"
+                          className="pl-10 placeholder:text-black"
                           {...field}
                         />
                       </FormControl>
@@ -126,12 +126,12 @@ function RegisterPage() {
                 render={({ field }) => (
                   <FormItem>
                     <div className="relative">
-                      <Phone className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                      <Phone className="absolute left-3 top-2 h-5 w-5 text-black" />
                       <FormControl>
                         <Input
                           type="tel"
                           placeholder="Phone Number"
-                          className="pl-10"
+                          className="pl-10 placeholder:text-black"
                           {...field}
                         />
                       </FormControl>
@@ -147,19 +147,19 @@ function RegisterPage() {
                 render={({ field }) => (
                   <FormItem>
                     <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                      <Lock className="absolute left-3 top-2 h-5 w-5 text-black" />
                       <FormControl>
                         <Input
                           type={showPassword ? "text" : "password"}
                           placeholder="Password"
-                          className="pl-10 pr-10"
+                          className="pl-10 pr-10 placeholder:text-black"
                           {...field}
                         />
                       </FormControl>
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+                        className="absolute right-3 top-2 text-black hover:text-gray-600"
                       >
                         {showPassword ? (
                           <EyeOff className="h-5 w-5" />
@@ -179,19 +179,19 @@ function RegisterPage() {
                 render={({ field }) => (
                   <FormItem>
                     <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                      <Lock className="absolute left-3 top-2 h-5 w-5 text-black" />
                       <FormControl>
                         <Input
                           type={showConfirmPassword ? "text" : "password"}
                           placeholder="Confirm Password"
-                          className="pl-10 pr-10"
+                          className="pl-10 pr-10 placeholder:text-black"
                           {...field}
                         />
                       </FormControl>
                       <button
                         type="button"
                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+                        className="absolute right-3 top-2 text-black hover:text-gray-600"
                       >
                         {showConfirmPassword ? (
                           <EyeOff className="h-5 w-5" />
@@ -207,7 +207,7 @@ function RegisterPage() {
 
               <Button
                 type="submit"
-                className="w-full"
+                className="w-full bg-black text-white hover:bg-gray-800"
                 disabled={registerMutation.isPending}
               >
                 {registerMutation.isPending ? (
@@ -229,11 +229,11 @@ function RegisterPage() {
           </Form>
         </CardContent>
         <CardFooter className="flex flex-col space-y-4">
-          <div className="text-sm text-center text-gray-500">
+          <div className="text-sm text-center text-black">
             Already have an account?{" "}
             <Link
               to="/auth/login"
-              className="font-semibold text-primary hover:text-primary/80"
+              className="font-semibold text-blue-600 hover:text-blue-700"
             >
               Sign in
             </Link>

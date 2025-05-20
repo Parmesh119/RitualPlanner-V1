@@ -38,7 +38,7 @@ function LoginPage() {
       password: "",
     },
   })
-  
+
 
   const loginMutation = useMutation({
     mutationFn: async (data: LoginFormData) => {
@@ -64,13 +64,13 @@ function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-md bg-white text-black shadow-lg">
         <CardHeader className="space-y-1 flex flex-col items-center justify-center">
           <img src="https://i.ibb.co/wS8fFBn/logo-color.png" alt="RitualPlanner" className="w-22 h-16" />
           <CardTitle className="text-2xl font-bold text-center">
             Welcome back
           </CardTitle>
-          <CardDescription className="text-center">
+          <CardDescription className="text-center text-gray-900">
             Enter your username/email and password to login
           </CardDescription>
         </CardHeader>
@@ -83,11 +83,12 @@ function LoginPage() {
                 render={({ field }) => (
                   <FormItem>
                     <div className="relative">
-                      <User className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                      <User className="absolute left-3 top-2 h-5 w-5 text-black" />
                       <FormControl>
                         <Input
                           placeholder="Username or Email"
-                          className="pl-10"
+                          autoFocus
+                          className="pl-10 placeholder:text-black"
                           {...field}
                         />
                       </FormControl>
@@ -97,18 +98,18 @@ function LoginPage() {
                 )}
               />
 
-              <FormField
+              <span className='flex justify-between flex-col gap-2'><FormField
                 control={form.control}
                 name="password"
                 render={({ field }) => (
                   <FormItem>
                     <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                      <Lock className="absolute left-3 top-2 h-5 w-5 text-black" />
                       <FormControl>
                         <Input
                           type="password"
                           placeholder="Password"
-                          className="pl-10"
+                          className="pl-10 placeholder:text-black"
                           {...field}
                         />
                       </FormControl>
@@ -116,11 +117,12 @@ function LoginPage() {
                     <FormMessage />
                   </FormItem>
                 )}
-              />
+                />
+                <Link to="/auth/forgot-password" className='text-sm text-blue-500 hover:text-blue-600 font-semibold text-right cursor-pointer'>Forgot Password?</Link></span>
 
               <Button
                 type="submit"
-                className="w-full"
+                className="w-full bg-black text-white hover:bg-gray-800"
                 disabled={loginMutation.isPending}
               >
                 {loginMutation.isPending ? (
@@ -142,11 +144,11 @@ function LoginPage() {
           </Form>
         </CardContent>
         <CardFooter className="flex flex-col space-y-4">
-          <div className="text-sm text-center text-gray-500">
+          <div className="text-sm text-center text-black">
             Don't have an account?{" "}
             <Link
               to="/auth/register"
-              className="font-semibold text-primary hover:text-primary/80"
+              className="font-semibold text-blue-500 hover:text-blue/80"
             >
               Sign up
             </Link>

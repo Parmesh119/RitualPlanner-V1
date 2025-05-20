@@ -62,7 +62,7 @@ export default function Contact() {
                     </p>
                 </div>
 
-                <Card>
+                <Card className="bg-white">
                     <CardContent className="p-6">
                         <Form {...form}>
                             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -72,11 +72,11 @@ export default function Contact() {
                                     render={({ field }) => (
                                         <FormItem>
                                             <div className="relative">
-                                                <User className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                                                <User className="absolute left-3 top-2 h-5 w-5 text-gray-600" />
                                                 <FormControl>
                                                     <Input
                                                         placeholder="Your Name"
-                                                        className="pl-10"
+                                                        className="pl-10 !bg-white !text-black !placeholder-black !border !border-gray-300"
                                                         {...field}
                                                     />
                                                 </FormControl>
@@ -92,12 +92,12 @@ export default function Contact() {
                                     render={({ field }) => (
                                         <FormItem>
                                             <div className="relative">
-                                                <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                                                <Mail className="absolute left-3 top-2 h-5 w-5 text-gray-600" />
                                                 <FormControl>
                                                     <Input
                                                         type="email"
                                                         placeholder="Your Email"
-                                                        className="pl-10"
+                                                        className="pl-10 !bg-white !text-black !placeholder-black !border !border-gray-300"
                                                         {...field}
                                                     />
                                                 </FormControl>
@@ -113,11 +113,11 @@ export default function Contact() {
                                     render={({ field }) => (
                                         <FormItem>
                                             <div className="relative">
-                                                <MessageSquare className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                                                <MessageSquare className="absolute left-3 top-2 h-5 w-5 text-gray-600" />
                                                 <FormControl>
                                                     <Input
                                                         placeholder="Subject"
-                                                        className="pl-10"
+                                                        className="pl-10 !bg-white !text-black !placeholder-black !border !border-gray-300"
                                                         {...field}
                                                     />
                                                 </FormControl>
@@ -135,7 +135,7 @@ export default function Contact() {
                                             <FormControl>
                                                 <Textarea
                                                     placeholder="Your Message"
-                                                    className="min-h-[150px]"
+                                                    className="min-h-[150px] !bg-white !text-black !placeholder-black"
                                                     {...field}
                                                 />
                                             </FormControl>
@@ -146,7 +146,7 @@ export default function Contact() {
 
                                 <Button
                                     type="submit"
-                                    className="w-full"
+                                    className="w-full text-white bg-black hover:bg-gray-800"
                                     disabled={contactMutation.isPending}
                                 >
                                     {contactMutation.isPending ? (

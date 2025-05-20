@@ -59,7 +59,7 @@ export default function Header() {
           {/* Logo */}
           <Link to="/" className="text-xl font-bold flex flex-row gap-2" onClick={() => handleNavItemClick()}>
             <img src="https://i.ibb.co/wS8fFBn/logo-color.png" alt="RitualPlanner" width={50} height={50} />
-            <span className='mt-1'>RitualPlanner</span>
+            <span className='mt-1 text-black tracking-wider'>RitualPlanner</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -85,7 +85,7 @@ export default function Header() {
               </button>
             </div>
             <div className="flex items-center space-x-4">
-              <Link to="/auth/login"><Button variant="outline" className='cursor-pointer' >Login</Button></Link>
+              <Link to="/auth/login"><Button  className='cursor-pointer bg-black text-white hover:bg-gray-800' >Login</Button></Link>
               <Link to="/auth/register"><Button className='cursor-pointer' >Sign Up</Button></Link>
             </div>
           </div>

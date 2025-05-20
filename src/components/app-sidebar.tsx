@@ -1,5 +1,5 @@
-import { User, ChevronUp, User2, Shield, Trophy, Settings, LayoutDashboard } from "lucide-react"
-import { BadgeCheck, LogOut, Moon, Sun, ReceiptIndianRupeeIcon } from 'lucide-react'
+import { ChevronUp, User2, Settings, LayoutDashboard } from "lucide-react"
+import { BadgeCheck, ListTodo, LogOut, Moon, Sun, IndianRupee, Bell, NotebookPen, BookUser, Calendar, List, ScrollText } from 'lucide-react'
 import {
     Sidebar,
     SidebarContent,
@@ -28,24 +28,46 @@ const items = [
         icon: LayoutDashboard,
     },
     {
-        title: "Players",
-        url: "/app/players/",
-        icon: User,
+        title: "Task Management",
+        url: "/app/tasks/",
+        icon: ListTodo,
+        items: [
+            {
+                title: "Tasks",
+                url: "/app/tasks?view=list",
+                icon: List,
+            },
+            {
+                title: "Calendar View",
+                url: "/app/tasks?view=calendar",
+                icon: Calendar,
+            }
+        ]
     },
     {
-        title: "Teams",
-        url: "/app/team/",
-        icon: Shield,
+        title: "Ritual Templates",
+        url: "/app/ritual-templates/",
+        icon: ScrollText,
     },
     {
-        title: "Matches",
-        url: "/app/matches/",
-        icon: Trophy,
+        title: "Expense Tracking",
+        url: "/app/expense/",
+        icon: IndianRupee,
     },
     {
-        title: "Auction",
-        url: "/app/auction/",
-        icon: ReceiptIndianRupeeIcon,
+        title: "Notes",
+        url: "/app/notes/",
+        icon: NotebookPen,
+    },
+    {
+        title: "Client Directory",
+        url: "/app/clients/",
+        icon: BookUser,
+    },
+    {
+        title: "Notifications",
+        url: "/app/notifications/",
+        icon: Bell,
     },
     {
         title: "Settings",
@@ -69,8 +91,8 @@ export function AppSidebar() {
         <Sidebar className="rounded-xl">
             <SidebarContent className="cursor-pointer" >
                 <SidebarGroup className="space-y-4">
-                    <SidebarGroupLabel className="tracking-wider text-xl">RitualPlanner</SidebarGroupLabel>
-                    <SidebarGroupContent>
+                    <SidebarGroupLabel className="tracking-widest text-base gap-4">Application</SidebarGroupLabel>
+                    <SidebarGroupContent> 
                         <SidebarMenu>
                             {items.map((item) => (
                                 <SidebarMenuItem key={item.title}>
@@ -80,6 +102,20 @@ export function AppSidebar() {
                                             <span>{item.title}</span>
                                         </Link>
                                     </SidebarMenuButton>
+                                    {item.items && (
+                                        <SidebarMenu className="ml-2 border-l border-gray-700">
+                                            {item.items.map((subItem) => (
+                                                <SidebarMenuItem key={subItem.title}>
+                                                    <SidebarMenuButton asChild className="text-gray-300 hover:text-white pl-4">
+                                                        <Link to={subItem.url}>
+                                                            <subItem.icon />
+                                                            <span>{subItem.title}</span>
+                                                        </Link>
+                                                    </SidebarMenuButton>
+                                                </SidebarMenuItem>
+                                            ))}
+                                        </SidebarMenu>
+                                    )}
                                 </SidebarMenuItem>
                             ))}
                         </SidebarMenu>

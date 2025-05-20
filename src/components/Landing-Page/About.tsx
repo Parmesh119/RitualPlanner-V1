@@ -18,7 +18,7 @@ export default function About() {
 
             {/* Cards Section */}
             <div className="grid md:grid-cols-2 gap-8 mb-16">
-                <Card className="transition-all duration-300 hover:shadow-lg">
+                <Card className="transition-all bg-white duration-300 hover:shadow-lg border-none">
                     <CardContent className="p-6">
                         <h2 className="text-2xl font-bold text-gray-900 mb-4">Our Vision</h2>
                         <p className="text-gray-600">
@@ -30,7 +30,7 @@ export default function About() {
                     </CardContent>
                 </Card>
 
-                <Card className="transition-all duration-300 hover:shadow-lg">
+                <Card className="transition-all duration-300 hover:shadow-lg bg-white border-none">
                     <CardContent className="p-6">
                         <h2 className="text-2xl font-bold text-gray-900 mb-4">Why KarmaScheduler?</h2>
                         <p className="text-gray-600">

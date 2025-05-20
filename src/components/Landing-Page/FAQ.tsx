@@ -59,7 +59,7 @@ export default function FAQSection() {
                 <Accordion type="single" collapsible className="w-full">
                     {faqData.map((faq, index) => (
                         <AccordionItem key={index} value={`item-${index}`}>
-                            <AccordionTrigger className="text-left text-decoration-none">
+                            <AccordionTrigger className="text-left text-decoration-none text-black">
                                 {faq.question}
                             </AccordionTrigger>
                             <AccordionContent className="text-gray-600">

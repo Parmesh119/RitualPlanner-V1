@@ -27,7 +27,7 @@ export default function Hero() {
                                 </div>
 
                                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                                    <Button size="lg" className="bg-gray-900 hover:bg-gray-800">
+                                    <Button size="lg" className="bg-gray-900 hover:bg-gray-800 text-white">
                                         Get Started
                                     </Button>
                                 </div>
