@@ -137,6 +137,8 @@ code {
   }
 }
 
+
+
 @layer base {
   :root {
     --sidebar-background: 0 0% 98%;
@@ -160,4 +162,5 @@ code {
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
+
 
