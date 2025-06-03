@@ -1,6 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import { Button } from "@/components/ui/button"
-import { Menu, X } from "lucide-react"
+import { Menu, X, Flame } from "lucide-react"
 import { useState, useEffect, useRef } from 'react'
 
 export default function Header() {
@@ -58,8 +58,7 @@ export default function Header() {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="text-xl font-bold flex flex-row gap-2" onClick={() => handleNavItemClick()}>
-            <img src="https://i.ibb.co/wS8fFBn/logo-color.png" alt="RitualPlanner" width={50} height={50} />
-            <span className='mt-1 text-black tracking-wider'>RitualPlanner</span>
+            <span className=' text-black tracking-wider flex flex-row items-center gap-2'><Flame className='w-10 h-10 text-black border-1 p-1 rounded-full' />RitualPlanner</span>
           </Link>
 
           {/* Desktop Navigation */}

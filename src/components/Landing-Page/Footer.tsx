@@ -1,4 +1,4 @@
-import { Facebook, Instagram, Twitter, Mail } from "lucide-react"
+import { Facebook, Instagram, Twitter, Mail, Flame } from "lucide-react"
 import { Container } from "@/components/ui/container"
 
 export default function Footer() {
@@ -18,14 +18,9 @@ export default function Footer() {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
                     {/* Logo and Description */}
                     <div className="col-span-1 md:col-span-2">
-                        <div className="flex items-center gap-2 mb-4">
-                            <img
-                                src="https://i.ibb.co/wS8fFBn/logo-color.png"
-                                alt="RitualPlanner"
-                                height={60}
-                                width={60}
-                            />
-                            <span className="text-xl font-bold mb-2">RitualPlanner</span>
+                        <div className="flex flex-row items-center gap-4 mb-4">
+                            <Flame className='w-10 h-10 text-black border-1 p-1 rounded-full' />
+                            <span className="text-xl font-bold mb-1 text-black">RitualPlanner</span>
                         </div>
                         <p className="text-gray-600 text-sm">
                             Simplifying the management of Karmakand rituals<br className="hidden md:block" />

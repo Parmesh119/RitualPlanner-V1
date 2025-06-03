@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Mail, Send } from "lucide-react"
+import { Mail, Send, Flame } from "lucide-react"
 import { useMutation } from "@tanstack/react-query"
 
 import {
@@ -60,7 +60,7 @@ function ForgotPasswordPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <Card className="w-full max-w-md bg-white shadow-lg text-black">
         <CardHeader className="space-y-1 flex flex-col items-center justify-center">
-          <img src="https://i.ibb.co/wS8fFBn/logo-color.png" alt="RitualPlanner" className="w-22 h-16" />
+          <Flame className='w-14 h-14 text-black border-1 p-1 rounded-full' />
           <CardTitle className="text-2xl font-bold text-center">
             Forgot Password
           </CardTitle>
