@@ -9,6 +9,7 @@ import ritualplanner.model.LoginRequest
 import ritualplanner.model.LoginResponse
 import ritualplanner.model.RegisterRequest
 import ritualplanner.model.RegisterResponse
+import ritualplanner.model.User
 import ritualplanner.repository.AuthRepository
 import ritualplanner.repository.RefreshTokenRepository
 import ritualplanner.util.UtilFunctions
@@ -67,5 +68,18 @@ class AuthService(
             accessToken,
             refreshToken
         )
+    }
+
+    fun refreshToken(refreshToken: String): LoginResponse {
+        return authRepository.refreshToken(refreshToken)
+    }
+
+    fun getUserDetails(authorization: String): User {
+
+        val token = authorization.substring(7)
+        val username = jwtUtil.extractSubject(token)
+
+        // Implement logic to get user details
+        return authRepository.getUserDetails(username)
     }
 }

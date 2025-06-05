@@ -61,7 +61,7 @@ class SecurityConfig(
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) } // Disable sessions
             .authorizeHttpRequests {
                 it.requestMatchers("/api/v2/auth/**").permitAll()
-                it.anyRequest().permitAll()
+                it.anyRequest().authenticated()
             }
             .authenticationProvider(authenticationProvider())
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java) // Use JWT filter

@@ -40,12 +40,12 @@ class JwtUtil {
             .compact()
     }
 
-    fun extractUsername(token: String): String {
+    fun extractSubject(token: String): String {
         return extractClaims(token).subject
     }
 
     fun isTokenValid(token: String, userDetails: UserDetails): Boolean {
-        return extractUsername(token) == userDetails.username && !isTokenExpired(token)
+        return extractSubject(token) == userDetails.username && !isTokenExpired(token)
     }
 
     private fun isTokenExpired(token: String): Boolean {
@@ -64,11 +64,6 @@ class JwtUtil {
     fun extractRoles(token: String): List<String> {
         val claims = extractClaims(token)
         return claims["roles"] as? List<String> ?: emptyList()
-    }
-
-    fun extractPermissions(token: String): List<String> {
-        val claims = extractClaims(token)
-        return claims["permissions"] as? List<String> ?: emptyList()
     }
 
     // Extract the user ID from the token

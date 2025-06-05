@@ -32,3 +32,7 @@ data class RefreshToken (
     val createdAt: Long = Instant.now().toEpochMilli(),
     val updatedAt: Long = Instant.now().toEpochMilli()
 )
+
+data class RefreshTokenRequest (
+    val refreshToken: String
+)

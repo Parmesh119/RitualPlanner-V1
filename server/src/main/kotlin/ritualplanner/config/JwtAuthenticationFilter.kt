@@ -24,7 +24,7 @@ class JwtAuthenticationFilter(
         val token = getTokenFromRequest(request)
 
         if (token != null) {
-            val username = jwtUtil.extractUsername(token)
+            val username = jwtUtil.extractSubject(token)
             val roles = jwtUtil.extractRoles(token) // Extract roles from token
             val userDetails = userDetailsService.loadUserByUsername(username)
 

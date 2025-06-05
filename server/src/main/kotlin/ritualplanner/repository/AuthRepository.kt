@@ -3,6 +3,8 @@ package ritualplanner.repository
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.stereotype.Repository
+import ritualplanner.config.JwtUtil
+import ritualplanner.model.LoginResponse
 import ritualplanner.model.RegisterRequest
 import ritualplanner.model.User
 import ritualplanner.model.UserAuth
@@ -13,15 +15,19 @@ import java.util.UUID
 
 @Repository
 class AuthRepository(
-    private val jdbcTemplate: JdbcTemplate
+    private val jdbcTemplate: JdbcTemplate,
+    private val jwtUtil: JwtUtil,
+    private val refreshTokenRepository: RefreshTokenRepository
 ) {
     private val rowMapper = RowMapper {
         rs: ResultSet, _: Int ->
-        RegisterRequest(
+        User(
+            id = rs.getString("id"),
             name = rs.getString("name"),
             email = rs.getString("email"),
             phone = rs.getString("phone"),
-            password = rs.getString("password")
+            createdAt = rs.getTimestamp("created_at").toInstant().epochSecond,
+            updatedAt = rs.getTimestamp("updated_at").toInstant().epochSecond
         )
     }
 
@@ -119,5 +125,42 @@ class AuthRepository(
         return org.springframework.security.core.userdetails.User(
             userAuth.username, userAuth.hashPassword, listOf()
         )
+    }
+
+    fun refreshToken(refreshToken: String): LoginResponse {
+        try {
+            // Validate the refresh token
+            val username = jwtUtil.extractSubject(refreshToken)
+            val user = getUserDetails(username)
+            // Generate a new access token
+            val newAccessToken = jwtUtil.generateAccessToken(user, loadUserDetails(username))
+            val newRefreshToken = jwtUtil.generateRefreshToken(username)
+
+            // Store the new refresh token in the database
+            val getRefreshTokenId = refreshTokenRepository.getRefreshToken(refreshToken)
+            refreshTokenRepository.updateRefreshToken(newRefreshToken, getRefreshTokenId?.id!!)
+
+            return LoginResponse(accessToken = newAccessToken, refreshToken = newRefreshToken)
+        } catch (e: Exception) {
+            throw Exception("Failed to refresh token")
+        }
+    }
+
+    fun getUserDetails(username: String): User {
+        try {
+            val sql = """SELECT user_id from "Auth" WHERE username = ?"""
+
+            val userId = jdbcTemplate.queryForObject(sql, arrayOf(username)) { rs, _ ->
+                sql
+                rs.getString("user_id")
+            }
+            return jdbcTemplate.queryForObject(
+                """SELECT * FROM "User" WHERE id = ?""",
+                rowMapper,
+                userId
+            ) ?: throw Exception("User not found")
+        } catch (e: Exception) {
+            throw Exception("Failed to get user details")
+        }
     }
 }

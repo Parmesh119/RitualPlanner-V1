@@ -2,6 +2,7 @@ package ritualplanner.repository
 
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Repository
+import ritualplanner.model.RefreshToken
 import java.sql.Timestamp
 import java.time.Instant
 import java.time.LocalDateTime
@@ -17,6 +18,49 @@ class RefreshTokenRepository(
                 Timestamp.from(Instant.ofEpochMilli(updatedAt)))
         } catch (e: Exception) {
             throw Exception("Error saving refresh token", e)
+        }
+    }
+
+    fun getRefreshToken(token: String): RefreshToken? {
+        try {
+            return jdbcTemplate.queryForObject(
+                """SELECT * FROM "RefreshToken" WHERE token = ?""",
+                { rs, _ ->
+                    RefreshToken(
+                        id = rs.getString("id"),
+                        userId = rs.getString("user_id"),
+                        token = rs.getString("token"),
+                        createdAt = rs.getLong("created_at"),
+                        updatedAt = rs.getLong("updated_at")
+                    )
+                },
+                token
+            )
+        } catch (e: Exception) {
+            throw Exception("Failed to fetch refresh token from the database")
+        }
+    }
+
+    fun updateRefreshToken(token: String, Id: String) {
+        try {
+            jdbcTemplate.update(
+                """UPDATE "RefreshToken" SET token = ? WHERE id = ?""",
+                token,
+                Id
+            )
+        } catch (e: Exception) {
+            throw Exception("Failed to update refresh token")
+        }
+    }
+
+    fun deleteRefreshToken(token: String) {
+        try {
+            jdbcTemplate.update(
+                "DELETE FROM refresh_tokens WHERE token = ?",
+                token
+            )
+        } catch (e: Exception) {
+            throw Exception("Failed to delete refresh token")
         }
     }
 }
