@@ -78,7 +78,7 @@ function LoginPage() {
     onError: (error) => {
       console.error('Login error:', error)
 
-      toast.error('Login Failed', {
+      toast.error('Invalid credentials. Login Failed!', {
         description: getErrorMessage(),
         style: {
           background: "linear-gradient(90deg, #E53E3E, #C53030)",

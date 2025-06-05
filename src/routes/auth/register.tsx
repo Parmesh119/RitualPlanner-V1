@@ -286,7 +286,13 @@ function RegisterPage() {
         </Card>
       </div>
 
-      <Dialog open={showCredentials} onOpenChange={setShowCredentials}>
+      <Dialog
+        open={showCredentials}
+        onOpenChange={(open) => {
+          if (!open) return;
+          setShowCredentials(open);
+        }}
+      >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Registration Successful!</DialogTitle>
