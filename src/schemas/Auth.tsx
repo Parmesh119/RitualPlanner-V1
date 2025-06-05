@@ -1,10 +1,9 @@
 import { z } from "zod"
 
 export const loginFormSchema = z.object({
-    identifier: z
+    username: z
         .string()
-        .min(1, "Username or email is required")
-        .transform((value) => value.toLowerCase()),
+        .min(1, "Username is required"),
     password: z
         .string()
         .min(8, "Password must be at least 8 characters")
@@ -19,7 +18,9 @@ export const registerFormSchema = z
         email: z.string()
             .email("Please enter a valid email address"),
         phone: z.string()
-            .regex(/^\+?[1-9]\d{1,14}$/, "Please enter a valid phone number"),
+            .min(10, "Phone number must be exactly 10 digits")
+            .max(10, "Phone number must be exactly 10 digits")
+            .regex(/^\d{10}$/, "Phone number must contain only digits"),
         password: z.string()
             .min(8, "Password must be at least 8 characters")
             .max(100, "Password is too long")
@@ -36,6 +37,27 @@ export const forgotPasswordSchema = z.object({
         .email("Please enter a valid email address")
 })
 
-export type LoginFormData = z.infer<typeof loginFormSchema>
-export type RegisterFormData = z.infer<typeof registerFormSchema>
-export type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema> 
+export type TLogin = z.infer<typeof loginFormSchema>
+export type TRegister = z.infer<typeof registerFormSchema>
+export type TForgotPassword = z.infer<typeof forgotPasswordSchema>
+
+export type TAuthResponse = {
+    accessToken: string
+    refreshToken: string
+}
+
+export type TRegisterResponse = {
+    username: string
+    password: string
+}
+
+export type TUserJwtInformation = {
+    sub: string
+    userId: string
+    iat: number
+    exp: number
+}
+
+export type TRefreshTokenRequest = {
+    refreshToken: string
+}

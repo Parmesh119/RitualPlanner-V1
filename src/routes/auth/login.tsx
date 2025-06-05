@@ -5,6 +5,7 @@ import { User, Lock, LogIn, Flame } from "lucide-react"
 import { useMutation } from "@tanstack/react-query"
 import { useNavigate } from "@tanstack/react-router"
 import { Helmet } from "react-helmet"
+import { useEffect } from "react"
 import {
   Card,
   CardContent,
@@ -22,7 +23,11 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { loginFormSchema, type LoginFormData } from "@/schemas/Auth"
+import { loginFormSchema, type TLogin } from "@/schemas/Auth"
+import { loginAction } from '@/lib/actions'
+import { authService } from '@/lib/auth'
+import { toast } from 'sonner'
+import axios from 'axios'
 
 export const Route = createFileRoute('/auth/login')({
   component: LoginPage,
@@ -31,35 +36,73 @@ export const Route = createFileRoute('/auth/login')({
 function LoginPage() {
   const navigate = useNavigate()
 
-  const form = useForm<LoginFormData>({
+  useEffect(() => {
+    const checkAuth = async () => {
+      const isLoggedIn = await authService.isLoggedIn()
+      if (isLoggedIn) {
+        navigate({ to: '/app/dashboard' })
+      }
+    }
+    checkAuth()
+  }, [navigate])
+
+  const form = useForm<TLogin>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
-      identifier: "",
+      username: "",
       password: "",
     },
   })
 
 
   const loginMutation = useMutation({
-    mutationFn: async (data: LoginFormData) => {
-      // Replace with your actual API endpoint
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      })
-      if (!response.ok) {
-        throw new Error("Login failed")
+    mutationFn: loginAction,
+    onSuccess: async (data) => {
+      if (data) {
+        await authService.setTokens(data)
+
+        toast.success('Login Successful', {
+          description: "Welcome back! Redirecting to dashboard...",
+          style: {
+            background: "linear-gradient(90deg, #38A169, #2F855A)",
+            color: "white",
+            fontWeight: "bolder",
+            fontSize: "13px",
+            letterSpacing: "1px",
+          }
+        })
+
+        navigate({ to: '/app/dashboard' })
       }
-      return response.json()
+    },
+    onError: (error) => {
+      console.error('Login error:', error)
+
+      toast.error('Login Failed', {
+        description: getErrorMessage(),
+        style: {
+          background: "linear-gradient(90deg, #E53E3E, #C53030)",
+          color: "white",
+          fontWeight: "bolder",
+          fontSize: "13px",
+          letterSpacing: "1px",
+        }
+      })
     },
   })
 
-  const onSubmit = (data: LoginFormData) => {
-    navigate({ to: "/app/dashboard" })
-    // loginMutation.mutate(data)
+  const onSubmit = (data: TLogin) => {
+    loginMutation.mutate(data)
+  }
+
+  const getErrorMessage = () => {
+    if (!loginMutation.error) return null
+
+    if (axios.isAxiosError(loginMutation.error) && loginMutation.error.response) {
+      return loginMutation.error.response.data.message || 'Login failed. Please check your credentials.'
+    }
+
+    return 'Unable to connect to the server. Please try again later.'
   }
 
   return (
@@ -75,7 +118,7 @@ function LoginPage() {
               Welcome back
             </CardTitle>
             <CardDescription className="text-center text-gray-900">
-              Enter your username/email and password to login
+              Enter your username and password to login
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -83,14 +126,14 @@ function LoginPage() {
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <FormField
                   control={form.control}
-                  name="identifier"
+                  name="username"
                   render={({ field }) => (
                     <FormItem>
                       <div className="relative">
                         <User className="absolute left-3 top-2 h-5 w-5 text-black" />
                         <FormControl>
                           <Input
-                            placeholder="Username or Email"
+                            placeholder="Username"
                             autoFocus
                             className="pl-10 placeholder:text-black"
                             {...field}

@@ -1,7 +1,7 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { User, Lock, Mail, Phone, Eye, EyeOff, UserPlus, Flame } from "lucide-react"
+import { User, Lock, Mail, Phone, Eye, EyeOff, UserPlus, Flame, Copy, X } from "lucide-react"
 import { useMutation } from "@tanstack/react-query"
 import { useState } from "react"
 import { Helmet } from "react-helmet"
@@ -22,17 +22,29 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { registerFormSchema, type RegisterFormData } from "@/schemas/Auth"
+import { registerFormSchema, type TRegister } from "@/schemas/Auth"
+import { registerAction } from '@/lib/actions'
+import { toast } from 'sonner'
+import { type TRegisterResponse } from '@/schemas/Auth'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 
 export const Route = createFileRoute('/auth/register')({
   component: RegisterPage,
 })
 
 function RegisterPage() {
+  const navigate = useNavigate()
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-
-  const form = useForm<RegisterFormData>({
+  const [showCredentials, setShowCredentials] = useState(false)
+  const [credentials, setCredentials] = useState<TRegisterResponse | null>(null)
+  const form = useForm<TRegister>({
     resolver: zodResolver(registerFormSchema),
     defaultValues: {
       name: "",
@@ -43,24 +55,46 @@ function RegisterPage() {
     },
   })
 
-  const registerMutation = useMutation({
-    mutationFn: async (data: RegisterFormData) => {
-      // Replace with your actual API endpoint
-      const response = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      })
-      if (!response.ok) {
-        throw new Error("Registration failed")
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text)
+    toast.success('Copied to clipboard!', {
+      style: {
+        background: "linear-gradient(90deg, #38A169, #2F855A)",
+        color: "white",
+        fontWeight: "bolder",
+        fontSize: "13px",
+        letterSpacing: "1px",
       }
-      return response.json()
+    })
+  }
+
+  const registerMutation = useMutation({
+    mutationFn: registerAction,
+    onSuccess: async (data) => {
+      if (data) {
+        setCredentials(data)
+        setShowCredentials(true)
+      }
     },
+    onError: () => {
+      toast.error('Registration failed', {
+        style: {
+          background: "linear-gradient(90deg, #E53E3E, #C53030)",
+          color: "white",
+          fontWeight: "bolder",
+          fontSize: "13px",
+          letterSpacing: "1px",
+        }
+      })
+    }
   })
 
-  const onSubmit = (data: RegisterFormData) => {
+  const handleCloseDialog = () => {
+    setShowCredentials(false)
+    navigate({ to: '/auth/login' })
+  }
+
+  const onSubmit = (data: TRegister) => {
     registerMutation.mutate(data)
   }
 
@@ -134,7 +168,7 @@ function RegisterPage() {
                         <Phone className="absolute left-3 top-2 h-5 w-5 text-black" />
                         <FormControl>
                           <Input
-                            type="tel"
+                            type="number"
                             placeholder="Phone Number"
                             className="pl-10 placeholder:text-black"
                             {...field}
@@ -251,6 +285,64 @@ function RegisterPage() {
           </CardFooter>
         </Card>
       </div>
+
+      <Dialog open={showCredentials} onOpenChange={setShowCredentials}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Registration Successful!</DialogTitle>
+            <DialogDescription>
+              Please save these credentials. You will need them to login.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium">Username</label>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => credentials && copyToClipboard(credentials.username)}
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Input
+                  value={credentials?.username || ''}
+                  readOnly
+                  className="bg-gray-50"
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium">Password</label>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => credentials && copyToClipboard(credentials.password)}
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Input
+                  type="password"
+                  value={credentials?.password || ''}
+                  readOnly
+                  className="bg-gray-50"
+                />
+              </div>
+            </div>
+          </div>
+          <div className="flex justify-end">
+            <Button onClick={handleCloseDialog}>
+              Close and Login
+              <X className="ml-2 h-4 w-4" />
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   )
 }

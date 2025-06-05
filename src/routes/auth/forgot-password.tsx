@@ -21,14 +21,14 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { forgotPasswordSchema, type ForgotPasswordFormData } from "@/schemas/Auth"
+import { forgotPasswordSchema, type TForgotPassword } from "@/schemas/Auth"
 
 export const Route = createFileRoute('/auth/forgot-password')({
   component: ForgotPasswordPage,
 })
 
 function ForgotPasswordPage() {
-  const form = useForm<ForgotPasswordFormData>({
+  const form = useForm<TForgotPassword>({
     resolver: zodResolver(forgotPasswordSchema),
     defaultValues: {
       email: "",
@@ -36,7 +36,7 @@ function ForgotPasswordPage() {
   })
 
   const forgotPasswordMutation = useMutation({
-    mutationFn: async (data: ForgotPasswordFormData) => {
+    mutationFn: async (data: TForgotPassword) => {
       // Replace with your actual API endpoint
       const response = await fetch("/api/auth/forgot-password", {
         method: "POST",
@@ -52,7 +52,7 @@ function ForgotPasswordPage() {
     },
   })
 
-  const onSubmit = (data: ForgotPasswordFormData) => {
+  const onSubmit = (data: TForgotPassword) => {
     forgotPasswordMutation.mutate(data)
   }
 
