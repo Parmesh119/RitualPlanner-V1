@@ -11,11 +11,13 @@ import java.time.LocalDateTime
 class RefreshTokenRepository(
     private val jdbcTemplate: JdbcTemplate
 ) {
-    fun saveRefreshToken(id: String, userId: String, token: String, expiresAt: Long, updatedAt: Long) {
+    fun saveRefreshToken(id: String, userId: String, token: String, expiresAt: Long, updatedAt: Long): Boolean {
         try {
             val sql = """INSERT INTO "RefreshToken" (id, user_id, token, created_at, updated_at) VALUES (?, ?, ?, ?, ?)"""
-            jdbcTemplate.update(sql, id, userId, token, Timestamp.from(Instant.ofEpochMilli(expiresAt)),
+            val record = jdbcTemplate.update(sql, id, userId, token, Timestamp.from(Instant.ofEpochMilli(expiresAt)),
                 Timestamp.from(Instant.ofEpochMilli(updatedAt)))
+
+            return record > 0
         } catch (e: Exception) {
             throw Exception("Error saving refresh token", e)
         }

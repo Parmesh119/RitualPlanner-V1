@@ -1,5 +1,6 @@
 package ritualplanner.service
 
+import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -24,7 +25,9 @@ class AuthService(
     private val passwordEncoder: PasswordEncoder,
     private val authenticationManager: AuthenticationManager,
     private val jwtUtil: JwtUtil,
-    private val refreshTokenRepository: RefreshTokenRepository
+    private val refreshTokenRepository: RefreshTokenRepository,
+    private val javaMailSender: JavaMailSender,
+    private val emailService: EmailService
 ) {
     fun register(registerRequest: RegisterRequest): RegisterResponse {
 
@@ -38,10 +41,15 @@ class AuthService(
         val registerResponse = authRepository.register(registerRequest, username, hashPassword, id, createdAt, updatedAt)
 
         if(registerResponse) {
-            return RegisterResponse(
-                username = username,
-                password = registerRequest.password,
-            )
+            val sendEmail = emailService.sendRegistrationEmail(registerRequest.email, "Welcome to RitualPlanner: Start Organizing Rituals Seamlessly", username, registerRequest.password)
+
+            if (sendEmail) {
+                return RegisterResponse(
+                    username = username,
+                    password = registerRequest.password,
+                )
+            }
+            throw Exception("Something went wrong!!")
         } else {
             throw Exception("Failed to register user!!")
         }
