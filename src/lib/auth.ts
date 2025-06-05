@@ -170,5 +170,9 @@ export const authService = {
 
     getRefreshToken(): string | null {
         return localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN)
+    },
+
+    storeUsername(): string | null {
+        return localStorage.getItem(STORAGE_KEYS.SUB)
     }
 }

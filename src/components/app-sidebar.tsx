@@ -1,5 +1,6 @@
+import { useState, useEffect } from "react"
 import { ChevronUp, User2, Settings, LayoutDashboard, Flame } from "lucide-react"
-import { BadgeCheck, ListTodo, LogOut, Moon, Sun, IndianRupee, Bell, NotebookPen, BookUser, Calendar, List, ScrollText, History } from 'lucide-react'
+import { BadgeCheck, ListTodo, LogOut, Moon, Sun, IndianRupee, Bell, NotebookPen, BookUser, Calendar, List, ScrollText } from 'lucide-react'
 import {
     Sidebar,
     SidebarContent,
@@ -21,6 +22,9 @@ import {
 import { Link } from "@tanstack/react-router"
 import { useNavigate } from "@tanstack/react-router"
 import { useTheme } from "@/components/theme-provider"
+import { useMutation } from "@tanstack/react-query"
+import { getUserDetails } from "@/lib/actions"
+import { toast } from "sonner"
 
 const items = [
     {
@@ -82,10 +86,28 @@ export function AppSidebar() {
     const { setTheme, theme } = useTheme()
     const navigate = useNavigate()
 
+    const [email, setEmail] = useState("")
+    const [name, setName] = useState("")
+
+    useEffect(() => {
+        profileMutation.mutate()
+    }, [])
+
     const handleLogout = () => {
         localStorage.clear()
         navigate({ to: "/auth/login" })
     }
+
+    const profileMutation = useMutation({
+        mutationFn: getUserDetails,
+        onSuccess: (data) => {
+            setEmail(data.email)
+            setName(data.name)
+        },
+        onError: () => {
+            toast.error("Error fetching user details")
+        }
+    })
 
 
     return (
@@ -124,18 +146,18 @@ export function AppSidebar() {
                 </SidebarGroup>
             </SidebarContent>
 
-            <SidebarFooter className="border-t px-2 py-4">
+            <SidebarFooter className="border-t px-2 py-2">
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <SidebarMenuButton className="flex items-center space-x-3 px-3 py-3 rounded-lg hover:bg-accent transition-colors group w-full">
+                                <SidebarMenuButton className="flex items-center space-x-3 px-3 py-6 rounded-lg hover:bg-accent transition-colors group w-full">
                                     <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
                                         <User2 className="w-4 h-4 text-primary-foreground" />
                                     </div>
                                     <div className="flex-1 text-left min-w-0">
-                                        <p className="text-sm font-medium truncate">User Account</p>
-                                        <p className="text-xs text-muted-foreground truncate xs:block md:block">user@example.com</p>
+                                        <p className="text-sm font-medium truncate">{name}</p>
+                                        <p className="text-xs text-muted-foreground truncate xs:block md:block">{email}</p>
                                     </div>
                                     <ChevronUp className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" />
                                 </SidebarMenuButton>
