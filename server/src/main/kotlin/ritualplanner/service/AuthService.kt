@@ -41,15 +41,12 @@ class AuthService(
         val registerResponse = authRepository.register(registerRequest, username, hashPassword, id, createdAt, updatedAt)
 
         if(registerResponse) {
-            val sendEmail = emailService.sendRegistrationEmail(registerRequest.email, "Welcome to RitualPlanner: Start Organizing Rituals Seamlessly", username, registerRequest.password)
+            emailService.sendRegistrationEmail(registerRequest.email, "Welcome to RitualPlanner: Start Organizing Rituals Seamlessly", username, registerRequest.password, registerRequest.name)
 
-            if (sendEmail) {
-                return RegisterResponse(
-                    username = username,
-                    password = registerRequest.password,
-                )
-            }
-            throw Exception("Something went wrong!!")
+            return RegisterResponse(
+                username = username,
+                password = registerRequest.password
+            )
         } else {
             throw Exception("Failed to register user!!")
         }
@@ -83,11 +80,15 @@ class AuthService(
     }
 
     fun getUserDetails(authorization: String): User {
-
         val token = authorization.substring(7)
+
         val username = jwtUtil.extractSubject(token)
 
-        // Implement logic to get user details
+        if(username == null) {
+            val email = jwtUtil.getEmailFromToken(token)
+            return authRepository.getUserDetailsByEmail(email)
+        }
+
         return authRepository.getUserDetails(username)
     }
 }

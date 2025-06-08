@@ -50,8 +50,8 @@ class AuthRepository(
 
             if (rowsAffected > 0) {
                 val sql = """
-                    INSERT INTO "Auth" (id, user_id, username, password, created_at, updated_at)
-                    VALUES (?, ?, ?, ?, ?, ?)
+                    INSERT INTO "Auth" (id, user_id, username, password, created_at, updated_at, signin)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
                 """
 
                 val id = UUID.randomUUID().toString()
@@ -63,7 +63,8 @@ class AuthRepository(
                         username,
                         hashPassword,
                         Timestamp.from(Instant.ofEpochMilli(createdAt)),
-                        Timestamp.from(Instant.ofEpochMilli(updatedAt))
+                        Timestamp.from(Instant.ofEpochMilli(updatedAt)),
+                        registerRequest.signin
                     )
 
                     if(record > 0) {
@@ -92,6 +93,7 @@ class AuthRepository(
                     userId = rs.getString("user_id"),
                     username = rs.getString("username"),
                     hashPassword = rs.getString("password"),
+                    signin = rs.getString("signin"),
                     createdAt = rs.getTimestamp("created_at").toInstant().epochSecond,
                     updatedAt = rs.getTimestamp("updated_at").toInstant().epochSecond
                 )
@@ -131,7 +133,7 @@ class AuthRepository(
         try {
             // Validate the refresh token
             val username = jwtUtil.extractSubject(refreshToken)
-            val user = getUserDetails(username)
+            val user = getUserDetails(username!!)
             // Generate a new access token
             val newAccessToken = jwtUtil.generateAccessToken(user, loadUserDetails(username))
             val newRefreshToken = jwtUtil.generateRefreshToken(username)
@@ -159,6 +161,17 @@ class AuthRepository(
                 rowMapper,
                 userId
             ) ?: throw Exception("User not found")
+        } catch (e: Exception) {
+            e.printStackTrace()
+            throw Exception("Failed to get user details")
+        }
+    }
+
+    fun getUserDetailsByEmail(email: String): User {
+        val sql = """SELECT * from "User" WHERE email = ?"""
+
+        return try {
+            jdbcTemplate.queryForObject(sql, rowMapper, email) ?: throw Exception("User not found")
         } catch (e: Exception) {
             throw Exception("Failed to get user details")
         }

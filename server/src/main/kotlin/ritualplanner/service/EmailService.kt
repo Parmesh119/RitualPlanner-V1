@@ -18,7 +18,7 @@ class EmailService (
     }
 
     @Async
-    fun sendRegistrationEmail(to: String, subject: String, username: String, password: String): Boolean {
+    fun sendRegistrationEmail(to: String, subject: String, username: String, password: String, name: String) {
         try {
             // Create MimeMessage
             val mimeMessage = mailSender.createMimeMessage()
@@ -30,10 +30,11 @@ class EmailService (
             helper.setSubject(subject)
 
             // Load HTML template from resources/Registration.html
-            val emailTemplate = loadHtmlTemplate("Registration.html")
+            val emailTemplate = loadHtmlTemplate("templates/Registration.html")
 
             // Replace placeholders with actual data
             val emailContent = emailTemplate
+                .replace("{{name}}", name)
                 .replace("{{username}}", username)
                 .replace("{{password}}", password)
                 .replace("{{app_url}}", "http://localhost:3000/auth/login")
@@ -43,13 +44,10 @@ class EmailService (
 
             // Send email
             mailSender.send(mimeMessage)
-            return true
 
         } catch (e: MessagingException) {
-            println("Failed to send email to $to: ${e.message}")
             throw RuntimeException("Email sending failed", e)
         } catch (e: Exception) {
-            println("Unexpected error while sending email: ${e.message}")
             throw RuntimeException("Email sending failed", e)
         }
     }

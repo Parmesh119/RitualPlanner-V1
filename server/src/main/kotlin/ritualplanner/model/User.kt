@@ -17,6 +17,7 @@ data class UserAuth (
     val userId: String,
     val username: String,
     val hashPassword: String,
+    val signin: String,
     val createdAt: Long = Instant.now().toEpochMilli(),
     val updatedAt: Long = Instant.now().toEpochMilli()
 )

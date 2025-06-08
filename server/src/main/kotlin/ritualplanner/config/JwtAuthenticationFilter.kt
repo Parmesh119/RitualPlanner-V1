@@ -8,6 +8,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetailsService
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource
 import org.springframework.web.filter.OncePerRequestFilter
 
 @Configuration
@@ -21,21 +22,36 @@ class JwtAuthenticationFilter(
         response: HttpServletResponse,
         filterChain: FilterChain
     ) {
-        val token = getTokenFromRequest(request)
+        try {
+            val token = getTokenFromRequest(request)
 
-        if (token != null) {
-            val username = jwtUtil.extractSubject(token)
-            val roles = jwtUtil.extractRoles(token) // Extract roles from token
-            val userDetails = userDetailsService.loadUserByUsername(username)
+            if (token != null && SecurityContextHolder.getContext().authentication == null) {
+                // Extract username/email from token (works for both Firebase and internal tokens)
+                val username = jwtUtil.extractSubject(token)
 
-            if (jwtUtil.isTokenValid(token, userDetails)) {
-                val authorities = roles.map { SimpleGrantedAuthority("ROLE_$it") } // Convert roles to Spring format
+                if (username?.isNotEmpty()!!) {
+                    val userDetails = userDetailsService.loadUserByUsername(username)
 
-                val authentication = UsernamePasswordAuthenticationToken(
-                    userDetails, null, authorities
-                )
-                SecurityContextHolder.getContext().authentication = authentication
+                    // Validate token (handles both Firebase and internal tokens)
+                    if (jwtUtil.isTokenValid(token, userDetails)) {
+                        // Extract roles from token
+                        val roles = jwtUtil.extractRoles(token)
+                        val authorities = roles.map { SimpleGrantedAuthority("ROLE_$it") }
+
+                        val authToken = UsernamePasswordAuthenticationToken(
+                            userDetails,
+                            null,
+                            authorities
+                        )
+
+                        // Set authentication details
+                        authToken.details = WebAuthenticationDetailsSource().buildDetails(request)
+                        SecurityContextHolder.getContext().authentication = authToken
+                    }
+                }
             }
+        } catch (e: Exception) {
+            SecurityContextHolder.clearContext()
         }
 
         filterChain.doFilter(request, response)
@@ -43,9 +59,15 @@ class JwtAuthenticationFilter(
 
     private fun getTokenFromRequest(request: HttpServletRequest): String? {
         val authHeader = request.getHeader("Authorization")
-        return if (authHeader != null && authHeader.startsWith("Bearer ")) {
+        return if (authHeader?.startsWith("Bearer ") == true) {
             authHeader.substring(7) // Remove "Bearer " prefix
         } else null
     }
 
+    override fun shouldNotFilter(request: HttpServletRequest): Boolean {
+        val path = request.requestURI
+        // Skip JWT filter for public endpoints
+        return path.startsWith("/api/v2/auth/") &&
+                (path.contains("/login"))
+    }
 }
