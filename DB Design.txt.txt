@@ -1,0 +1,31 @@
+// Use DBML to define your database structure
+// Docs: https://dbml.dbdiagram.io/docs
+
+Table user {
+  id integer [primary key]
+  name varchar
+  mobile_number integer
+  email varchar
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table auth {
+  id integer [primary key]
+  user_id integer
+  username varchar
+  passwrd varchar
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table refresh_token {
+  id integer [primary key]
+  user_id integer
+  refresh_token varchar2
+  created_at timestamp
+  updated_at timestamp
+}
+
+Ref: user.id < auth.user_id
+Ref: user.id < refresh_token.user_id
