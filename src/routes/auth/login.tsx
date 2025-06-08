@@ -24,12 +24,12 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { loginFormSchema, type TLogin } from "@/schemas/Auth"
-import { loginAction } from '@/lib/actions'
+import { checkAuthTypeByEmail, loginAction } from '@/lib/actions'
 import { authService } from '@/lib/auth'
 import { toast } from 'sonner'
 import axios from 'axios'
 import { app } from "@/util/firebaseConfig"
-import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth"
+import { getAuth, signInWithPopup, GoogleAuthProvider, deleteUser } from "firebase/auth"
 
 export const Route = createFileRoute('/auth/login')({
   component: LoginPage,
@@ -93,6 +93,65 @@ function LoginPage() {
     },
   })
 
+  const checkAuthTypeMutation = useMutation({
+    mutationFn: checkAuthTypeByEmail,
+    onSuccess: async (data) => {
+      if (data === "normal") {
+
+        try {
+          const userId = localStorage.getItem("app-userId")
+          if (userId) {
+            const auth = getAuth(app)
+            const user = auth.currentUser
+
+            if (!user) {
+              throw new Error("No user is currently logged in")
+            }
+            await deleteUser(user)
+            localStorage.clear()
+            navigate({ to: "/auth/login" })
+            toast.success("Account not found while logging with google!", {
+              style: {
+                background: "linear-gradient(90deg, #E53E3E, #C53030)",
+                color: "white",
+                fontWeight: "bolder",
+                fontSize: "13px",
+                letterSpacing: "1px",
+              }
+            })
+          } else {
+            throw new Error("Error while cleaning up Google account")
+          }
+        } catch (error: any) {
+          toast.error("Error while cleaning up google account", {
+            description: "Try again please ...",
+            style: {
+              background: "linear-gradient(90deg, #E53E3E, #C53030)",
+              color: "white",
+              fontWeight: "bolder",
+              fontSize: "13px",
+              letterSpacing: "1px",
+            }
+          })
+        }
+      }
+    },
+    onError: (error: any) => {
+      toast.error("Error checking authentication type", {
+        description: "Please try logging in again",
+        style: {
+          background: "linear-gradient(90deg, #E53E3E, #C53030)",
+          color: "white",
+          fontWeight: "bolder",
+          fontSize: "13px",
+          letterSpacing: "1px",
+        }
+      })
+      localStorage.clear()
+      navigate({ to: "/auth/login" })
+    }
+  })
+
   const onSubmit = (data: TLogin) => {
     loginMutation.mutate(data)
   }
@@ -115,8 +174,7 @@ function LoginPage() {
 
       if (userCredentials.user) {
         const user = userCredentials.user
-        console.log(user.providerData[0].providerId)
-        console.log(user.providerId)
+
         toast.success('Login Successful', {
           description: "Welcome back! Redirecting to dashboard...",
           style: {
@@ -135,6 +193,7 @@ function LoginPage() {
             localStorage.setItem("app-iat", user.metadata.creationTime)
           }
           localStorage.setItem("app-userId", user.uid)
+          checkAuthTypeMutation.mutate()
           navigate({ to: "/app/dashboard" })
         })
       } else {
@@ -238,7 +297,9 @@ function LoginPage() {
                   <span className='text-black'>OR</span>
                   <hr className='w-40' />
                 </span>
-                <Button variant='outline' onClick={loginWithGoogle} className='w-full cursor-pointer'>Login With Google <img src="https://img.icons8.com/win10/512/google-logo.png" className='w-6 h-6 mt-0.5' alt='Google' /></Button>
+                <Button variant='outline' onClick={loginWithGoogle} className='w-full cursor-pointer' disabled={loginMutation.isPending}>
+                  {loginMutation.isPending ? "Logging in..." : "Login With Google"} <img src="https://img.icons8.com/win10/512/google-logo.png" className='w-6 h-6 mt-0.5' alt='Google' />
+                </Button>
 
                 {loginMutation.isError && (
                   <p className="text-sm text-red-600 text-center mt-2">
@@ -258,12 +319,6 @@ function LoginPage() {
                 Sign up
               </Link>
             </div>
-            <Link
-              to="/auth/forgot-password"
-              className="text-sm text-center text-primary hover:text-primary/80"
-            >
-              Forgot your password?
-            </Link>
           </CardFooter>
         </Card>
       </div>

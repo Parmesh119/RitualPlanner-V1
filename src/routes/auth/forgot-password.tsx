@@ -1,8 +1,7 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { Mail, Send, Flame } from "lucide-react"
+import { Send, Flame, KeyRound } from "lucide-react"
 import { useMutation } from "@tanstack/react-query"
+import { useState } from "react"
 
 import {
   Card,
@@ -13,48 +12,127 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { forgotPasswordSchema, type TForgotPassword } from "@/schemas/Auth"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { forgotPasswordAction, verifyOTPAction } from '@/lib/actions'
+import { toast } from 'sonner'
+import { useNavigate } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/auth/forgot-password')({
   component: ForgotPasswordPage,
 })
 
 function ForgotPasswordPage() {
-  const form = useForm<TForgotPassword>({
-    resolver: zodResolver(forgotPasswordSchema),
-    defaultValues: {
-      email: "",
-    },
-  })
+  const navigate = useNavigate()
+  const [email, setEmail] = useState("")
+  const [otp, setOtp] = useState("")
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false)
+  const [showOtpInput, setShowOtpInput] = useState(false)
 
   const forgotPasswordMutation = useMutation({
-    mutationFn: async (data: TForgotPassword) => {
-      // Replace with your actual API endpoint
-      const response = await fetch("/api/auth/forgot-password", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      })
-      if (!response.ok) {
-        throw new Error("Failed to send OTP")
+    mutationFn: () => forgotPasswordAction(email),
+    onSuccess: async (data) => {
+      if (data) {
+        toast.success("OTP has been sent successfully", {
+          style: {
+            background: "linear-gradient(90deg, #38A169, #2F855A)",
+            color: "white",
+            fontWeight: "bolder",
+            fontSize: "13px",
+            letterSpacing: "1px",
+          }
+        })
+        setShowOtpInput(true)
       }
-      return response.json()
     },
+    onError: () => {
+      toast.error("Error while sending OTP", {
+        style: {
+          background: "linear-gradient(90deg, #E53E3E, #C53030)",
+          color: "white",
+          fontWeight: "bolder",
+          fontSize: "13px",
+          letterSpacing: "1px",
+        }
+      })
+      navigate({ to: "/auth/forgot-password" })
+    }
   })
 
-  const onSubmit = (data: TForgotPassword) => {
-    forgotPasswordMutation.mutate(data)
+  const handleSendOTP = () => {
+    if (!email) {
+      toast.error("Please enter your email address")
+      return
+    }
+    setShowConfirmDialog(true)
   }
+
+  const confirmSendOTP = () => {
+    setShowConfirmDialog(false)
+    forgotPasswordMutation.mutate()
+  }
+
+  const cancelSendOTP = () => {
+    setShowConfirmDialog(false)
+    setEmail("")
+  }
+
+  const handleVerifyOTP = () => {
+    if (!otp) {
+      toast.error("Please enter the OTP")
+      return
+    }
+    verifyOTPMutation.mutate()
+  }
+
+  const verifyOTPMutation = useMutation({
+    mutationFn: () => verifyOTPAction(otp),
+    onSuccess: async (data) => {
+      if(data) {
+        toast.success("OTP verified successfully", {
+          description: 'You can now enter new password.',
+          style: {
+            background: "linear-gradient(90deg, #38A169, #2F855A)",
+            color: "white",
+            fontWeight: "bolder",
+            fontSize: "13px",
+            letterSpacing: "1px",
+          }
+        })
+      } else {
+        alert(data)
+        toast.error("OTP has been not verified", {
+          description: "Please try again.",
+          style: {
+            background: "linear-gradient(90deg, #E53E3E, #C53030)",
+            color: "white",
+            fontWeight: "bolder",
+            fontSize: "13px",
+            letterSpacing: "1px",
+          }
+        })
+      }
+    },
+    onError: () => {
+      toast.error("Error while verifying OTP", {
+        description: "Please try again.",
+        style: {
+          background: "linear-gradient(90deg, #E53E3E, #C53030)",
+          color: "white",
+          fontWeight: "bolder",
+          fontSize: "13px",
+          letterSpacing: "1px",
+        }
+      })
+    }
+  })
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -64,75 +142,118 @@ function ForgotPasswordPage() {
           <CardTitle className="text-2xl font-bold text-center">
             Forgot Password
           </CardTitle>
-          <CardDescription className="text-center">
-            Enter your email address and we'll send you an OTP to reset your password
+          <CardDescription className="text-center text-gray-800">
+            You forgot your account password
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-2 h-5 w-5 text-black" />
-                      <FormControl>
-                        <Input
-                          type="email"
-                          placeholder="Email Address"
-                          className="pl-10 placeholder:text-black"
-                          {...field}
-                        />
-                      </FormControl>
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Input
+                type="email"
+                placeholder="Enter your email address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full placeholder:text-black"
+                disabled={showOtpInput}
               />
+            </div>
+            {showOtpInput && (
+              <div className="space-y-2">
+                <div className="relative">
+                  <KeyRound className="absolute left-3 top-2 h-5 w-5 text-black" />
+                  <Input
+                    type="text"
+                    placeholder="Enter OTP"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
+                    className="w-full pl-10 placeholder:text-black"
+                  />
+                </div>
+                <Button
+                  onClick={handleVerifyOTP}
+                  className="w-full bg-black text-white hover:bg-gray-800"
+                >
+                  Verify OTP
+                </Button>
+              </div>
+            )}
+            {!showOtpInput && (
+              <div className="flex justify-between gap-2">
+                <Link to="/auth/login" className="flex-1">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full border-black text-black hover:bg-gray-100"
+                  >
+                    Back to Login
+                  </Button>
+                </Link>
+                <Button
+                  onClick={handleSendOTP}
+                  className="flex-1 bg-black text-white hover:bg-gray-800"
+                  disabled={forgotPasswordMutation.isPending}
+                >
+                  {forgotPasswordMutation.isPending ? (
+                    "Sending OTP..."
+                  ) : (
+                    <>
+                      Send OTP
+                      <Send className="ml-2 h-4 w-4" />
+                    </>
+                  )}
+                </Button>
+              </div>
+            )}
+          </div>
 
-              <Button
-                type="submit"
-                className="w-full bg-black text-white hover:bg-gray-800"
-                disabled={forgotPasswordMutation.isPending}
-              >
-                {forgotPasswordMutation.isPending ? (
-                  "Sending OTP..."
-                ) : (
-                  <>
-                    Send OTP
-                    <Send className="ml-2 h-4 w-4" />
-                  </>
-                )}
-              </Button>
+          {forgotPasswordMutation.isSuccess && !showOtpInput && (
+            <p className="text-sm text-green-600 text-center mt-4">
+              OTP has been sent to your email address
+            </p>
+          )}
 
-              {forgotPasswordMutation.isSuccess && (
-                <p className="text-sm text-green-600 text-center mt-2">
-                  OTP has been sent to your email address
-                </p>
-              )}
-
-              {forgotPasswordMutation.isError && (
-                <p className="text-sm text-red-600 text-center mt-2">
-                  Failed to send OTP. Please try again.
-                </p>
-              )}
-            </form>
-          </Form>
+          {forgotPasswordMutation.isError && (
+            <p className="text-sm text-red-600 text-center mt-4">
+              Failed to send OTP. Please try again.
+            </p>
+          )}
         </CardContent>
         <CardFooter className="flex flex-col space-y-4">
           <div className="text-sm text-center text-black">
-            Remember your password?{" "}
-            <Link
-              to="/auth/login"
-              className="font-semibold text-blue-600 hover:text-blue-700"
-            >
-              Sign in
-            </Link>
+            {showOtpInput
+              ? "Enter the OTP sent to your email address"
+              : "Send OTP to your email address which you used to create account."
+            }
           </div>
         </CardFooter>
       </Card>
+
+      <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+        <DialogContent className="w-full bg-white text-black">
+          <DialogHeader>
+            <DialogTitle>Confirm Send OTP</DialogTitle>
+            <DialogDescription className='text-black text-md'>
+              Are you sure you want to send OTP to {email}?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={cancelSendOTP}
+              className="flex-1 text-black"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={confirmSendOTP}
+              className="flex-1 bg-black text-white hover:bg-gray-800"
+            >
+              Yes, Send OTP
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

@@ -50,3 +50,48 @@ export async function getUserDetails(): Promise<User> {
     )
     return response.data;
 }
+
+export async function checkAuthTypeByEmail(): Promise<string> {
+    const token = await authService.getAccessToken()
+    if (!token) {
+        toast.error('User is not authenticated', {
+            style: {
+                background: "linear-gradient(90deg, #E53E3E, #C53030)",
+                color: "white",
+                fontWeight: "bolder",
+                fontSize: "13px",
+                letterSpacing: "1px",
+            }
+        })
+        localStorage.clear()
+        throw new Error('User is not authenticated')
+    }
+    const bearerToken = `Bearer ${token}`
+
+    const response = await axios.post(
+        `${getBackendUrl()}/api/v2/auth/get/email`,
+        {},
+        { headers: {Authorization: bearerToken }}
+    )
+
+    return response.data
+}
+
+export async function forgotPasswordAction(email: string): Promise<string> {
+    const response = await axios.post(
+        `${getBackendUrl()}/api/v2/auth/forgot-password`,
+        { email: email },
+        {},
+    )
+
+    return response.data
+}
+
+export async function verifyOTPAction(otp:string): Promise<boolean> {
+    const response = await axios.post(
+        `${getBackendUrl()}/api/v2/auth/verify-otp`,
+        { otp: otp },
+        {}
+    )
+    return response.data
+}

@@ -216,7 +216,7 @@ function RegisterPage() {
       <Helmet>
         <title>Register - RitualPlanner</title>
       </Helmet>
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
         <Card className="w-full max-w-md bg-white shadow-lg text-black">
           <CardHeader className="space-y-1 flex flex-col items-center justify-center">
             <Flame className='w-14 h-14 text-black p-1 rounded-full' />
@@ -388,7 +388,9 @@ function RegisterPage() {
                   <span className='text-black'>OR</span>
                   <hr className='w-40' />
                 </span>
-                <Button disabled={!terms} onClick={signUpWithGoogle} variant='outline' className='w-full cursor-pointer'>Sign Up With Google <img src="https://img.icons8.com/win10/512/google-logo.png" className='w-6 h-6 mt-0.5' alt='Google' /></Button>
+                <Button disabled={!terms || registerMutation.isPending} onClick={signUpWithGoogle} variant='outline' className='w-full cursor-pointer'>
+                  {registerMutation.isPending ? "Creating account..." : "Sign Up With Google"} <img src="https://img.icons8.com/win10/512/google-logo.png" className='w-6 h-6 mt-0.5' alt='Google' />
+                </Button>
                 {registerMutation.isError && (
                   <p className="text-sm text-red-600 text-center mt-2">
                     Registration failed. Please try again.
