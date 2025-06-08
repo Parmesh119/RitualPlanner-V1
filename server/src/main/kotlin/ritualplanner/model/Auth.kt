@@ -37,3 +37,11 @@ data class RefreshToken (
 data class RefreshTokenRequest (
     val refreshToken: String
 )
+
+data class ForgotPasswordRequest (
+    val email: String,
+)
+
+data class VerifyOTP (
+    val otp: String,
+)

@@ -11,6 +11,7 @@ import ritualplanner.model.LoginResponse
 import ritualplanner.model.RegisterRequest
 import ritualplanner.model.RegisterResponse
 import ritualplanner.model.User
+import ritualplanner.model.VerifyOTP
 import ritualplanner.repository.AuthRepository
 import ritualplanner.repository.RefreshTokenRepository
 import ritualplanner.util.UtilFunctions
@@ -29,6 +30,7 @@ class AuthService(
     private val javaMailSender: JavaMailSender,
     private val emailService: EmailService
 ) {
+    var otpCode: String = ""
     fun register(registerRequest: RegisterRequest): RegisterResponse {
 
         // generating random username
@@ -90,5 +92,37 @@ class AuthService(
         }
 
         return authRepository.getUserDetails(username)
+    }
+
+    fun checkAuthTypeByEmail(authorization: String): String {
+        val token = authorization.substring(7)
+        val email = jwtUtil.getEmailFromToken(token)
+        return authRepository.checkAuthTypeByEmail(email)
+    }
+
+    fun forgotPassword(email: String): String {
+        try {
+            val name = authRepository.getUserDetailsByEmail(email).name
+            otpCode = (100000..999999).random().toString()
+
+            emailService.sendOtp(email, "Security Code for Password Reset - RitualPlanner", name, otpCode)
+            return "OTP has been sent successfully"
+        } catch (e: Exception) {
+            throw Exception("Failed to send OTP", e)
+        }
+    }
+
+    fun verifyOtp(otp: String): Boolean {
+        return try {
+            if(otp.length < 6) {
+                throw Exception("Invalid OTP")
+            }
+            if(otpCode == otp) {
+                true
+            }
+            false
+        } catch (e: Exception) {
+            throw Exception("Failed to verify OTP", e)
+        }
     }
 }

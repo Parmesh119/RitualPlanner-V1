@@ -1,5 +1,6 @@
 package ritualplanner.repository
 
+import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.stereotype.Repository
@@ -12,6 +13,7 @@ import java.sql.ResultSet
 import java.sql.Timestamp
 import java.time.Instant
 import java.util.UUID
+import kotlin.math.sign
 
 @Repository
 class AuthRepository(
@@ -176,4 +178,31 @@ class AuthRepository(
             throw Exception("Failed to get user details")
         }
     }
+
+    fun checkAuthTypeByEmail(email: String): String {
+        return try {
+            val userId = getUserDetailsByEmail(email).id
+
+            val sql = """SELECT signin FROM "Auth" WHERE user_id = ? """
+            val signIn = jdbcTemplate.queryForObject(sql, String::class.java, userId)
+            signIn ?: throw Exception("User not found")
+        } catch (e: EmptyResultDataAccessException) {
+            e.printStackTrace()
+            throw Exception("Email not found")
+        } catch (e: Exception) {
+            e.printStackTrace()
+            throw Exception("Failed to check auth type: ${e.message}")
+        }
+    }
+
+    fun getEmailFromUserId(userId: String): User {
+        val sql = """SELECT * FROM "User" WHERE email = ?"""
+
+        return try {
+            jdbcTemplate.queryForObject(sql, rowMapper, userId) ?: throw Exception("Email not found")
+        } catch (e: Exception) {
+            throw Exception("Error while fetching email")
+        }
+    }
+
 }

@@ -7,14 +7,15 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import ritualplanner.model.ForgotPasswordRequest
 import ritualplanner.model.LoginRequest
 import ritualplanner.model.LoginResponse
 import ritualplanner.model.RefreshTokenRequest
 import ritualplanner.model.RegisterRequest
 import ritualplanner.model.RegisterResponse
 import ritualplanner.model.User
+import ritualplanner.model.VerifyOTP
 import ritualplanner.service.AuthService
-import ritualplanner.service.UserService
 
 @RestController
 @CrossOrigin
@@ -41,5 +42,20 @@ class AuthController (
     fun getUserDetails(@RequestHeader("Authorization") authorization: String): ResponseEntity<User> {
         // Implement logic to get user details
         return ResponseEntity.ok(authService.getUserDetails(authorization))
+    }
+
+    @PostMapping("/get/email")
+    fun checkAuthTypeByEmail(@RequestHeader("Authorization") authorization: String): ResponseEntity<String> {
+        return ResponseEntity.ok(authService.checkAuthTypeByEmail(authorization))
+    }
+
+    @PostMapping("/forgot-password")
+    fun forgotPassword(@RequestBody forgotPasswordRequest: ForgotPasswordRequest): ResponseEntity<String> {
+        return ResponseEntity.ok(authService.forgotPassword(forgotPasswordRequest.email))
+    }
+
+    @PostMapping("/verify-otp")
+    fun verifyOtp(@RequestBody verifyOTP: VerifyOTP): ResponseEntity<Boolean> {
+        return ResponseEntity.ok(authService.verifyOtp(verifyOTP.otp))
     }
 }
