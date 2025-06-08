@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { ChevronUp, User2, Settings, LayoutDashboard, Flame } from "lucide-react"
 import { BadgeCheck, ListTodo, LogOut, Moon, Sun, IndianRupee, Bell, NotebookPen, BookUser, Calendar, List, ScrollText } from 'lucide-react'
 import {
@@ -83,20 +83,7 @@ const items = [
 
 export function AppSidebar() {
 
-    const { setTheme, theme } = useTheme()
     const navigate = useNavigate()
-
-    const [email, setEmail] = useState("")
-    const [name, setName] = useState("")
-
-    useEffect(() => {
-        profileMutation.mutate()
-    }, [])
-
-    const handleLogout = () => {
-        localStorage.clear()
-        navigate({ to: "/auth/login" })
-    }
 
     const profileMutation = useMutation({
         mutationFn: getUserDetails,
@@ -105,9 +92,42 @@ export function AppSidebar() {
             setName(data.name)
         },
         onError: () => {
-            toast.error("Error fetching user details")
+            toast.error("Error while fetching user details! Please login again. ", {
+                description: "Logging out ...",
+                style: {
+                    background: "linear-gradient(90deg, #E53E3E, #C53030)",
+                    color: "white",
+                    fontWeight: "bolder",
+                    fontSize: "13px",
+                    letterSpacing: "1px",
+                }
+            })
+            navigate({ to: "/auth/login" })
+            localStorage.clear()
+            throw new Error("Error while fetching user details!")
         }
     })
+
+    useEffect(() => {
+        if (!initialized.current) {
+            initialized.current = true;
+            if (initialized) {
+                profileMutation.mutate()
+            }
+        }
+    }, [])
+
+    const [email, setEmail] = useState("")
+    const [name, setName] = useState("")
+
+    const initialized = useRef(false);
+
+    const { setTheme, theme } = useTheme()
+
+    const handleLogout = () => {
+        localStorage.clear()
+        navigate({ to: "/auth/login" })
+    }
 
 
     return (

@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { User, Lock, Mail, Phone, Eye, EyeOff, UserPlus, Flame, Copy, X } from "lucide-react"
+import { User, Lock, Mail, Phone, Eye, EyeOff, UserPlus, Flame, X } from "lucide-react"
 import { useMutation } from "@tanstack/react-query"
 import { useState } from "react"
 import { Helmet } from "react-helmet"
@@ -25,7 +25,6 @@ import { Input } from "@/components/ui/input"
 import { registerFormSchema, type TRegister } from "@/schemas/Auth"
 import { registerAction } from '@/lib/actions'
 import { toast } from 'sonner'
-import { type TRegisterResponse } from '@/schemas/Auth'
 import {
   Dialog,
   DialogContent,
@@ -33,6 +32,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { app } from '@/util/firebaseConfig'
+import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth"
 
 export const Route = createFileRoute('/auth/register')({
   component: RegisterPage,
@@ -42,8 +43,16 @@ function RegisterPage() {
   const navigate = useNavigate()
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [showCredentials, setShowCredentials] = useState(false)
-  const [credentials, setCredentials] = useState<TRegisterResponse | null>(null)
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false)
+  const [terms, setTerms] = useState(false)
+  const [signupMethod, setSignupMethod] = useState<"normal" | "google">("normal")
+  const [showGoogleForm, setShowGoogleForm] = useState(false)
+  const [googleUserData, setGoogleUserData] = useState<{
+    name: string;
+    email: string;
+    phone?: string;
+  } | null>(null)
+
   const form = useForm<TRegister>({
     resolver: zodResolver(registerFormSchema),
     defaultValues: {
@@ -52,32 +61,31 @@ function RegisterPage() {
       phone: "",
       password: "",
       confirmPassword: "",
+      signin: ""
     },
+    mode: "onChange"
   })
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text)
-    toast.success('Copied to clipboard!', {
-      style: {
-        background: "linear-gradient(90deg, #38A169, #2F855A)",
-        color: "white",
-        fontWeight: "bolder",
-        fontSize: "13px",
-        letterSpacing: "1px",
-      }
-    })
-  }
+  const googleForm = useForm<TRegister>({
+    resolver: zodResolver(registerFormSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      phone: "",
+      password: "",
+      confirmPassword: "",
+      signin: "google"
+    },
+    mode: "onChange"
+  })
 
   const registerMutation = useMutation({
     mutationFn: registerAction,
-    onSuccess: async (data) => {
-      if (data) {
-        setCredentials(data)
-        setShowCredentials(true)
-      }
+    onSuccess: async () => {
+      setShowSuccessDialog(true)
     },
     onError: () => {
-      toast.error('Registration failed', {
+      toast.error('Registration failed. Please try again.', {
         style: {
           background: "linear-gradient(90deg, #E53E3E, #C53030)",
           color: "white",
@@ -90,12 +98,117 @@ function RegisterPage() {
   })
 
   const handleCloseDialog = () => {
-    setShowCredentials(false)
+    setShowSuccessDialog(false)
     navigate({ to: '/auth/login' })
   }
 
-  const onSubmit = (data: TRegister) => {
-    registerMutation.mutate(data)
+  const onSubmit = async (data: TRegister) => {
+    const registerData: TRegister = {
+      name: data.name,
+      email: data.email,
+      phone: data.phone,
+      password: data.password,
+      confirmPassword: data.confirmPassword,
+      signin: "normal"
+    }
+    setSignupMethod("normal")
+    try {
+      await registerMutation.mutateAsync(registerData)
+      setShowSuccessDialog(true)
+    } catch (error) {
+      toast.error('Registration failed. Please try again.', {
+        style: {
+          background: "linear-gradient(90deg, #E53E3E, #C53030)",
+          color: "white",
+          fontWeight: "bolder",
+          fontSize: "13px",
+          letterSpacing: "1px",
+        }
+      })
+    }
+  }
+
+  const onSubmitGoogleForm = async (data: TRegister) => {
+    if (!googleUserData) return
+
+    const registerData: TRegister = {
+      name: googleUserData.name,
+      email: googleUserData.email,
+      phone: data.phone,
+      password: data.password,
+      confirmPassword: data.confirmPassword,
+      signin: "google"
+    }
+    setSignupMethod("google")
+    try {
+      await registerMutation.mutateAsync(registerData)
+      setShowSuccessDialog(true)
+    } catch (error) {
+      toast.error('Registration failed. Please try again.', {
+        style: {
+          background: "linear-gradient(90deg, #E53E3E, #C53030)",
+          color: "white",
+          fontWeight: "bolder",
+          fontSize: "13px",
+          letterSpacing: "1px",
+        }
+      })
+    }
+  }
+
+  const signUpWithGoogle = () => {
+    const auth = getAuth(app)
+    const provider = new GoogleAuthProvider()
+    signInWithPopup(auth, provider).then((userCredential) => {
+      const user = userCredential.user
+      if (user) {
+        if (user.displayName && user.email) {
+          const userData = {
+            name: user.displayName,
+            email: user.email,
+            phone: user.phoneNumber || undefined
+          }
+          if (!userData.phone) {
+            setGoogleUserData(userData)
+            setShowGoogleForm(true)
+            googleForm.setValue("name", userData.name)
+            googleForm.setValue("email", userData.email)
+          } else {
+            const registerData: TRegister = {
+              name: userData.name,
+              email: userData.email,
+              phone: userData.phone,
+              password: user.uid,
+              confirmPassword: user.uid,
+              signin: "google"
+            }
+            setSignupMethod("google")
+            registerMutation.mutate(registerData)
+            setShowSuccessDialog(true)
+          }
+        } else {
+          toast.error('Registration failed. Please try again.', {
+            style: {
+              background: "linear-gradient(90deg, #E53E3E, #C53030)",
+              color: "white",
+              fontWeight: "bolder",
+              fontSize: "13px",
+              letterSpacing: "1px",
+            }
+          })
+        }
+      }
+    }).catch(() => {
+      toast.error('Registration failed. Please try again.', {
+        style: {
+          background: "linear-gradient(90deg, #E53E3E, #C53030)",
+          color: "white",
+          fontWeight: "bolder",
+          fontSize: "13px",
+          letterSpacing: "1px",
+        }
+      })
+    })
   }
 
   return (
@@ -106,7 +219,7 @@ function RegisterPage() {
       <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
         <Card className="w-full max-w-md bg-white shadow-lg text-black">
           <CardHeader className="space-y-1 flex flex-col items-center justify-center">
-            <Flame className='w-14 h-14 text-black border-1 p-1 rounded-full' />
+            <Flame className='w-14 h-14 text-black p-1 rounded-full' />
             <CardTitle className="text-2xl font-bold text-center">
               Create an account
             </CardTitle>
@@ -243,11 +356,23 @@ function RegisterPage() {
                     </FormItem>
                   )}
                 />
+                <div className="flex items-center space-x-2">
+                  <input
+                    type='checkbox'
+                    id="terms"
+                    className='w-4 h-4'
+                    checked={terms}
+                    onChange={() => setTerms(!terms)}
+                  />
+                  <label htmlFor="terms" className="text-sm text-black font-semibold tracking-wide">
+                    I agree to the Terms and Conditions
+                  </label>
+                </div>
 
                 <Button
                   type="submit"
                   className="w-full bg-black text-white hover:bg-gray-800 cursor-pointer"
-                  disabled={registerMutation.isPending}
+                  disabled={registerMutation.isPending || !terms}
                 >
                   {registerMutation.isPending ? (
                     "Creating account..."
@@ -263,7 +388,7 @@ function RegisterPage() {
                   <span className='text-black'>OR</span>
                   <hr className='w-40' />
                 </span>
-                <Button variant='outline' className='w-full cursor-pointer'>Sign Up With Google <img src="https://img.icons8.com/win10/512/google-logo.png" className='w-6 h-6 mt-0.5' alt='Google' /></Button>
+                <Button disabled={!terms} onClick={signUpWithGoogle} variant='outline' className='w-full cursor-pointer'>Sign Up With Google <img src="https://img.icons8.com/win10/512/google-logo.png" className='w-6 h-6 mt-0.5' alt='Google' /></Button>
                 {registerMutation.isError && (
                   <p className="text-sm text-red-600 text-center mt-2">
                     Registration failed. Please try again.
@@ -287,66 +412,157 @@ function RegisterPage() {
       </div>
 
       <Dialog
-        open={showCredentials}
+        open={showSuccessDialog}
         onOpenChange={(open) => {
           if (!open) return;
-          setShowCredentials(open);
+          setShowSuccessDialog(open);
         }}
       >
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md bg-gray-200 dark:bg-gray-200 text-black">
           <DialogHeader>
-            <DialogTitle>Registration Successful!</DialogTitle>
-            <DialogDescription>
-              Please save these credentials. You will need them to login.
+            <DialogTitle className="text-black">Registration Successful!</DialogTitle>
+            <DialogDescription className="text-black">
+              {signupMethod === "normal" ? (
+                "Your login credentials have been sent to your email address. Please check your inbox to access your account details."
+              ) : (
+                "Your account has been successfully created with Google. You can now log in using your Google account."
+              )}
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <label className="text-sm font-medium">Username</label>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => credentials && copyToClipboard(credentials.username)}
-                >
-                  <Copy className="h-4 w-4" />
-                </Button>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Input
-                  value={credentials?.username || ''}
-                  readOnly
-                  className="bg-gray-50"
-                />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <label className="text-sm font-medium">Password</label>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => credentials && copyToClipboard(credentials.password)}
-                >
-                  <Copy className="h-4 w-4" />
-                </Button>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Input
-                  type="password"
-                  value={credentials?.password || ''}
-                  readOnly
-                  className="bg-gray-50"
-                />
-              </div>
-            </div>
-          </div>
           <div className="flex justify-end">
-            <Button onClick={handleCloseDialog}>
+            <Button onClick={handleCloseDialog} className="bg-black text-white hover:bg-gray-800">
               Close and Login
               <X className="ml-2 h-4 w-4" />
             </Button>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={showGoogleForm}
+        onOpenChange={(open) => {
+          if (!open) {
+            setShowGoogleForm(false)
+            setGoogleUserData(null)
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-md bg-gray-200 dark:bg-gray-200 text-black">
+          <DialogHeader>
+            <DialogTitle className="text-black">Complete Your Registration</DialogTitle>
+            <DialogDescription className="text-black">
+              Please provide your phone number and set a password to complete your registration.
+            </DialogDescription>
+          </DialogHeader>
+          <Form {...googleForm}>
+            <form onSubmit={googleForm.handleSubmit(onSubmitGoogleForm)} className="space-y-4">
+              <FormField
+                control={googleForm.control}
+                name="phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="relative">
+                      <Phone className="absolute left-3 top-2 h-5 w-5 text-black" />
+                      <FormControl>
+                        <Input
+                          type="number"
+                          placeholder="Phone Number"
+                          className="pl-10 placeholder:text-black"
+                          {...field}
+                        />
+                      </FormControl>
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={googleForm.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-2 h-5 w-5 text-black" />
+                      <FormControl>
+                        <Input
+                          type={showPassword ? "text" : "password"}
+                          placeholder="Password"
+                          className="pl-10 pr-10 placeholder:text-black"
+                          {...field}
+                        />
+                      </FormControl>
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-2 text-black hover:text-gray-600"
+                      >
+                        {showPassword ? (
+                          <EyeOff className="h-5 w-5" />
+                        ) : (
+                          <Eye className="h-5 w-5" />
+                        )}
+                      </button>
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={googleForm.control}
+                name="confirmPassword"
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-2 h-5 w-5 text-black" />
+                      <FormControl>
+                        <Input
+                          type={showConfirmPassword ? "text" : "password"}
+                          placeholder="Confirm Password"
+                          className="pl-10 pr-10 placeholder:text-black"
+                          {...field}
+                        />
+                      </FormControl>
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        className="absolute right-3 top-2 text-black hover:text-gray-600"
+                      >
+                        {showConfirmPassword ? (
+                          <EyeOff className="h-5 w-5" />
+                        ) : (
+                          <Eye className="h-5 w-5" />
+                        )}
+                      </button>
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="flex justify-end space-x-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setShowGoogleForm(false)
+                    setGoogleUserData(null)
+                  }}
+                  className="border-black text-black hover:bg-gray-300"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={registerMutation.isPending}
+                  className="bg-black text-white hover:bg-gray-800"
+                >
+                  {registerMutation.isPending ? "Creating account..." : "Complete Registration"}
+                </Button>
+              </div>
+            </form>
+          </Form>
         </DialogContent>
       </Dialog>
     </>

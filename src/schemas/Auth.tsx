@@ -21,6 +21,7 @@ export const registerFormSchema = z
             .min(10, "Phone number must be exactly 10 digits")
             .max(10, "Phone number must be exactly 10 digits")
             .regex(/^\d{10}$/, "Phone number must contain only digits"),
+        signin: z.string(),
         password: z.string()
             .min(8, "Password must be at least 8 characters")
             .max(100, "Password is too long")

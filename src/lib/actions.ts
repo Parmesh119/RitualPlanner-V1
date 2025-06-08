@@ -37,6 +37,7 @@ export async function getUserDetails(): Promise<User> {
                 letterSpacing: "1px",
             }
         })
+        localStorage.clear()
         throw new Error('User is not authenticated')
     }
 

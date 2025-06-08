@@ -28,6 +28,8 @@ import { loginAction } from '@/lib/actions'
 import { authService } from '@/lib/auth'
 import { toast } from 'sonner'
 import axios from 'axios'
+import { app } from "@/util/firebaseConfig"
+import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth"
 
 export const Route = createFileRoute('/auth/login')({
   component: LoginPage,
@@ -103,6 +105,56 @@ function LoginPage() {
     }
 
     return 'Unable to connect to the server. Please try again later.'
+  }
+
+  const loginWithGoogle = () => {
+    const auth = getAuth(app)
+    const provider = new GoogleAuthProvider()
+
+    signInWithPopup(auth, provider).then((userCredentials) => {
+
+      if (userCredentials.user) {
+        const user = userCredentials.user
+        console.log(user.providerData[0].providerId)
+        console.log(user.providerId)
+        toast.success('Login Successful', {
+          description: "Welcome back! Redirecting to dashboard...",
+          style: {
+            background: "linear-gradient(90deg, #38A169, #2F855A)",
+            color: "white",
+            fontWeight: "bolder",
+            fontSize: "13px",
+            letterSpacing: "1px",
+          }
+        })
+        user.getIdToken().then((token) => {
+          localStorage.setItem("app-accessToken", token)
+          localStorage.setItem("app-refreshToken", user.refreshToken)
+          if (user.email && user.metadata.creationTime && user.displayName) {
+            localStorage.setItem("app-email", user.email)
+            localStorage.setItem("app-iat", user.metadata.creationTime)
+          }
+          localStorage.setItem("app-userId", user.uid)
+          navigate({ to: "/app/dashboard" })
+        })
+      } else {
+        toast.error("Error while logging in via Google!", {
+          description: "Please Login again. Logging out ...",
+          style: {
+            background: "linear-gradient(90deg, #E53E3E, #C53030)",
+            color: "white",
+            fontWeight: "bolder",
+            fontSize: "13px",
+            letterSpacing: "1px",
+          }
+        })
+        localStorage.clear()
+        navigate({ to: "/auth/login" })
+      }
+    }).catch((error) => {
+      toast.error("Account not found!", error.message)
+      throw new Error("Error while logging in via Google!", error.message)
+    })
   }
 
   return (
@@ -186,7 +238,7 @@ function LoginPage() {
                   <span className='text-black'>OR</span>
                   <hr className='w-40' />
                 </span>
-                <Button variant='outline' className='w-full cursor-pointer'>Login With Google <img src="https://img.icons8.com/win10/512/google-logo.png" className='w-6 h-6 mt-0.5' alt='Google' /></Button>
+                <Button variant='outline' onClick={loginWithGoogle} className='w-full cursor-pointer'>Login With Google <img src="https://img.icons8.com/win10/512/google-logo.png" className='w-6 h-6 mt-0.5' alt='Google' /></Button>
 
                 {loginMutation.isError && (
                   <p className="text-sm text-red-600 text-center mt-2">
