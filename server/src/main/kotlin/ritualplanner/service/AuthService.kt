@@ -1,6 +1,5 @@
 package ritualplanner.service
 
-import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -8,13 +7,14 @@ import org.springframework.stereotype.Service
 import ritualplanner.config.JwtUtil
 import ritualplanner.model.LoginRequest
 import ritualplanner.model.LoginResponse
+import ritualplanner.model.OtpData
 import ritualplanner.model.RegisterRequest
 import ritualplanner.model.RegisterResponse
 import ritualplanner.model.User
-import ritualplanner.model.VerifyOTP
 import ritualplanner.repository.AuthRepository
 import ritualplanner.repository.RefreshTokenRepository
 import ritualplanner.util.UtilFunctions
+import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.UUID
@@ -27,10 +27,11 @@ class AuthService(
     private val authenticationManager: AuthenticationManager,
     private val jwtUtil: JwtUtil,
     private val refreshTokenRepository: RefreshTokenRepository,
-    private val javaMailSender: JavaMailSender,
     private val emailService: EmailService
 ) {
-    var otpCode: String = ""
+
+    private val otpStorage = mutableMapOf<String, OtpData>()
+
     fun register(registerRequest: RegisterRequest): RegisterResponse {
 
         // generating random username
@@ -101,28 +102,53 @@ class AuthService(
     }
 
     fun forgotPassword(email: String): String {
-        try {
+        return try {
             val name = authRepository.getUserDetailsByEmail(email).name
-            otpCode = (100000..999999).random().toString()
+            val otpCode = (100000..999999).random().toString()
+            val expirationTime = Instant.now().plusMillis(300000) // 5 minutes from now
+
+            // Store OTP with expiration
+            otpStorage[email] = OtpData(otpCode, expirationTime, email)
 
             emailService.sendOtp(email, "Security Code for Password Reset - RitualPlanner", name, otpCode)
-            return "OTP has been sent successfully"
+            "OTP has been sent successfully"
         } catch (e: Exception) {
             throw Exception("Failed to send OTP", e)
         }
     }
 
-    fun verifyOtp(otp: String): Boolean {
+    fun verifyOtp(otp: String, email: String): Boolean {
         return try {
-            if(otp.length < 6) {
-                throw Exception("Invalid OTP")
+            if (otp.length != 6) {
+                throw Exception("Invalid OTP format")
             }
-            if(otpCode == otp) {
+
+            val storedOtpData = otpStorage[email]
+                ?: throw Exception("No OTP found for this email")
+
+            // Check if OTP has expired
+            if (Instant.now().isAfter(storedOtpData.expirationTime)) {
+                otpStorage.remove(email) // Clean up expired OTP
+                throw Exception("OTP has expired")
+            }
+
+            // Verify OTP
+            if (storedOtpData.otpCode == otp) {
+                otpStorage.remove(email) // Clean up used OTP
                 true
+            } else {
+                false
             }
-            false
         } catch (e: Exception) {
-            throw Exception("Failed to verify OTP", e)
+            throw Exception("Failed to verify OTP: ${e.message}", e)
         }
+    }
+
+    fun resetPassword(email: String, password: String, confirmPassword: String): Boolean {
+        if(password != confirmPassword) {
+            throw Exception("Passwords do not match")
+        }
+        val hashPassword = passwordEncoder.encode(password)
+        return authRepository.resetPassword(email, hashPassword)
     }
 }

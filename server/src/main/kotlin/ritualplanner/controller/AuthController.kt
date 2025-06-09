@@ -13,6 +13,7 @@ import ritualplanner.model.LoginResponse
 import ritualplanner.model.RefreshTokenRequest
 import ritualplanner.model.RegisterRequest
 import ritualplanner.model.RegisterResponse
+import ritualplanner.model.ResetPasswordRequest
 import ritualplanner.model.User
 import ritualplanner.model.VerifyOTP
 import ritualplanner.service.AuthService
@@ -56,6 +57,15 @@ class AuthController (
 
     @PostMapping("/verify-otp")
     fun verifyOtp(@RequestBody verifyOTP: VerifyOTP): ResponseEntity<Boolean> {
-        return ResponseEntity.ok(authService.verifyOtp(verifyOTP.otp))
+        return ResponseEntity.ok(authService.verifyOtp(verifyOTP.otp, verifyOTP.email))
+    }
+
+    @PostMapping("/reset-password")
+    fun resetPassword(@RequestBody resetPasswordRequest: ResetPasswordRequest): ResponseEntity<Boolean> {
+        print(resetPasswordRequest.password)
+        if(resetPasswordRequest.email == null) {
+            throw Exception("email is required")
+        }
+        return ResponseEntity.ok(authService.resetPassword(resetPasswordRequest.email, resetPasswordRequest.password, resetPasswordRequest.confirmPassword))
     }
 }

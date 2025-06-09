@@ -205,4 +205,19 @@ class AuthRepository(
         }
     }
 
+    fun resetPassword(email: String, hashPassword: String): Boolean {
+        return try {
+            val sql = """SELECT id from "User" WHERE email = ?"""
+            val userId = jdbcTemplate.queryForObject(sql, String::class.java, email)
+
+            val updateSql = """UPDATE "Auth" SET password = ? WHERE user_id = ?"""
+            val result = jdbcTemplate.update(updateSql, hashPassword, userId)
+            if(result <= 0) {
+                throw Exception("Failed to update password")
+            }
+            true
+        } catch (e: Exception) {
+            throw Exception("Failed to update password")
+        }
+    }
 }
