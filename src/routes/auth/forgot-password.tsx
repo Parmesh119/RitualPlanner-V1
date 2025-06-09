@@ -31,6 +31,7 @@ export const Route = createFileRoute('/auth/forgot-password')({
 
 function ForgotPasswordPage() {
   const navigate = useNavigate()
+  localStorage.clear()
   const [email, setEmail] = useState("")
   const [otp, setOtp] = useState("")
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
@@ -93,9 +94,9 @@ function ForgotPasswordPage() {
   }
 
   const verifyOTPMutation = useMutation({
-    mutationFn: () => verifyOTPAction(otp),
+    mutationFn: () => verifyOTPAction(otp, email),
     onSuccess: async (data) => {
-      if(data) {
+      if (data) {
         toast.success("OTP verified successfully", {
           description: 'You can now enter new password.',
           style: {
@@ -106,8 +107,9 @@ function ForgotPasswordPage() {
             letterSpacing: "1px",
           }
         })
+        localStorage.setItem("email", email)
+        navigate({ to: "/auth/reset-password" })
       } else {
-        alert(data)
         toast.error("OTP has been not verified", {
           description: "Please try again.",
           style: {
@@ -118,6 +120,7 @@ function ForgotPasswordPage() {
             letterSpacing: "1px",
           }
         })
+        navigate({ to: "/auth/forgot-password" })
       }
     },
     onError: () => {
@@ -185,6 +188,7 @@ function ForgotPasswordPage() {
                     type="button"
                     variant="outline"
                     className="w-full border-black text-black hover:bg-gray-100"
+                    disabled={forgotPasswordMutation.isPending}
                   >
                     Back to Login
                   </Button>

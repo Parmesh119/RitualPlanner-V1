@@ -71,7 +71,7 @@ export async function checkAuthTypeByEmail(): Promise<string> {
     const response = await axios.post(
         `${getBackendUrl()}/api/v2/auth/get/email`,
         {},
-        { headers: {Authorization: bearerToken }}
+        { headers: { Authorization: bearerToken } }
     )
 
     return response.data
@@ -87,10 +87,19 @@ export async function forgotPasswordAction(email: string): Promise<string> {
     return response.data
 }
 
-export async function verifyOTPAction(otp:string): Promise<boolean> {
+export async function verifyOTPAction(otp: string, email: string): Promise<boolean> {
     const response = await axios.post(
         `${getBackendUrl()}/api/v2/auth/verify-otp`,
-        { otp: otp },
+        { otp: otp, email: email},
+        {}
+    )
+    return response.data
+}
+
+export async function resetPasswordAction(email: string | null, password: string, confirmPassword: string): Promise<boolean> {
+    const response = await axios.post(
+        `${getBackendUrl()}/api/v2/auth/reset-password`,
+        { email: email,  password: password, confirmPassword: confirmPassword},
         {}
     )
     return response.data
