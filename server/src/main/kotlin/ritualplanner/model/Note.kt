@@ -7,8 +7,20 @@ import java.util.UUID
 data class Note (
     val id: String? = UUID.randomUUID().toString(),
     val title: String,
-    val body: String,
-    val reminderDate: Instant? = Instant.now().plus(Duration.ofDays(7)),
+    val description: String,
+    val reminder_date: Long? = Instant.now().plus(Duration.ofDays(7)).toEpochMilli(),
     val createdAt: Long = Instant.now().toEpochMilli(),
     val updatedAt: Long = Instant.now().toEpochMilli()
+)
+
+data class DeleteNote (
+    val id: String
+)
+
+data class ListNote (
+    val search: String? = null,
+    val pages: Int? = 1,
+    val size: Int? = 10,
+    val startDate: Long? = null,
+    val endDate: Long? = null,
 )
