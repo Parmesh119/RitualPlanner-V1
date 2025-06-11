@@ -19,7 +19,7 @@ data class DeleteNote (
 
 data class ListNote (
     val search: String? = null,
-    val pages: Int? = 1,
+    val page: Int? = 1,
     val size: Int? = 10,
     val startDate: Long? = null,
     val endDate: Long? = null,

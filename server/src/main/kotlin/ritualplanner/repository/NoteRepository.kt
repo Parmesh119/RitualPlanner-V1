@@ -118,15 +118,25 @@ class NoteRepository(private val jdbcTemplate: JdbcTemplate) {
 
             listNote.startDate?.let {
                 sqlBuilder.append(" AND reminder_date >= to_timestamp(?)")
-                params.add(it)
+                params.add(it / 1000)
             }
+
+//            listNote.startDate?.let {
+//                sqlBuilder.append(" AND startDate >= to_timestamp(?)")
+//                params.add(it)
+//            }
 
             listNote.endDate?.let {
                 sqlBuilder.append(" AND reminder_date <= to_timestamp(?)")
-                params.add(it)
+                params.add(it / 1000)
             }
 
-            val page = (listNote.pages ?: 1).coerceAtLeast(1)
+//            listNote.endDate?.let {
+//                sqlBuilder.append(" AND endDate <= to_timestamp(?)")
+//                params.add(it)
+//            }
+
+            val page = (listNote.page ?: 1).coerceAtLeast(1)
             val size = (listNote.size ?: 10).coerceIn(1, 100)
 
             sqlBuilder.append(" ORDER BY reminder_date DESC")
