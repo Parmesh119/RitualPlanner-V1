@@ -47,6 +47,7 @@ function RegisterPage() {
   const [terms, setTerms] = useState(false)
   const [signupMethod, setSignupMethod] = useState<"normal" | "google">("normal")
   const [showGoogleForm, setShowGoogleForm] = useState(false)
+  const [googleFormStep, setGoogleFormStep] = useState<'phone' | 'password'>('phone')
   const [googleUserData, setGoogleUserData] = useState<{
     name: string;
     email: string;
@@ -154,6 +155,20 @@ function RegisterPage() {
         }
       })
     }
+  }
+
+  const handleGoogleFormClose = () => {
+    setShowGoogleForm(false)
+    setGoogleFormStep('phone')
+    setGoogleUserData(null)
+  }
+
+  const handleNextStep = () => {
+    setGoogleFormStep('password')
+  }
+
+  const handlePreviousStep = () => {
+    setGoogleFormStep('phone')
   }
 
   const signUpWithGoogle = () => {
@@ -444,125 +459,148 @@ function RegisterPage() {
         open={showGoogleForm}
         onOpenChange={(open) => {
           if (!open) {
-            setShowGoogleForm(false)
-            setGoogleUserData(null)
+            handleGoogleFormClose()
           }
         }}
       >
         <DialogContent className="sm:max-w-md bg-gray-200 dark:bg-gray-200 text-black">
           <DialogHeader>
-            <DialogTitle className="text-black">Complete Your Registration</DialogTitle>
+            <DialogTitle className="text-black">
+              {googleFormStep === 'phone' ? 'Step 1: Phone Number' : 'Step 2: Set Password'}
+            </DialogTitle>
             <DialogDescription className="text-black">
-              Please provide your phone number and set a password to complete your registration.
+              {googleFormStep === 'phone'
+                ? 'Please provide your phone number to continue.'
+                : 'Please set a password for your account.'}
             </DialogDescription>
           </DialogHeader>
           <Form {...googleForm}>
             <form onSubmit={googleForm.handleSubmit(onSubmitGoogleForm)} className="space-y-4">
-              <FormField
-                control={googleForm.control}
-                name="phone"
-                render={({ field }) => (
-                  <FormItem>
-                    <div className="relative">
-                      <Phone className="absolute left-3 top-2 h-5 w-5 text-black" />
-                      <FormControl>
-                        <Input
-                          type="number"
-                          placeholder="Phone Number"
-                          className="pl-10 placeholder:text-black"
-                          {...field}
-                        />
-                      </FormControl>
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {googleFormStep === 'phone' ? (
+                <>
+                  <FormField
+                    control={googleForm.control}
+                    name="phone"
+                    render={({ field }) => (
+                      <FormItem>
+                        <div className="relative">
+                          <Phone className="absolute left-3 top-2 h-5 w-5 text-black" />
+                          <FormControl>
+                            <Input
+                              type="number"
+                              placeholder="Phone Number"
+                              className="pl-10 placeholder:text-black"
+                              {...field}
+                            />
+                          </FormControl>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <div className="flex justify-end space-x-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleGoogleFormClose}
+                      className="border-black text-black hover:bg-gray-300"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="button"
+                      onClick={handleNextStep}
+                      className="bg-black text-white hover:bg-gray-800"
+                    >
+                      Next
+                    </Button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <FormField
+                    control={googleForm.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <div className="relative">
+                          <Lock className="absolute left-3 top-2 h-5 w-5 text-black" />
+                          <FormControl>
+                            <Input
+                              type={showPassword ? "text" : "password"}
+                              placeholder="Password"
+                              className="pl-10 pr-10 placeholder:text-black"
+                              {...field}
+                            />
+                          </FormControl>
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3 top-2 text-black hover:text-gray-600"
+                          >
+                            {showPassword ? (
+                              <EyeOff className="h-5 w-5" />
+                            ) : (
+                              <Eye className="h-5 w-5" />
+                            )}
+                          </button>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-              <FormField
-                control={googleForm.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-2 h-5 w-5 text-black" />
-                      <FormControl>
-                        <Input
-                          type={showPassword ? "text" : "password"}
-                          placeholder="Password"
-                          className="pl-10 pr-10 placeholder:text-black"
-                          {...field}
-                        />
-                      </FormControl>
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-2 text-black hover:text-gray-600"
-                      >
-                        {showPassword ? (
-                          <EyeOff className="h-5 w-5" />
-                        ) : (
-                          <Eye className="h-5 w-5" />
-                        )}
-                      </button>
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                  <FormField
+                    control={googleForm.control}
+                    name="confirmPassword"
+                    render={({ field }) => (
+                      <FormItem>
+                        <div className="relative">
+                          <Lock className="absolute left-3 top-2 h-5 w-5 text-black" />
+                          <FormControl>
+                            <Input
+                              type={showConfirmPassword ? "text" : "password"}
+                              placeholder="Confirm Password"
+                              className="pl-10 pr-10 placeholder:text-black"
+                              {...field}
+                            />
+                          </FormControl>
+                          <button
+                            type="button"
+                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                            className="absolute right-3 top-2 text-black hover:text-gray-600"
+                          >
+                            {showConfirmPassword ? (
+                              <EyeOff className="h-5 w-5" />
+                            ) : (
+                              <Eye className="h-5 w-5" />
+                            )}
+                          </button>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-              <FormField
-                control={googleForm.control}
-                name="confirmPassword"
-                render={({ field }) => (
-                  <FormItem>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-2 h-5 w-5 text-black" />
-                      <FormControl>
-                        <Input
-                          type={showConfirmPassword ? "text" : "password"}
-                          placeholder="Confirm Password"
-                          className="pl-10 pr-10 placeholder:text-black"
-                          {...field}
-                        />
-                      </FormControl>
-                      <button
-                        type="button"
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        className="absolute right-3 top-2 text-black hover:text-gray-600"
-                      >
-                        {showConfirmPassword ? (
-                          <EyeOff className="h-5 w-5" />
-                        ) : (
-                          <Eye className="h-5 w-5" />
-                        )}
-                      </button>
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="flex justify-end space-x-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => {
-                    setShowGoogleForm(false)
-                    setGoogleUserData(null)
-                  }}
-                  className="border-black text-black hover:bg-gray-300"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={registerMutation.isPending}
-                  className="bg-black text-white hover:bg-gray-800"
-                >
-                  {registerMutation.isPending ? "Creating account..." : "Complete Registration"}
-                </Button>
-              </div>
+                  <div className="flex justify-end space-x-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handlePreviousStep}
+                      className="border-black text-black hover:bg-gray-300"
+                    >
+                      Previous
+                    </Button>
+                    <Button
+                      type="submit"
+                      disabled={registerMutation.isPending}
+                      className="bg-black text-white hover:bg-gray-800"
+                    >
+                      {registerMutation.isPending ? "Creating account..." : "Complete Registration"}
+                    </Button>
+                  </div>
+                </>
+              )}
             </form>
           </Form>
         </DialogContent>

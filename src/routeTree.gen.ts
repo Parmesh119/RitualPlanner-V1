@@ -18,6 +18,7 @@ import { Route as AuthRegisterImport } from './routes/auth/register'
 import { Route as AuthLoginImport } from './routes/auth/login'
 import { Route as AuthForgotPasswordImport } from './routes/auth/forgot-password'
 import { Route as AppTasksIndexImport } from './routes/app/tasks/index'
+import { Route as AppNotesIndexImport } from './routes/app/notes/index'
 import { Route as AppDashboardIndexImport } from './routes/app/dashboard/index'
 
 // Create/Update Routes
@@ -61,6 +62,12 @@ const AuthForgotPasswordRoute = AuthForgotPasswordImport.update({
 const AppTasksIndexRoute = AppTasksIndexImport.update({
   id: '/tasks/',
   path: '/tasks/',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+
+const AppNotesIndexRoute = AppNotesIndexImport.update({
+  id: '/notes/',
+  path: '/notes/',
   getParentRoute: () => AppRouteRoute,
 } as any)
 
@@ -123,6 +130,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppDashboardIndexImport
       parentRoute: typeof AppRouteImport
     }
+    '/app/notes/': {
+      id: '/app/notes/'
+      path: '/notes'
+      fullPath: '/app/notes'
+      preLoaderRoute: typeof AppNotesIndexImport
+      parentRoute: typeof AppRouteImport
+    }
     '/app/tasks/': {
       id: '/app/tasks/'
       path: '/tasks'
@@ -137,11 +151,13 @@ declare module '@tanstack/react-router' {
 
 interface AppRouteRouteChildren {
   AppDashboardIndexRoute: typeof AppDashboardIndexRoute
+  AppNotesIndexRoute: typeof AppNotesIndexRoute
   AppTasksIndexRoute: typeof AppTasksIndexRoute
 }
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppDashboardIndexRoute: AppDashboardIndexRoute,
+  AppNotesIndexRoute: AppNotesIndexRoute,
   AppTasksIndexRoute: AppTasksIndexRoute,
 }
 
@@ -157,6 +173,7 @@ export interface FileRoutesByFullPath {
   '/auth/register': typeof AuthRegisterRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/app/dashboard': typeof AppDashboardIndexRoute
+  '/app/notes': typeof AppNotesIndexRoute
   '/app/tasks': typeof AppTasksIndexRoute
 }
 
@@ -168,6 +185,7 @@ export interface FileRoutesByTo {
   '/auth/register': typeof AuthRegisterRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/app/dashboard': typeof AppDashboardIndexRoute
+  '/app/notes': typeof AppNotesIndexRoute
   '/app/tasks': typeof AppTasksIndexRoute
 }
 
@@ -180,6 +198,7 @@ export interface FileRoutesById {
   '/auth/register': typeof AuthRegisterRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/app/dashboard/': typeof AppDashboardIndexRoute
+  '/app/notes/': typeof AppNotesIndexRoute
   '/app/tasks/': typeof AppTasksIndexRoute
 }
 
@@ -193,6 +212,7 @@ export interface FileRouteTypes {
     | '/auth/register'
     | '/auth/reset-password'
     | '/app/dashboard'
+    | '/app/notes'
     | '/app/tasks'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -203,6 +223,7 @@ export interface FileRouteTypes {
     | '/auth/register'
     | '/auth/reset-password'
     | '/app/dashboard'
+    | '/app/notes'
     | '/app/tasks'
   id:
     | '__root__'
@@ -213,6 +234,7 @@ export interface FileRouteTypes {
     | '/auth/register'
     | '/auth/reset-password'
     | '/app/dashboard/'
+    | '/app/notes/'
     | '/app/tasks/'
   fileRoutesById: FileRoutesById
 }
@@ -260,6 +282,7 @@ export const routeTree = rootRoute
       "filePath": "app/route.tsx",
       "children": [
         "/app/dashboard/",
+        "/app/notes/",
         "/app/tasks/"
       ]
     },
@@ -277,6 +300,10 @@ export const routeTree = rootRoute
     },
     "/app/dashboard/": {
       "filePath": "app/dashboard/index.tsx",
+      "parent": "/app"
+    },
+    "/app/notes/": {
+      "filePath": "app/notes/index.tsx",
       "parent": "/app"
     },
     "/app/tasks/": {

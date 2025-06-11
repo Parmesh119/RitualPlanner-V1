@@ -5,7 +5,7 @@ import { User, Lock, LogIn, Flame } from "lucide-react"
 import { useMutation } from "@tanstack/react-query"
 import { useNavigate } from "@tanstack/react-router"
 import { Helmet } from "react-helmet"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import {
   Card,
   CardContent,
@@ -37,6 +37,8 @@ export const Route = createFileRoute('/auth/login')({
 
 function LoginPage() {
   const navigate = useNavigate()
+
+  const [loginGoogle, setLoginGoogle] = useState(false)
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -136,7 +138,7 @@ function LoginPage() {
         }
       }
     },
-    onError: (error: any) => {
+    onError: () => {
       toast.error("Error checking authentication type", {
         description: "Please try logging in again",
         style: {
@@ -167,11 +169,11 @@ function LoginPage() {
   }
 
   const loginWithGoogle = () => {
+    setLoginGoogle(true)
     const auth = getAuth(app)
     const provider = new GoogleAuthProvider()
-
+    
     signInWithPopup(auth, provider).then((userCredentials) => {
-
       if (userCredentials.user) {
         const user = userCredentials.user
 
@@ -298,7 +300,7 @@ function LoginPage() {
                   <hr className='w-40' />
                 </span>
                 <Button variant='outline' onClick={loginWithGoogle} className='w-full cursor-pointer' disabled={loginMutation.isPending}>
-                  {loginMutation.isPending ? "Logging in..." : "Login With Google"} <img src="https://img.icons8.com/win10/512/google-logo.png" className='w-6 h-6 mt-0.5' alt='Google' />
+                  {loginGoogle ? "Logging in..." : "Login With Google"} <img src="https://img.icons8.com/win10/512/google-logo.png" className='w-6 h-6 mt-0.5' alt='Google' />
                 </Button>
 
                 {loginMutation.isError && (
