@@ -19,7 +19,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { format } from "date-fns"
-import { Calendar as CalendarIcon, Plus } from "lucide-react"
+import { Calendar as CalendarIcon, Plus, Search } from "lucide-react"
 import {
   Table,
   TableBody,
@@ -28,30 +28,33 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { CreateNoteDialog } from "@/components/notes/create-note-dialog"
+import { type ListNote } from '@/schemas/Note'
+import { listNoteAction } from '@/lib/actions'
+import { useQuery } from '@tanstack/react-query'
 
 export const Route = createFileRoute('/app/notes/')({
   component: RouteComponent,
 })
-
-// Dummy data
-const dummyNotes = Array.from({ length: 25 }, (_, i) => ({
-  id: i + 1,
-  title: `Note ${i + 1}`,
-  reminderDate: new Date(2024, 2, i + 1),
-  createdAt: new Date(2024, 1, i + 1),
-}))
 
 function RouteComponent() {
   const [currentPage, setCurrentPage] = useState(1)
   const [startDate, setStartDate] = useState<Date>()
   const [endDate, setEndDate] = useState<Date>()
   const [searchQuery, setSearchQuery] = useState("")
-  const itemsPerPage = 10
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const DEFAULT_PAGE_SIZE = 10
 
-  const totalPages = Math.ceil(dummyNotes.length / itemsPerPage)
-  const startIndex = (currentPage - 1) * itemsPerPage
-  const endIndex = startIndex + itemsPerPage
-  const currentNotes = dummyNotes.slice(startIndex, endIndex)
+  const { data: notesData, isLoading } = useQuery({
+    queryKey: ['notes', currentPage, searchQuery, startDate, endDate],
+    queryFn: () => listNoteAction({
+      page: currentPage,
+      size: DEFAULT_PAGE_SIZE,
+      search: searchQuery || undefined,
+      startDate: startDate ? startDate.getTime() : undefined,
+      endDate: endDate ? endDate.getTime() : undefined,
+    }),
+  })
 
   return <>
     <SidebarInset className='w-full'>
@@ -74,56 +77,67 @@ function RouteComponent() {
       </header>
       <Separator className="mb-4" />
 
-      <div className="flex flex-col gap-4 px-8 py-2">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold">Notes List</h1>
-          <div className="flex items-center gap-4">
-            <Input
-              placeholder="Search notes..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-64"
-            />
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline" className="w-[200px] justify-start text-left font-normal">
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {startDate ? format(startDate, "PPP") : "Start Date"}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0">
-                <Calendar
-                  mode="single"
-                  selected={startDate}
-                  onSelect={setStartDate}
-                  initialFocus
-                />
-              </PopoverContent>
-            </Popover>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline" className="w-[200px] justify-start text-left font-normal">
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {endDate ? format(endDate, "PPP") : "End Date"}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0">
-                <Calendar
-                  mode="single"
-                  selected={endDate}
-                  onSelect={setEndDate}
-                  initialFocus
-                />
-              </PopoverContent>
-            </Popover>
-            <Button>
-              <Plus className="h-4 w-4" />
-              Add Note
+      <div className="flex flex-col gap-4 px-4 md:px-8 py-2">
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center justify-between">
+            <h1 className="text-2xl font-bold">Notes List</h1>
+            <Button onClick={() => setIsDialogOpen(true)} className='cursor-pointer'>
+              <abbr title="Add Note" className="sm:hidden">
+                <Plus className="h-4 w-4" />
+              </abbr>
+              <Plus className="hidden sm:block h-4 w-4" />
+              <span className="hidden sm:inline">Add Note</span>
             </Button>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search notes..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-8 w-full"
+              />
+            </div>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className="w-full sm:w-[200px] justify-start text-left font-normal">
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {startDate ? format(startDate, "PPP") : "Start Date"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={startDate}
+                    onSelect={setStartDate}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className="w-full sm:w-[200px] justify-start text-left font-normal">
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {endDate ? format(endDate, "PPP") : "End Date"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={endDate}
+                    onSelect={setEndDate}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
           </div>
         </div>
 
-        <div className="rounded-md border px-6">
+        <div className="rounded-md border overflow-x-auto px-6 py-2">
           <Table>
             <TableHeader>
               <TableRow>
@@ -134,14 +148,24 @@ function RouteComponent() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {currentNotes.map((note, index) => (
-                <TableRow key={note.id}>
-                  <TableCell>{(currentPage - 1) * itemsPerPage + index + 1}</TableCell>
-                  <TableCell>{note.title}</TableCell>
-                  <TableCell>{format(note.reminderDate, "PPP")}</TableCell>
-                  <TableCell>{format(note.createdAt, "PPP")}</TableCell>
+              {isLoading ? (
+                <TableRow>
+                  <TableCell colSpan={4} className="text-center">Loading...</TableCell>
                 </TableRow>
-              ))}
+              ) : notesData?.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={4} className="text-center">No notes found</TableCell>
+                </TableRow>
+              ) : (
+                notesData?.map((note, index) => (
+                  <TableRow key={note.id}>
+                    <TableCell>{(currentPage - 1) * DEFAULT_PAGE_SIZE + index + 1}</TableCell>
+                    <TableCell>{note.title}</TableCell>
+                    <TableCell>{note.reminder_date ? format(new Date(note.reminder_date * 1000), "PPP") : "No reminder"}</TableCell>
+                    <TableCell>{format(new Date(note.createdAt * 1000), "PPP")}</TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </div>
@@ -155,17 +179,22 @@ function RouteComponent() {
             Previous
           </Button>
           <span className="text-sm">
-            Page {currentPage} of {totalPages}
+            Page {currentPage}
           </span>
           <Button
             variant="outline"
             onClick={() => setCurrentPage(prev => prev + 1)}
-            disabled={currentPage === totalPages}
+            disabled={!notesData || notesData.length < DEFAULT_PAGE_SIZE}
           >
             Next
           </Button>
         </div>
       </div>
+
+      <CreateNoteDialog
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+      />
     </SidebarInset>
   </>
 }

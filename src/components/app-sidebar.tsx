@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react"
 import { ChevronUp, User2, Settings, LayoutDashboard, Flame } from "lucide-react"
-import { BadgeCheck, ListTodo, LogOut, Moon, Sun, IndianRupee, Bell, NotebookPen, BookUser, Calendar, List, ScrollText } from 'lucide-react'
+import { BadgeCheck, ListTodo, LogOut, Moon, Sun, NotebookText, IndianRupee, Bell, NotebookPen, BookUser, Calendar, List, ScrollText } from 'lucide-react'
 import {
     Sidebar,
     SidebarContent,
@@ -68,6 +68,11 @@ const items = [
         title: "Client Directory",
         url: "/app/clients/",
         icon: BookUser,
+    },
+    {
+        title: "Daily Panchang",
+        url: "https://v0-dynamic-astrology-form.vercel.app/",
+        icon: NotebookText
     },
     {
         title: "Notifications",

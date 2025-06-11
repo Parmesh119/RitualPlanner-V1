@@ -20,6 +20,7 @@ import { Route as AuthForgotPasswordImport } from './routes/auth/forgot-password
 import { Route as AppTasksIndexImport } from './routes/app/tasks/index'
 import { Route as AppNotesIndexImport } from './routes/app/notes/index'
 import { Route as AppDashboardIndexImport } from './routes/app/dashboard/index'
+import { Route as AppNotesNoteIdImport } from './routes/app/notes/note/$id'
 
 // Create/Update Routes
 
@@ -74,6 +75,12 @@ const AppNotesIndexRoute = AppNotesIndexImport.update({
 const AppDashboardIndexRoute = AppDashboardIndexImport.update({
   id: '/dashboard/',
   path: '/dashboard/',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+
+const AppNotesNoteIdRoute = AppNotesNoteIdImport.update({
+  id: '/notes/note/$id',
+  path: '/notes/note/$id',
   getParentRoute: () => AppRouteRoute,
 } as any)
 
@@ -144,6 +151,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppTasksIndexImport
       parentRoute: typeof AppRouteImport
     }
+    '/app/notes/note/$id': {
+      id: '/app/notes/note/$id'
+      path: '/notes/note/$id'
+      fullPath: '/app/notes/note/$id'
+      preLoaderRoute: typeof AppNotesNoteIdImport
+      parentRoute: typeof AppRouteImport
+    }
   }
 }
 
@@ -153,12 +167,14 @@ interface AppRouteRouteChildren {
   AppDashboardIndexRoute: typeof AppDashboardIndexRoute
   AppNotesIndexRoute: typeof AppNotesIndexRoute
   AppTasksIndexRoute: typeof AppTasksIndexRoute
+  AppNotesNoteIdRoute: typeof AppNotesNoteIdRoute
 }
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppDashboardIndexRoute: AppDashboardIndexRoute,
   AppNotesIndexRoute: AppNotesIndexRoute,
   AppTasksIndexRoute: AppTasksIndexRoute,
+  AppNotesNoteIdRoute: AppNotesNoteIdRoute,
 }
 
 const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
@@ -175,6 +191,7 @@ export interface FileRoutesByFullPath {
   '/app/dashboard': typeof AppDashboardIndexRoute
   '/app/notes': typeof AppNotesIndexRoute
   '/app/tasks': typeof AppTasksIndexRoute
+  '/app/notes/note/$id': typeof AppNotesNoteIdRoute
 }
 
 export interface FileRoutesByTo {
@@ -187,6 +204,7 @@ export interface FileRoutesByTo {
   '/app/dashboard': typeof AppDashboardIndexRoute
   '/app/notes': typeof AppNotesIndexRoute
   '/app/tasks': typeof AppTasksIndexRoute
+  '/app/notes/note/$id': typeof AppNotesNoteIdRoute
 }
 
 export interface FileRoutesById {
@@ -200,6 +218,7 @@ export interface FileRoutesById {
   '/app/dashboard/': typeof AppDashboardIndexRoute
   '/app/notes/': typeof AppNotesIndexRoute
   '/app/tasks/': typeof AppTasksIndexRoute
+  '/app/notes/note/$id': typeof AppNotesNoteIdRoute
 }
 
 export interface FileRouteTypes {
@@ -214,6 +233,7 @@ export interface FileRouteTypes {
     | '/app/dashboard'
     | '/app/notes'
     | '/app/tasks'
+    | '/app/notes/note/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -225,6 +245,7 @@ export interface FileRouteTypes {
     | '/app/dashboard'
     | '/app/notes'
     | '/app/tasks'
+    | '/app/notes/note/$id'
   id:
     | '__root__'
     | '/'
@@ -236,6 +257,7 @@ export interface FileRouteTypes {
     | '/app/dashboard/'
     | '/app/notes/'
     | '/app/tasks/'
+    | '/app/notes/note/$id'
   fileRoutesById: FileRoutesById
 }
 
@@ -283,7 +305,8 @@ export const routeTree = rootRoute
       "children": [
         "/app/dashboard/",
         "/app/notes/",
-        "/app/tasks/"
+        "/app/tasks/",
+        "/app/notes/note/$id"
       ]
     },
     "/auth/forgot-password": {
@@ -308,6 +331,10 @@ export const routeTree = rootRoute
     },
     "/app/tasks/": {
       "filePath": "app/tasks/index.tsx",
+      "parent": "/app"
+    },
+    "/app/notes/note/$id": {
+      "filePath": "app/notes/note/$id.tsx",
       "parent": "/app"
     }
   }

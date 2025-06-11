@@ -3,6 +3,8 @@ import { type TLogin, type TAuthResponse, type TRegister, type TRefreshTokenRequ
 import { type User } from '@/schemas/User'
 import { authService } from './auth'
 import { toast } from 'sonner'
+import { type TNote, type TDeleteNote, type ListNote } from "@/schemas/Note"
+import { dateMatchModifiers } from 'react-day-picker'
 
 export function getBackendUrl() {
     const backendUrl = 'http://localhost:8080'
@@ -102,5 +104,84 @@ export async function resetPasswordAction(email: string | null, password: string
         { email: email,  password: password, confirmPassword: confirmPassword},
         {}
     )
+    return response.data
+}
+
+export async function createNoteAction(data: TNote): Promise<TNote> {
+    const token = await authService.getAccessToken()
+    if (!token) {
+        toast.error('User is not authenticated', {
+            style: {
+                background: "linear-gradient(90deg, #E53E3E, #C53030)",
+                color: "white",
+                fontWeight: "bolder",
+                fontSize: "13px",
+                letterSpacing: "1px",
+            }
+        })
+        localStorage.clear()
+        throw new Error('User is not authenticated')
+    }
+    const bearerToken = `Bearer ${token}`
+
+    const response = await axios.post(
+        `${getBackendUrl()}/api/v2/notes/create`,
+        data,
+        { headers: { Authorization: bearerToken } }
+    )
+
+    return response.data
+}
+
+export async function listNoteAction(data: ListNote): Promise<TNote[]> {
+    const token = await authService.getAccessToken()
+
+    if(!token) {
+        toast.error("User is not authenticated", {
+            style: {
+                background: "linear-gradient(90deg, #E53E3E, #C53030)",
+                color: "white",
+                fontWeight: "bolder",
+                fontSize: "13px",
+                letterSpacing: "1px"
+            }
+        })
+        localStorage.clear()
+        throw new Error("User is not authenticated")
+    }
+    const bearerToken = `Bearer ${token}`
+
+    const response = await axios.post(
+        `${getBackendUrl()}/api/v2/notes`,
+        data,
+        { headers: { Authorization: bearerToken } }
+    )
+
+    return response.data
+}
+
+export async function getNoteByIdAction(id: string): Promise<TNote> {
+    const token = await authService.getAccessToken()
+
+    if (!token) {
+        toast.error("User is not authenticated", {
+            style: {
+                background: "linear-gradient(90deg, #E53E3E, #C53030)",
+                color: "white",
+                fontWeight: "bolder",
+                fontSize: "13px",
+                letterSpacing: "1px"
+            }
+        })
+        localStorage.clear()
+        throw new Error("User is not authenticated")
+    }
+    const bearerToken = `Bearer ${token}`
+
+    const response = await axios.get(
+        `${getBackendUrl()}/api/v2/notes/note/${id}`,
+        { headers: {Authorization: bearerToken }},
+    )
+
     return response.data
 }
