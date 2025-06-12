@@ -185,3 +185,30 @@ export async function getNoteByIdAction(id: string): Promise<TNote> {
 
     return response.data
 }
+
+export async function updateNoteAction(data: TNote): Promise<TNote> {
+    const token = await authService.getAccessToken()
+
+    if (!token) {
+        toast.error("User is not authenticated", {
+            style: {
+                background: "linear-gradient(90deg, #E53E3E, #C53030)",
+                color: "white",
+                fontWeight: "bolder",
+                fontSize: "13px",
+                letterSpacing: "1px"
+            }
+        })
+        localStorage.clear()
+        throw new Error("User is not authenticated")
+    }
+    const bearerToken = `Bearer ${token}`
+
+    const response = await axios.put(
+        `${getBackendUrl()}/api/v2/notes/update`,
+        data,
+        {headers: {Authorization: bearerToken}}
+    )
+
+    return response.data
+}

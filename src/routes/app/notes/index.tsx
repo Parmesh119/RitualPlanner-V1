@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 import {
@@ -29,15 +29,17 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { CreateNoteDialog } from "@/components/notes/create-note-dialog"
-import { type ListNote } from '@/schemas/Note'
 import { listNoteAction } from '@/lib/actions'
 import { useQuery } from '@tanstack/react-query'
+import { Link } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/app/notes/')({
   component: RouteComponent,
 })
 
 function RouteComponent() {
+
+  const navigate = useNavigate()
   const [currentPage, setCurrentPage] = useState(1)
   const [startDate, setStartDate] = useState<Date>()
   const [endDate, setEndDate] = useState<Date>()
@@ -108,7 +110,7 @@ function RouteComponent() {
                     {startDate ? format(startDate, "PPP") : "Start Date"}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
+                <PopoverContent className="w-auto p-0" align="center">
                   <Calendar
                     mode="single"
                     selected={startDate}
@@ -119,12 +121,12 @@ function RouteComponent() {
               </Popover>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-full sm:w-[200px] justify-start text-left font-normal">
+                  <Button variant="outline" className="w-full sm:w-[200px] justify-start text-center font-normal ">
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {endDate ? format(endDate, "PPP") : "End Date"}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
+                <PopoverContent className="w-auto p-0" align="center">
                   <Calendar
                     mode="single"
                     selected={endDate}
@@ -158,7 +160,7 @@ function RouteComponent() {
                 </TableRow>
               ) : (
                 notesData?.map((note, index) => (
-                  <TableRow key={note.id}>
+                  <TableRow key={note.id} onClick={() => navigate({ to: '/app/notes/note/$id', params: { id: note.id } })}>
                     <TableCell>{(currentPage - 1) * DEFAULT_PAGE_SIZE + index + 1}</TableCell>
                     <TableCell>{note.title}</TableCell>
                     <TableCell>{note.reminder_date ? format(new Date(note.reminder_date * 1000), "PPP") : "No reminder"}</TableCell>
