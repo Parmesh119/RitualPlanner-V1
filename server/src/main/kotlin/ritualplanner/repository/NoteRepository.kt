@@ -25,15 +25,16 @@ class NoteRepository(private val jdbcTemplate: JdbcTemplate) {
         )
     }
 
-    fun createNote(note: Note): Note {
+    fun createNote(note: Note, user_id: String?): Note {
         return try {
             val sql = """
-            INSERT INTO "Note" (id, title, description, reminder_date, created_at, updated_at) 
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO "Note" (id, user_id, title, description, reminder_date, created_at, updated_at) 
+            VALUES (?, ?, ?, ?, ?, ?, ?)
         """
             jdbcTemplate.update(
                 sql,
                 note.id,
+                user_id,
                 note.title,
                 note.description,
                 note.reminder_date?.let { Timestamp.from(Instant.ofEpochMilli(it)) },
@@ -76,12 +77,13 @@ class NoteRepository(private val jdbcTemplate: JdbcTemplate) {
         }
     }
 
-    fun deleteNote(deleteNote: DeleteNote): String {
+    fun deleteNote(deleteNote: DeleteNote, user_id: String?): String {
         return try {
-            val sql = """DELETE FROM "Note" WHERE id = ?"""
+            val sql = """DELETE FROM "Note" WHERE id = ? AND user_id = ?"""
             val rowAffected = jdbcTemplate.update(
                 sql,
                 deleteNote.id,
+                user_id
             )
 
             if(rowAffected > 0) {
@@ -95,20 +97,20 @@ class NoteRepository(private val jdbcTemplate: JdbcTemplate) {
         }
     }
 
-    fun getNoteById(id: String): Note? {
+    fun getNoteById(id: String, user_id: String?): Note? {
         return try {
-            val sql = """SELECT * FROM "Note" WHERE id = ?"""
-            jdbcTemplate.queryForObject(sql, rowMapper, id)
+            val sql = """SELECT * FROM "Note" WHERE id = ? AND user_id = ?"""
+            jdbcTemplate.queryForObject(sql, rowMapper, id, user_id)
         } catch (e: Exception) {
             e.printStackTrace()
             null
         }
     }
 
-    fun listNotes(listNote: ListNote): List<Note> {
+    fun listNotes(listNote: ListNote, user_id: String?): List<Note> {
         return try {
-            val sqlBuilder = StringBuilder("""SELECT * FROM "Note" WHERE 1=1""")
-            val params = mutableListOf<Any>()
+            val sqlBuilder = StringBuilder("""SELECT * FROM "Note" WHERE user_id = ? AND 1=1""")
+            val params = mutableListOf<Any>(user_id!!)
 
             listNote.search?.takeIf { it.isNotBlank() }?.let {
                 sqlBuilder.append(" AND (title ILIKE ? OR description ILIKE ?)")

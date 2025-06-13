@@ -14,7 +14,8 @@ import org.springframework.web.filter.OncePerRequestFilter
 @Configuration
 class JwtAuthenticationFilter(
     private val jwtUtil: JwtUtil,
-    private val userDetailsService: UserDetailsService
+    private val userDetailsService: UserDetailsService,
+    private val customUserDetails: CustomUserDetails
 ): OncePerRequestFilter() {
 
     override fun doFilterInternal(
@@ -51,7 +52,35 @@ class JwtAuthenticationFilter(
                 }
             }
         } catch (e: Exception) {
-            SecurityContextHolder.clearContext()
+            val token = getTokenFromRequest(request)
+
+            if (token != null && SecurityContextHolder.getContext().authentication == null) {
+                // Extract username/email from token (works for both Firebase and internal tokens)
+                val username = jwtUtil.extractSubject(token)
+
+                if (username?.isNotEmpty()!!) {
+                    val userDetails = customUserDetails.loadUserByUsername(username)
+
+                    // Validate token (handles both Firebase and internal tokens)
+                    if (jwtUtil.isTokenValid(token, userDetails)) {
+                        // Extract roles from token
+                        val roles = jwtUtil.extractRoles(token)
+                        val authorities = roles.map { SimpleGrantedAuthority("ROLE_$it") }
+
+                        val authToken = UsernamePasswordAuthenticationToken(
+                            userDetails,
+                            null,
+                            authorities
+                        )
+
+                        // Set authentication details
+                        authToken.details = WebAuthenticationDetailsSource().buildDetails(request)
+                        SecurityContextHolder.getContext().authentication = authToken
+                    } else {
+                        throw Exception("Error while validating token")
+                    }
+                }
+            }
         }
 
         filterChain.doFilter(request, response)
@@ -68,6 +97,6 @@ class JwtAuthenticationFilter(
         val path = request.requestURI
         // Skip JWT filter for public endpoints
         return path.startsWith("/api/v2/auth/") &&
-                (path.contains("/login"))
+                (path.contains("/login", true) || path.contains("/register", true))
     }
 }

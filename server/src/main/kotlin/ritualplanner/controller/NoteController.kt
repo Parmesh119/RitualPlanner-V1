@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import ritualplanner.model.DeleteNote
@@ -22,23 +23,23 @@ class NoteController(
     private val noteService: NoteService
 ) {
     @PostMapping("/create")
-    fun createNote(@RequestBody note: Note): ResponseEntity<Note> {
-        return ResponseEntity.ok(noteService.createNote(note))
+    fun createNote(@RequestBody note: Note, @RequestHeader("Authorization") authorization: String): ResponseEntity<Note> {
+        return ResponseEntity.ok(noteService.createNote(note, authorization))
     }
 
     @PutMapping("/update")
-    fun updateNote(@RequestBody note: Note): ResponseEntity<Note> {
-        return ResponseEntity.ok(noteService.updateNote(note))
+    fun updateNote(@RequestBody note: Note, @RequestHeader("Authorization") authorization: String): ResponseEntity<Note> {
+        return ResponseEntity.ok(noteService.updateNote(note, authorization))
     }
 
     @DeleteMapping("/delete")
-    fun deleteNote(@RequestBody deleteNoteRequest: DeleteNote): ResponseEntity<String> {
-        return ResponseEntity.ok(noteService.deleteNote(deleteNoteRequest))
+    fun deleteNote(@RequestBody deleteNoteRequest: DeleteNote, @RequestHeader("Authorization") authorization: String): ResponseEntity<String> {
+        return ResponseEntity.ok(noteService.deleteNote(deleteNoteRequest, authorization))
     }
 
     @GetMapping("/note/{id}")
-    fun getNoteById(@PathVariable id: String): ResponseEntity<Note> {
-        val result = noteService.getNoteById(id)
+    fun getNoteById(@PathVariable id: String, @RequestHeader("Authorization") authorization: String): ResponseEntity<Note> {
+        val result = noteService.getNoteById(id, authorization)
         if(result == null) {
             throw Exception("note not found")
         }
@@ -46,7 +47,7 @@ class NoteController(
     }
 
     @PostMapping("")
-    fun listAllNotes(@RequestBody listNote: ListNote): ResponseEntity<List<Note>> {
-        return ResponseEntity.ok(noteService.listNotes(listNote))
+    fun listAllNotes(@RequestBody listNote: ListNote, @RequestHeader("Authorization") authorization: String): ResponseEntity<List<Note>> {
+        return ResponseEntity.ok(noteService.listNotes(listNote, authorization))
     }
 }

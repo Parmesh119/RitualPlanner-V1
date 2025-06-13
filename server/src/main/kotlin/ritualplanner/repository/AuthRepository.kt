@@ -175,6 +175,7 @@ class AuthRepository(
         return try {
             jdbcTemplate.queryForObject(sql, rowMapper, email) ?: throw Exception("User not found")
         } catch (e: Exception) {
+            e.printStackTrace()
             throw Exception("Failed to get user details")
         }
     }

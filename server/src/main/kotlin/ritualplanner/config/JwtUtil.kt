@@ -8,7 +8,6 @@ import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.security.Keys
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.http.ResponseEntity
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Component
 import ritualplanner.model.User
@@ -19,7 +18,6 @@ import java.util.*
 class JwtUtil {
     @Value("\${jwt.secret}")
     private lateinit var jwtSecret: String
-
 
     fun generateAccessToken(user: User, userDetails: UserDetails): String {
         return Jwts.builder()
@@ -46,24 +44,39 @@ class JwtUtil {
     // Verify Firebase tokens
     fun verifyFirebaseToken(token: String): FirebaseToken? {
         return try {
-            FirebaseAuth.getInstance().verifyIdToken(token)
+            // Remove Bearer prefix if present
+            val cleanToken = token.removePrefix("Bearer ").trim()
+            val firebaseToken = FirebaseAuth.getInstance().verifyIdToken(cleanToken)
+            firebaseToken
         } catch (e: Exception) {
             println("Firebase token verification failed: ${e.message}")
+            e.printStackTrace()
             null
         }
     }
 
-    // Check if token is a Firebase token (simple heuristic)
+    // Check if token is a Firebase token (check issuer only)
     fun isFirebaseToken(token: String): Boolean {
         return try {
+            // Remove Bearer prefix if present
+            val cleanToken = token.removePrefix("Bearer ").trim()
+
             // Firebase tokens typically have 3 parts and start with "eyJ"
-            val parts = token.split(".")
+            val parts = cleanToken.split(".")
             if (parts.size != 3) return false
 
-            // Decode header to check algorithm
-            val header = String(Base64.getUrlDecoder().decode(parts[0]))
-            header.contains("RS256") || header.contains("\"alg\":\"RS256\"")
+            // Decode payload to check issuer
+            val payload = String(Base64.getUrlDecoder().decode(parts[1]))
+
+            // Check for Firebase-specific issuer
+            val isFirebaseIssuer = payload.contains("securetoken.google.com") ||
+                    payload.contains("\"iss\":\"https://securetoken.google.com/")
+
+
+            isFirebaseIssuer
         } catch (e: Exception) {
+            e.printStackTrace()
+            println("Error detecting Firebase token: ${e.message}")
             false
         }
     }
@@ -71,10 +84,34 @@ class JwtUtil {
     // Extract subject from either Firebase or internal token
     fun extractSubject(token: String): String? {
         return try {
-            val subject = extractClaims(token).subject
-            if (subject.isNullOrEmpty()) null else subject
+            if (isFirebaseToken(token)) {
+                // For Firebase tokens, get email from Firebase verification
+                val firebaseToken = verifyFirebaseToken(token)
+                firebaseToken?.email
+            } else {
+                // For internal tokens, extract from claims
+                val claims = extractClaims(token)
+                val subject = claims.subject
+                if (subject.isNullOrEmpty()) {
+                    getEmailFromToken(token)
+                } else {
+                    subject
+                }
+            }
         } catch (e: Exception) {
+            println("Error extracting subject: ${e.message}")
             null // Return null if there's any error getting subject
+        }
+    }
+
+    fun extractUsername(token: String): String? {
+        return try {
+            val claims = extractClaims(token)
+            val subject = claims.subject
+            subject
+        } catch (e: Exception) {
+            println("Error extracting subject: ${e.message}")
+            null
         }
     }
 
@@ -84,7 +121,12 @@ class JwtUtil {
             val firebaseToken = verifyFirebaseToken(token)
             firebaseToken?.email == userDetails.username && !isFirebaseTokenExpired(firebaseToken)
         } else {
-            extractSubject(token) == userDetails.username && !isTokenExpired(token)
+            try {
+                extractSubject(token) == userDetails.username && !isTokenExpired(token)
+            } catch (e: Exception) {
+                println("Error validating token: ${e.message}")
+                false
+            }
         }
     }
 
@@ -97,10 +139,24 @@ class JwtUtil {
     }
 
     private fun isTokenExpired(token: String): Boolean {
-        return extractClaims(token).expiration.before(Date())
+        return try {
+            // Only check expiration for internal tokens
+            if (isFirebaseToken(token)) {
+                return false // Firebase token expiration is handled separately
+            }
+            extractClaims(token).expiration.before(Date())
+        } catch (e: Exception) {
+            println("Error checking token expiration: ${e.message}")
+            true // Consider expired if we can't parse it
+        }
     }
 
+    // Modified to only handle internal tokens
     private fun extractClaims(token: String): Claims {
+        // This should only be called for internal tokens, not Firebase tokens
+        if (isFirebaseToken(token)) {
+            throw IllegalArgumentException("Cannot extract claims from Firebase token using internal key")
+        }
         return Jwts.parserBuilder().setSigningKey(getSignKey()).build().parseClaimsJws(token).body
     }
 
@@ -114,8 +170,13 @@ class JwtUtil {
             val firebaseToken = verifyFirebaseToken(token)
             firebaseToken?.claims?.get("roles") as? List<String> ?: listOf("USER")
         } else {
-            val claims = extractClaims(token)
-            claims["roles"] as? List<String> ?: emptyList()
+            try {
+                val claims = extractClaims(token)
+                claims["roles"] as? List<String> ?: emptyList()
+            } catch (e: Exception) {
+                println("Error extracting roles: ${e.message}")
+                emptyList()
+            }
         }
     }
 
@@ -126,15 +187,10 @@ class JwtUtil {
             firebaseToken?.uid ?: throw Exception("User ID not found in Firebase token")
         } else {
             try {
-                val claims = Jwts.parserBuilder()
-                    .setSigningKey(getSignKey())
-                    .build()
-                    .parseClaimsJws(token)
-                    .body
-
+                val claims = extractClaims(token)
                 claims.get("userId", String::class.java) ?: throw Exception("User ID not found in token")
             } catch (e: Exception) {
-                throw Exception("Invalid token")
+                throw Exception("Invalid token: ${e.message}")
             }
         }
     }
@@ -145,10 +201,13 @@ class JwtUtil {
             val firebaseToken = verifyFirebaseToken(token)
             firebaseToken?.email ?: throw Exception("Email not found in Firebase token")
         } else {
-            val claims = extractClaims(token)
-            claims.get("email", String::class.java) ?: throw Exception("Email not found in token")
+            try {
+                val claims = extractClaims(token)
+                claims.get("email", String::class.java) ?: throw Exception("Email not found in token")
+            } catch (e: Exception) {
+                e.printStackTrace()
+                throw Exception("Invalid token or email not found: ${e.message}")
+            }
         }
     }
-
-
 }

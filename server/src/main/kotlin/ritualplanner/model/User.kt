@@ -4,12 +4,12 @@ import java.time.Instant
 import java.util.UUID
 
 data class User (
-    val id: String? = UUID.randomUUID().toString(),
-    val name: String,
-    val email: String,
-    val phone: String,
-    val createdAt: Long = Instant.now().toEpochMilli(),
-    val updatedAt: Long = Instant.now().toEpochMilli()
+    var id: String? = UUID.randomUUID().toString(),
+    var name: String,
+    var email: String,
+    var phone: String,
+    var createdAt: Long = Instant.now().toEpochMilli(),
+    var updatedAt: Long = Instant.now().toEpochMilli()
 )
 
 data class UserAuth (
