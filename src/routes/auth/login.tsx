@@ -138,8 +138,8 @@ function LoginPage() {
         }
       }
     },
-    onError: () => {
-      toast.error("Error checking authentication type", {
+    onError: (error:any) => {
+      toast.error(error.message, {
         description: "Please try logging in again",
         style: {
           background: "linear-gradient(90deg, #E53E3E, #C53030)",

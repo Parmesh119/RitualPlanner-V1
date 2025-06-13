@@ -31,7 +31,6 @@ import {
 import { CreateNoteDialog } from "@/components/notes/create-note-dialog"
 import { listNoteAction } from '@/lib/actions'
 import { useQuery } from '@tanstack/react-query'
-import { Link } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/app/notes/')({
   component: RouteComponent,

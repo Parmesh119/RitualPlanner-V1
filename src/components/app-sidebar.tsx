@@ -21,7 +21,7 @@ import {
 import { Link } from "@tanstack/react-router"
 import { useNavigate } from "@tanstack/react-router"
 import { useTheme } from "@/components/theme-provider"
-import { useMutation } from "@tanstack/react-query"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { getUserDetails } from "@/lib/actions"
 import { toast } from "sonner"
 import { Helmet } from "react-helmet"
@@ -34,7 +34,7 @@ const items = [
     },
     {
         title: "Task Management",
-        url: "/app/tasks/",
+        url: "/app/tasks?view=list",
         icon: ListTodo,
         items: [
             {
@@ -89,6 +89,7 @@ const items = [
 export function AppSidebar() {
 
     const navigate = useNavigate()
+    const queryClient = useQueryClient()
 
     const profileMutation = useMutation({
         mutationFn: getUserDetails,
@@ -96,7 +97,8 @@ export function AppSidebar() {
             setEmail(data.email)
             setName(data.name)
         },
-        onError: () => {
+        onError: (error: any) => {
+            toast.error(error.message)
             toast.error("Error while fetching user details! Please login again. ", {
                 description: "Logging out ...",
                 style: {
@@ -130,6 +132,7 @@ export function AppSidebar() {
     const { setTheme, theme } = useTheme()
 
     const handleLogout = () => {
+        queryClient.clear()
         localStorage.clear()
         navigate({ to: "/auth/login" })
     }
@@ -137,9 +140,9 @@ export function AppSidebar() {
 
     return (
         <>
-        <Helmet>
-            <title>RitualPlanner Console</title>
-        </Helmet>
+            <Helmet>
+                <title>RitualPlanner Console</title>
+            </Helmet>
             <Sidebar className="rounded-xl">
                 <SidebarContent className="cursor-pointer" >
                     <SidebarGroup className="space-y-4">

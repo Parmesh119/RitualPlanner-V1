@@ -1,4 +1,4 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
 @plugin "tailwindcss-animate";
 
@@ -7,8 +7,8 @@
 body {
   @apply m-0;
   font-family:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
-    'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
+    "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-y: auto;
@@ -16,7 +16,7 @@ body {
 
 code {
   font-family:
-    source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+    source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
 }
 
 :root {
@@ -138,8 +138,6 @@ code {
   }
 }
 
-
-
 @layer base {
   :root {
     --sidebar-background: 0 0% 98%;
@@ -163,5 +161,3 @@ code {
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
-
-
