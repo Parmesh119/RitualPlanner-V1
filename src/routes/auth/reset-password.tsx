@@ -57,7 +57,15 @@ function RouteComponent() {
       }
     },
     onError: () => {
-      toast.error("Error while updating password")
+      toast.error("Error while updating password", {
+        style: {
+          background: "linear-gradient(90deg, #E53E3E, #C53030)",
+          color: "white",
+          fontWeight: "bolder",
+          fontSize: "13px",
+          letterSpacing: "1px",
+        }
+      })
       navigate({ to: "/auth/forgot-password" })
     }
   })

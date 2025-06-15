@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { User, Lock, Mail, Phone, Eye, EyeOff, UserPlus, Flame, X } from "lucide-react"
+import { User, Lock, Mail, Phone, Eye, EyeOff, UserPlus, Flame, X, MapPin } from "lucide-react"
 import { useMutation } from "@tanstack/react-query"
 import { useState } from "react"
 import { Helmet } from "react-helmet"
@@ -62,7 +62,8 @@ function RegisterPage() {
       phone: "",
       password: "",
       confirmPassword: "",
-      signin: ""
+      signin: "",
+      state: ""
     },
     mode: "onChange"
   })
@@ -75,7 +76,8 @@ function RegisterPage() {
       phone: "",
       password: "",
       confirmPassword: "",
-      signin: "google"
+      signin: "google",
+      state: ""
     },
     mode: "onChange"
   })
@@ -110,7 +112,8 @@ function RegisterPage() {
       phone: data.phone,
       password: data.password,
       confirmPassword: data.confirmPassword,
-      signin: "normal"
+      signin: "normal",
+      state: data.state
     }
     setSignupMethod("normal")
     try {
@@ -138,7 +141,8 @@ function RegisterPage() {
       phone: data.phone,
       password: data.password,
       confirmPassword: data.confirmPassword,
-      signin: "google"
+      signin: "google",
+      state: data.state
     }
     setSignupMethod("google")
     try {
@@ -195,7 +199,8 @@ function RegisterPage() {
               phone: userData.phone,
               password: user.uid,
               confirmPassword: user.uid,
-              signin: "google"
+              signin: "google",
+              state: ""
             }
             setSignupMethod("google")
             registerMutation.mutate(registerData)
@@ -298,6 +303,26 @@ function RegisterPage() {
                           <Input
                             type="number"
                             placeholder="Phone Number"
+                            className="pl-10 placeholder:text-black"
+                            {...field}
+                          />
+                        </FormControl>
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="state"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="relative">
+                        <MapPin className="absolute left-3 top-2 h-5 w-5 text-black" />
+                        <FormControl>
+                          <Input
+                            placeholder="State"
                             className="pl-10 placeholder:text-black"
                             {...field}
                           />
@@ -498,6 +523,27 @@ function RegisterPage() {
                       </FormItem>
                     )}
                   />
+
+                  <FormField
+                    control={googleForm.control}
+                    name="state"
+                    render={({ field }) => (
+                      <FormItem>
+                        <div className="relative">
+                          <MapPin className="absolute left-3 top-2 h-5 w-5 text-black" />
+                          <FormControl>
+                            <Input
+                              placeholder="State"
+                              className="pl-10 placeholder:text-black"
+                              {...field}
+                            />
+                          </FormControl>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
                   <div className="flex justify-end space-x-2">
                     <Button
                       type="button"

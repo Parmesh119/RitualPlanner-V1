@@ -21,7 +21,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { forgotPasswordAction, verifyOTPAction } from '@/lib/actions'
+import { forgotPasswordAction, verifyOTPForForgotPasswordAction } from '@/lib/actions'
 import { toast } from 'sonner'
 import { useNavigate } from '@tanstack/react-router'
 
@@ -94,7 +94,7 @@ function ForgotPasswordPage() {
   }
 
   const verifyOTPMutation = useMutation({
-    mutationFn: () => verifyOTPAction(otp, email),
+    mutationFn: () => verifyOTPForForgotPasswordAction(otp, email),
     onSuccess: async (data) => {
       if (data) {
         toast.success("OTP verified successfully", {

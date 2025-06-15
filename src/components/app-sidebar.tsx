@@ -79,11 +79,11 @@ const items = [
         url: "/app/notifications/",
         icon: Bell,
     },
-    {
-        title: "Settings",
-        url: "/app/setting/",
-        icon: Settings,
-    },
+    // {
+    //     title: "Settings",
+    //     url: "/app/setting/",
+    //     icon: Settings,
+    // },
 ]
 
 export function AppSidebar() {
@@ -208,7 +208,7 @@ export function AppSidebar() {
 
                                     <DropdownMenuItem className="cursor-pointer flex items-center space-x-3 px-3 py-2 rounded-md hover:bg-accent">
                                         <BadgeCheck className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                                        <Link to="/app/dashboard" className="flex-1 truncate">
+                                        <Link to="/app/account" className="flex-1 truncate">
                                             <span className="text-sm">Account</span>
                                         </Link>
                                     </DropdownMenuItem>

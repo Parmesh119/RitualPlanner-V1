@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { User, Lock, LogIn, Flame } from "lucide-react"
+import { User, Lock, LogIn, Flame, Eye, EyeOff } from "lucide-react"
 import { useMutation } from "@tanstack/react-query"
 import { useNavigate } from "@tanstack/react-router"
 import { Helmet } from "react-helmet"
@@ -39,6 +39,7 @@ function LoginPage() {
   const navigate = useNavigate()
 
   const [loginGoogle, setLoginGoogle] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -112,7 +113,7 @@ function LoginPage() {
             await deleteUser(user)
             localStorage.clear()
             navigate({ to: "/auth/login" })
-            toast.success("Account not found while logging with google!", {
+            toast.error("User is registered with username and password. Please use it to login in.", {
               style: {
                 background: "linear-gradient(90deg, #E53E3E, #C53030)",
                 color: "white",
@@ -138,7 +139,7 @@ function LoginPage() {
         }
       }
     },
-    onError: (error:any) => {
+    onError: (error: any) => {
       toast.error(error.message, {
         description: "Please try logging in again",
         style: {
@@ -172,7 +173,7 @@ function LoginPage() {
     setLoginGoogle(true)
     const auth = getAuth(app)
     const provider = new GoogleAuthProvider()
-    
+
     signInWithPopup(auth, provider).then((userCredentials) => {
       if (userCredentials.user) {
         const user = userCredentials.user
@@ -267,12 +268,23 @@ function LoginPage() {
                         <Lock className="absolute left-3 top-2 h-5 w-5 text-black" />
                         <FormControl>
                           <Input
-                            type="password"
+                            type={showPassword ? "text" : "password"}
                             placeholder="Password"
                             className="pl-10 placeholder:text-black"
                             {...field}
                           />
                         </FormControl>
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-3 top-2 text-black hover:text-gray-600"
+                        >
+                          {showPassword ? (
+                            <EyeOff className="h-5 w-5" />
+                          ) : (
+                            <Eye className="h-5 w-5" />
+                          )}
+                        </button>
                       </div>
                       <FormMessage />
                     </FormItem>
