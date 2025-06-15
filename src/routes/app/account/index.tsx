@@ -11,7 +11,7 @@ import {
     Mail, Phone, MapPin, Calendar, Shield, Bell, CreditCard, Settings,
     Edit3, LogOut, Activity, Users,
     Eye, EyeOff, Smartphone, Lock, Key, Crown, ChevronRight,
-    Globe, Moon, Download, User2
+    Globe, Moon, Download, User2, Upload, X
 } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
 import {
@@ -61,7 +61,6 @@ function RouteComponent() {
                     phone: data.phone || "",
                     createdAt: data.createdAt || 0,
                     state: data.state || "",
-                    country: data.country || "India"
                 })
             } else {
                 toast.error("Error while fetching user details", {
@@ -325,8 +324,7 @@ function RouteComponent() {
         email: "",
         phone: "",
         createdAt: 0,
-        state: "",
-        country: "India"
+        state: ""
     })
 
     // Initialize darkMode state based on current theme
@@ -340,6 +338,8 @@ function RouteComponent() {
     const [showPassword, setShowPassword] = useState(false)
     const [showDeleteDialog, setShowDeleteDialog] = useState(false)
     const [showUpdateDialog, setShowUpdateDialog] = useState(false)
+    const [profileImage, setProfileImage] = useState<string | null>(null)
+    const fileInputRef = useRef<HTMLInputElement>(null)
 
     // Handle dark mode toggle
     const handleDarkModeChange = (checked: boolean) => {
@@ -405,7 +405,7 @@ function RouteComponent() {
         doc.text(`Name: ${userData.name}`, 20, 55)
         doc.text(`Email: ${userData.email}`, 20, 65)
         doc.text(`Phone: ${userData.phone}`, 20, 75)
-        doc.text(`Location: ${userData.state}, ${userData.country}`, 20, 85)
+        doc.text(`Location: ${userData.state}`, 20, 85)
         doc.text(`Member Since: ${formatCreationDate(userData.createdAt)}`, 20, 95)
 
         // Account Settings Section
@@ -497,10 +497,59 @@ function RouteComponent() {
             name: data.name,
             email: data.email,
             phone: data.phone,
-            state: data.state,
-            country: userData.country,
-            createdAt: userData.createdAt,
-            updatedAt: Date.now()
+            state: data.state
+        })
+    }
+
+    const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0]
+        if (file) {
+            if (file.size > 5 * 1024 * 1024) { // 5MB limit
+                toast.error("Image size should be less than 5MB", {
+                    style: {
+                        background: "linear-gradient(90deg, #E53E3E, #C53030)",
+                        color: "white",
+                        fontWeight: "bolder",
+                        fontSize: "13px",
+                        letterSpacing: "1px",
+                    }
+                })
+                return
+            }
+
+            const reader = new FileReader()
+            reader.onloadend = () => {
+                setProfileImage(reader.result as string)
+                // Here you would typically upload the image to your backend
+                // For now, we'll just store it in state
+                toast.success("Profile image updated successfully", {
+                    style: {
+                        background: "linear-gradient(90deg, #38A169, #2F855A)",
+                        color: "white",
+                        fontWeight: "bolder",
+                        fontSize: "13px",
+                        letterSpacing: "1px",
+                    }
+                })
+            }
+            reader.readAsDataURL(file)
+        }
+    }
+
+    const handleRemoveImage = () => {
+        setProfileImage(null)
+        if (fileInputRef.current) {
+            fileInputRef.current.value = ''
+        }
+        // Here you would typically remove the image from your backend
+        toast.success("Profile image removed successfully", {
+            style: {
+                background: "linear-gradient(90deg, #38A169, #2F855A)",
+                color: "white",
+                fontWeight: "bolder",
+                fontSize: "13px",
+                letterSpacing: "1px",
+            }
         })
     }
 
@@ -585,10 +634,50 @@ function RouteComponent() {
                                             <div className="flex flex-col md:flex-row gap-6">
                                                 <div className="flex flex-col items-center space-y-4">
                                                     <div className="relative group">
-                                                        <div className="h-32 w-32 rounded-full border-4 border-primary/20 shadow-2xl transition-all duration-300 group-hover:scale-105 group-hover:border-primary/40 bg-primary/10 flex items-center justify-center">
-                                                            <User2 className="h-16 w-16 text-primary" />
+                                                        <div className="h-32 w-32 rounded-full border-4 border-primary/20 shadow-2xl transition-all duration-300 group-hover:scale-105 group-hover:border-primary/40 bg-primary/10 flex items-center justify-center overflow-hidden">
+                                                            {profileImage ? (
+                                                                <img
+                                                                    src={profileImage}
+                                                                    alt="Profile"
+                                                                    className="h-full w-full object-cover"
+                                                                />
+                                                            ) : (
+                                                                <User2 className="h-16 w-16 text-primary" />
+                                                            )}
+                                                        </div>
+                                                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/50 rounded-full">
+                                                            <div className="flex gap-2">
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="icon"
+                                                                    className="h-10 w-auto px-3 rounded-lg bg-white/20 hover:bg-white/30 flex items-center gap-2"
+                                                                    onClick={() => fileInputRef.current?.click()}
+                                                                >
+                                                                    <Upload className="h-4 w-4 text-white" />
+                                                                    <span className="text-white text-sm">Upload</span>
+                                                                </Button>
+                                                                {profileImage && (
+                                                                    <Button
+                                                                        variant="ghost"
+                                                                        size="icon"
+                                                                        className="h-10 w-auto px-3 rounded-lg bg-white/20 hover:bg-white/30 flex items-center gap-2"
+                                                                        onClick={handleRemoveImage}
+                                                                    >
+                                                                        <X className="h-4 w-4 text-white" />
+                                                                        <span className="text-white text-sm">Remove</span>
+                                                                    </Button>
+                                                                )}
+                                                            </div>
                                                         </div>
                                                     </div>
+                                                    <input
+                                                        type="file"
+                                                        ref={fileInputRef}
+                                                        className="hidden"
+                                                        accept="image/*"
+                                                        onChange={handleImageUpload}
+                                                        aria-label="Upload profile picture"
+                                                    />
                                                     <div className="text-center space-y-2">
                                                         <Badge variant="secondary" className="bg-gradient-to-r from-primary/10 to-primary/20 text-primary font-semibold px-4 py-1">
                                                             <Crown className="h-3 w-3 mr-1" />
@@ -635,7 +724,7 @@ function RouteComponent() {
                                                                     <MapPin className="h-4 w-4 text-primary" />
                                                                 </div>
                                                                 <div className="flex-1">
-                                                                    <p className="font-medium">{userData.state}, {userData.country}</p>
+                                                                    <p className="font-medium">{userData.state}</p>
                                                                     <p className="text-sm text-muted-foreground">Current location</p>
                                                                 </div>
 
@@ -661,7 +750,7 @@ function RouteComponent() {
                                     </Card>
 
                                     {/* Stats Card */}
-                                    <Card className="border-0 shadow-xl bg-gradient-to-br from-card to-card/50 backdrop-blur-sm">
+                                    <Card className="border-0 h-50 shadow-xl bg-gradient-to-br from-card to-card/50 backdrop-blur-sm">
                                         <CardHeader>
                                             <CardTitle className="text-xl font-bold">Activity Overview</CardTitle>
                                             <CardDescription>Your ritual planning statistics</CardDescription>
@@ -674,8 +763,6 @@ function RouteComponent() {
                                                 </div>
                                                 <Progress value={calculateProfileCompletion()} className="h-2" />
                                             </div>
-
-                                            <Separator />
                                         </CardContent>
                                     </Card>
                                 </div>

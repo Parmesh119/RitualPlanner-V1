@@ -214,7 +214,7 @@ function RouteComponent() {
                     className="border-2 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground dark:border-gray-600 dark:data-[state=checked]:bg-primary dark:data-[state=checked]:border-primary"
                   />
                 </TableHead>
-                <TableHead className="w-[100px]">Sr No.</TableHead>
+                <TableHead className="w-[240px]">Sr No.</TableHead>
                 <TableHead>Title</TableHead>
                 <TableHead>Reminder Date</TableHead>
                 <TableHead>Created At</TableHead>
@@ -263,7 +263,7 @@ function RouteComponent() {
           >
             Previous
           </Button>
-          <span className="text-sm">
+          <span className="text-sm text-center">
             Page {currentPage}
           </span>
           <Button
