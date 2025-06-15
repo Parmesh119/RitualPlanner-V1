@@ -46,7 +46,6 @@ data class ForgotPasswordRequest (
 data class VerifyOTP (
     val otp: String,
     val email: String
-//    val expirationTime: Instant = Instant.now().plusMillis(300000)
 )
 
 data class OtpData(

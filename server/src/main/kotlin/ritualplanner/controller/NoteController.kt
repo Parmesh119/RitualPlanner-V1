@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import ritualplanner.model.DeleteNote
 import ritualplanner.model.ListNote
 import ritualplanner.model.Note
 import ritualplanner.service.NoteService

@@ -76,4 +76,14 @@ class UserService(
             throw Exception("Failed to verify OTP: ${e.message}", e)
         }
     }
+
+    fun updateAccount(authorization: String, user: User): User {
+        val token = authorization.substringAfter("Bearer")
+        val email = jwtUtil.getEmailFromToken(token)
+        val userId = authRepository.getUserDetailsByEmail(email).id
+        if (user.id != userId) {
+            throw Exception("User does not exist")
+        }
+        return userRepository.updateAccount(user)
+    }
 }

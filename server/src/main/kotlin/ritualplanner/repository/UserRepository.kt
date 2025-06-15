@@ -79,4 +79,20 @@ class UserRepository(
             throw Exception("User not found!")
         }
     }
+
+    @Transactional
+    fun updateAccount(user: User): User {
+        return try {
+            val sql = """UPDATE "User" SET name = ?, email = ?, phone = ?, state = ? WHERE id = ?"""
+            val updatedRows = jdbcTemplate.update(sql, user.name, user.email, user.phone, user.state, user.id)
+
+            if(updatedRows > 0) {
+                authRepository.findUserById(user.id!!)
+            } else {
+                throw Exception("User not found")
+            }
+        } catch (e: Exception) {
+            throw Exception("Failed to update the user information")
+        }
+    }
 }

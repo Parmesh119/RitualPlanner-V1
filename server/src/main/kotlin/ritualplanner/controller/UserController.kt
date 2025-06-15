@@ -57,4 +57,9 @@ class UserController (
     fun deleteAccount(@RequestHeader("Authorization") authorization: String): ResponseEntity<String> {
         return ResponseEntity.ok(userService.deleteAccount(authorization))
     }
+
+    @PutMapping("/account/update")
+    fun updateAccount(@RequestHeader("Authorization") authorization: String, @RequestBody user: User): ResponseEntity<User> {
+        return ResponseEntity.ok(userService.updateAccount(authorization, user))
+    }
 }
