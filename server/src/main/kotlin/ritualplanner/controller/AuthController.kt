@@ -3,6 +3,7 @@ package ritualplanner.controller
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
@@ -52,7 +53,7 @@ class AuthController (
 
     @PostMapping("/forgot-password")
     fun forgotPassword(@RequestBody forgotPasswordRequest: ForgotPasswordRequest): ResponseEntity<String> {
-        return ResponseEntity.ok(authService.forgotPassword(forgotPasswordRequest.email))
+        return ResponseEntity.ok(authService.forgotPassword(forgotPasswordRequest.email, "Security Code for Password Reset - RitualPlanner"))
     }
 
     @PostMapping("/verify-otp")
@@ -60,9 +61,8 @@ class AuthController (
         return ResponseEntity.ok(authService.verifyOtp(verifyOTP.otp, verifyOTP.email))
     }
 
-    @PostMapping("/reset-password")
+    @PutMapping("/reset-password")
     fun resetPassword(@RequestBody resetPasswordRequest: ResetPasswordRequest): ResponseEntity<Boolean> {
-        print(resetPasswordRequest.password)
         if(resetPasswordRequest.email == null) {
             throw Exception("email is required")
         }

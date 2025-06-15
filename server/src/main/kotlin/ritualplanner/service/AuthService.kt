@@ -100,7 +100,7 @@ class AuthService(
         return authRepository.checkAuthTypeByEmail(email)
     }
 
-    fun forgotPassword(email: String): String {
+    fun forgotPassword(email: String, subject: String): String {
         return try {
             val name = authRepository.getUserDetailsByEmail(email).name
             val otpCode = (100000..999999).random().toString()
@@ -109,7 +109,7 @@ class AuthService(
             // Store OTP with expiration
             otpStorage[email] = OtpData(otpCode, expirationTime, email)
 
-            emailService.sendOtp(email, "Security Code for Password Reset - RitualPlanner", name, otpCode)
+            emailService.sendOtp(email, subject, name, otpCode)
             "OTP has been sent successfully"
         } catch (e: Exception) {
             throw Exception("Failed to send OTP", e)
@@ -148,6 +148,7 @@ class AuthService(
             throw Exception("Passwords do not match")
         }
         val hashPassword = passwordEncoder.encode(password)
-        return authRepository.resetPassword(email, hashPassword)
+        val updatedAt = System.currentTimeMillis()
+        return authRepository.resetPassword(email, hashPassword, updatedAt)
     }
 }

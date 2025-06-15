@@ -4,6 +4,7 @@ import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.stereotype.Repository
+import org.springframework.transaction.annotation.Transactional
 import ritualplanner.config.JwtUtil
 import ritualplanner.model.LoginResponse
 import ritualplanner.model.RegisterRequest
@@ -28,15 +29,18 @@ class AuthRepository(
             name = rs.getString("name"),
             email = rs.getString("email"),
             phone = rs.getString("phone"),
+            state = rs.getString("state"),
+            country = rs.getString("country"),
             createdAt = rs.getTimestamp("created_at").toInstant().epochSecond,
             updatedAt = rs.getTimestamp("updated_at").toInstant().epochSecond
         )
     }
 
+    @Transactional
     fun register(registerRequest: RegisterRequest, username: String, hashPassword: String, userId: String, createdAt: Long, updatedAt: Long): Boolean {
         val sql = """
-            INSERT INTO "User" (id, name, email, phone, created_at, updated_at) 
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO "User" (id, name, email, phone, state, country, created_at, updated_at) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         """
 
         try {
@@ -46,6 +50,8 @@ class AuthRepository(
                 registerRequest.name,
                 registerRequest.email,
                 registerRequest.phone,
+                registerRequest.state,
+                "India",
                 Timestamp.from(Instant.ofEpochMilli(createdAt)),
                 Timestamp.from(Instant.ofEpochMilli(updatedAt))
             )
@@ -115,6 +121,8 @@ class AuthRepository(
                     name = rs.getString("name"),
                     email = rs.getString("email"),
                     phone = rs.getString("phone"),
+                    state = rs.getString("state"),
+                    country = rs.getString("country"),
                     createdAt = rs.getTimestamp("created_at").toInstant().epochSecond,
                     updatedAt = rs.getTimestamp("updated_at").toInstant().epochSecond
                 )
@@ -196,28 +204,20 @@ class AuthRepository(
         }
     }
 
-    fun getEmailFromUserId(userId: String): User {
-        val sql = """SELECT * FROM "User" WHERE email = ?"""
-
+    @Transactional
+    fun resetPassword(email: String, hashPassword: String, updatedAt: Long): Boolean {
         return try {
-            jdbcTemplate.queryForObject(sql, rowMapper, userId) ?: throw Exception("Email not found")
-        } catch (e: Exception) {
-            throw Exception("Error while fetching email")
-        }
-    }
+            val userId = getUserDetailsByEmail(email).id
 
-    fun resetPassword(email: String, hashPassword: String): Boolean {
-        return try {
-            val sql = """SELECT id from "User" WHERE email = ?"""
-            val userId = jdbcTemplate.queryForObject(sql, String::class.java, email)
+            val updateSql = """UPDATE "Auth" SET password = ?, updated_at = ? WHERE user_id = ?"""
 
-            val updateSql = """UPDATE "Auth" SET password = ? WHERE user_id = ?"""
-            val result = jdbcTemplate.update(updateSql, hashPassword, userId)
+            val result = jdbcTemplate.update(updateSql, hashPassword, Timestamp.from(Instant.ofEpochMilli(updatedAt)), userId)
             if(result <= 0) {
                 throw Exception("Failed to update password")
             }
             true
         } catch (e: Exception) {
+            e.printStackTrace()
             throw Exception("Failed to update password")
         }
     }

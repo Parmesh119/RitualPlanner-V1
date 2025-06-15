@@ -8,6 +8,8 @@ data class User (
     var name: String,
     var email: String,
     var phone: String,
+    var state: String,
+    var country: String,
     var createdAt: Long = Instant.now().toEpochMilli(),
     var updatedAt: Long = Instant.now().toEpochMilli()
 )

@@ -4,6 +4,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.stereotype.Repository
+import org.springframework.transaction.annotation.Transactional
 import ritualplanner.model.DeleteNote
 import ritualplanner.model.ListNote
 import ritualplanner.model.Note
@@ -25,6 +26,7 @@ class NoteRepository(private val jdbcTemplate: JdbcTemplate) {
         )
     }
 
+    @Transactional
     fun createNote(note: Note, user_id: String?): Note {
         return try {
             val sql = """
@@ -48,6 +50,7 @@ class NoteRepository(private val jdbcTemplate: JdbcTemplate) {
         }
     }
 
+    @Transactional
     fun updateNote(note: Note): Note {
         return try {
             val sql = """
@@ -77,12 +80,13 @@ class NoteRepository(private val jdbcTemplate: JdbcTemplate) {
         }
     }
 
-    fun deleteNote(deleteNote: DeleteNote, user_id: String?): String {
+    @Transactional
+    fun deleteNote(id: String, user_id: String?): String {
         return try {
             val sql = """DELETE FROM "Note" WHERE id = ? AND user_id = ?"""
             val rowAffected = jdbcTemplate.update(
                 sql,
-                deleteNote.id,
+                id,
                 user_id
             )
 

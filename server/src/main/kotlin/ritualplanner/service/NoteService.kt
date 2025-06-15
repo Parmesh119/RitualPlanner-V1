@@ -33,11 +33,11 @@ class NoteService(
         throw Exception("User Not Found")
     }
 
-    fun deleteNote(deleteNote: DeleteNote, authorization: String): String {
+    fun deleteNote(id: String, authorization: String): String {
         val token = authorization.substringAfter("Bearer")
         val email = jwtUtil.getEmailFromToken(token)
         val user_id = authRepository.getUserDetailsByEmail(email).id
-        return noteRepository.deleteNote(deleteNote, user_id)
+        return noteRepository.deleteNote(id, user_id)
     }
 
     fun getNoteById(id: String, authorization: String): Note? {
