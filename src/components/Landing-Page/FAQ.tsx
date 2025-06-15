@@ -45,7 +45,7 @@ export default function FAQSection() {
             <div className="max-w-3xl mx-auto">
                 <div className="text-center mb-12">
                     <div className="flex justify-center mb-4">
-                        <HelpCircle className="h-12 w-12 text-primary" />
+                        <HelpCircle className="h-12 w-12 text-black" />
                     </div>
                     <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl mb-4">
                         Frequently Asked Questions

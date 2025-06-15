@@ -34,6 +34,14 @@ import {
 } from "@/components/ui/dialog"
 import { app } from '@/util/firebaseConfig'
 import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth"
+import { indianStatesAndUTs } from '@/util/state'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 export const Route = createFileRoute('/auth/register')({
   component: RegisterPage,
@@ -318,14 +326,24 @@ function RegisterPage() {
                   name="state"
                   render={({ field }) => (
                     <FormItem>
-                      <div className="relative">
+                      <div className="relative placeholder:text-black">
                         <MapPin className="absolute left-3 top-2 h-5 w-5 text-black" />
                         <FormControl>
-                          <Input
-                            placeholder="State"
-                            className="pl-10 placeholder:text-black"
-                            {...field}
-                          />
+                          <Select
+                            value={field.value}
+                            onValueChange={field.onChange}
+                          >
+                            <SelectTrigger className="pl-10 text-black w-full [&>span]:text-black">
+                              <SelectValue placeholder="Select your state" className="text-black" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {indianStatesAndUTs.map((state) => (
+                                <SelectItem key={state} value={state}>
+                                  {state}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </FormControl>
                       </div>
                       <FormMessage />
@@ -532,11 +550,21 @@ function RegisterPage() {
                         <div className="relative">
                           <MapPin className="absolute left-3 top-2 h-5 w-5 text-black" />
                           <FormControl>
-                            <Input
-                              placeholder="State"
-                              className="pl-10 placeholder:text-black"
-                              {...field}
-                            />
+                            <Select
+                              value={field.value}
+                              onValueChange={field.onChange}
+                            >
+                              <SelectTrigger className="pl-10 text-black w-full [&>span]:text-black">
+                                <SelectValue placeholder="Select your state" className="text-black" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {indianStatesAndUTs.map((state) => (
+                                  <SelectItem key={state} value={state}>
+                                    {state}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
                           </FormControl>
                         </div>
                         <FormMessage />

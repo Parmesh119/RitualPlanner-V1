@@ -24,8 +24,8 @@ import {
 } from "@/components/ui/breadcrumb"
 import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 import { useTheme } from '@/components/theme-provider'
-import { getAccountDetails, sendOTPAction, verifyOTPAction, updatePasswordAction, deleteAccountAction, checkAuthTypeByEmail } from '@/lib/actions'
-import { useMutation } from '@tanstack/react-query'
+import { getAccountDetails, sendOTPAction, verifyOTPAction, updatePasswordAction, deleteAccountAction, checkAuthTypeByEmail, updateAccountDetailsAction } from '@/lib/actions'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { jsPDF } from 'jspdf'
 import {
@@ -37,16 +37,16 @@ import {
     DialogFooter,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
-import { getAuth, signInWithPopup, GoogleAuthProvider, deleteUser } from "firebase/auth"
+import { getAuth, deleteUser } from "firebase/auth"
 import { app } from '@/util/firebaseConfig'
+import { UpdateAccountDialog } from "@/components/account/update-account-dialog"
 
 export const Route = createFileRoute('/app/account/')({
     component: RouteComponent,
 })
 
 function RouteComponent() {
-
-
+    const queryClient = useQueryClient()
     const navigate = useNavigate()
     const { theme, setTheme } = useTheme()
 
@@ -55,6 +55,7 @@ function RouteComponent() {
         onSuccess: (data) => {
             if (data) {
                 setUserData({
+                    id: data.id || "",
                     name: data.name || "",
                     email: data.email || "",
                     phone: data.phone || "",
@@ -252,10 +253,42 @@ function RouteComponent() {
                 })
             }
             localStorage.clear()
-            navigate({ to: "/auth/register"})
+            navigate({ to: "/auth/register" })
         },
         onError: (error: any) => {
             toast.error("Error while deleting account", {
+                description: error.message,
+                style: {
+                    background: "linear-gradient(90deg, #E53E3E, #C53030)",
+                    color: "white",
+                    fontWeight: "bolder",
+                    fontSize: "13px",
+                    letterSpacing: "1px",
+                }
+            })
+        }
+    })
+
+    const updateAccountMutation = useMutation({
+        mutationFn: updateAccountDetailsAction,
+        onSuccess: (data) => {
+            setUserData(prev => ({
+                ...prev,
+                ...data
+            }))
+            queryClient.invalidateQueries({ queryKey: ['accountDetails'] })
+            toast.success("Account information updated successfully", {
+                style: {
+                    background: "linear-gradient(90deg, #38A169, #2F855A)",
+                    color: "white",
+                    fontWeight: "bolder",
+                    fontSize: "13px",
+                    letterSpacing: "1px",
+                }
+            })
+        },
+        onError: (error: any) => {
+            toast.error("Error updating account information", {
                 description: error.message,
                 style: {
                     background: "linear-gradient(90deg, #E53E3E, #C53030)",
@@ -287,6 +320,7 @@ function RouteComponent() {
     const [twoFactorAuth, setTwoFactorAuth] = useState(false)
     const [publicProfile, setPublicProfile] = useState(true)
     const [userData, setUserData] = useState({
+        id: "",
         name: "",
         email: "",
         phone: "",
@@ -305,6 +339,7 @@ function RouteComponent() {
     const [confirmNewPassword, setConfirmNewPassword] = useState("")
     const [showPassword, setShowPassword] = useState(false)
     const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+    const [showUpdateDialog, setShowUpdateDialog] = useState(false)
 
     // Handle dark mode toggle
     const handleDarkModeChange = (checked: boolean) => {
@@ -456,6 +491,19 @@ function RouteComponent() {
         setShowNewPasswordDialog(false)
     }
 
+    const handleUpdateAccount = (data: { id: string; name: string; email: string; phone: string; state: string }) => {
+        updateAccountMutation.mutate({
+            id: data.id,
+            name: data.name,
+            email: data.email,
+            phone: data.phone,
+            state: data.state,
+            country: userData.country,
+            createdAt: userData.createdAt,
+            updatedAt: Date.now()
+        })
+    }
+
     return (
         <>
             <SidebarInset className='w-full'>
@@ -522,7 +570,12 @@ function RouteComponent() {
                                                         Your personal details and public information
                                                     </CardDescription>
                                                 </div>
-                                                <Button variant="outline" size="sm" className="hover:bg-primary hover:text-primary-foreground">
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    className="hover:bg-black cursor-pointer hover:text-white"
+                                                    onClick={() => setShowUpdateDialog(true)}
+                                                >
                                                     <Edit3 className="h-4 w-4 mr-2" />
                                                     Edit
                                                 </Button>
@@ -559,7 +612,7 @@ function RouteComponent() {
                                                                     <p className="font-medium">{userData.email}</p>
                                                                     <p className="text-sm text-muted-foreground">Primary email address</p>
                                                                 </div>
-                                                                <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+
                                                             </div>
                                                         </div>
 
@@ -572,7 +625,7 @@ function RouteComponent() {
                                                                     <p className="font-medium">{userData.phone}</p>
                                                                     <p className="text-sm text-muted-foreground">Phone number</p>
                                                                 </div>
-                                                                <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+
                                                             </div>
                                                         </div>
 
@@ -585,7 +638,7 @@ function RouteComponent() {
                                                                     <p className="font-medium">{userData.state}, {userData.country}</p>
                                                                     <p className="text-sm text-muted-foreground">Current location</p>
                                                                 </div>
-                                                                <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+
                                                             </div>
                                                         </div>
 
@@ -598,7 +651,7 @@ function RouteComponent() {
                                                                     <p className="font-medium">Member since {formatCreationDate(userData.createdAt)}</p>
                                                                     <p className="text-sm text-muted-foreground">Account creation date</p>
                                                                 </div>
-                                                                <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+
                                                             </div>
                                                         </div>
                                                     </div>
@@ -653,7 +706,9 @@ function RouteComponent() {
                                                 <Switch
                                                     id="2fa"
                                                     checked={twoFactorAuth}
-                                                    onCheckedChange={setTwoFactorAuth}
+                                                    onCheckedChange={() => {
+                                                        toast.info("This part is coming soon in new version")
+                                                    }}
                                                 />
                                             </div>
 
@@ -667,7 +722,9 @@ function RouteComponent() {
                                                     <ChevronRight className="h-4 w-4 ml-auto text-muted-foreground" />
                                                 </Button>
 
-                                                <Button variant="outline" className="w-full justify-start gap-3 p-4 h-auto hover:bg-primary/5 hover:border-primary/20">
+                                                <Button onClick={() => {
+                                                    toast.info("This part is coming soon in new version")
+                                                }} variant="outline" className="w-full justify-start gap-3 p-4 h-auto hover:bg-primary/5 hover:border-primary/20">
                                                     <Lock className="h-4 w-4 text-primary" />
                                                     <div className="text-left">
                                                         <p className="font-medium">Active Sessions</p>
@@ -701,7 +758,9 @@ function RouteComponent() {
                                                 <Switch
                                                     id="public"
                                                     checked={publicProfile}
-                                                    onCheckedChange={setPublicProfile}
+                                                    onCheckedChange={() => {
+                                                        toast.info("This part is coming soon in new version")
+                                                    }}
                                                 />
                                             </div>
 
@@ -999,6 +1058,13 @@ function RouteComponent() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+
+            <UpdateAccountDialog
+                open={showUpdateDialog}
+                onOpenChange={setShowUpdateDialog}
+                userData={userData}
+                onUpdate={handleUpdateAccount}
+            />
         </>
     )
 }
