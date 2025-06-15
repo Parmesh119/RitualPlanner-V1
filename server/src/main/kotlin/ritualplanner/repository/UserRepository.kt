@@ -8,6 +8,8 @@ import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
 import ritualplanner.model.User
 import java.sql.ResultSet
+import java.sql.Timestamp
+import java.time.Instant
 
 @Repository
 class UserRepository(
@@ -83,8 +85,8 @@ class UserRepository(
     @Transactional
     fun updateAccount(user: User): User {
         return try {
-            val sql = """UPDATE "User" SET name = ?, email = ?, phone = ?, state = ? WHERE id = ?"""
-            val updatedRows = jdbcTemplate.update(sql, user.name, user.email, user.phone, user.state, user.id)
+            val sql = """UPDATE "User" SET name = ?, email = ?, phone = ?, state = ?, updated_at = ? WHERE id = ?"""
+            val updatedRows = jdbcTemplate.update(sql, user.name, user.email, user.phone, user.state, Timestamp.from(Instant.ofEpochMilli(user.updatedAt)), user.id)
 
             if(updatedRows > 0) {
                 authRepository.findUserById(user.id!!)
