@@ -32,7 +32,7 @@ class NoteController(
     }
 
     @DeleteMapping("/delete/{id}")
-    fun deleteNote(@PathVariable id: String, @RequestHeader("Authorization") authorization: String): ResponseEntity<String> {
+    fun deleteNote(@PathVariable id: String, @RequestHeader("Authorization") authorization: String): ResponseEntity<Boolean> {
         return ResponseEntity.ok(noteService.deleteNote(id, authorization))
     }
 

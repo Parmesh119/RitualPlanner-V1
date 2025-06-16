@@ -81,7 +81,7 @@ class NoteRepository(private val jdbcTemplate: JdbcTemplate) {
     }
 
     @Transactional
-    fun deleteNote(id: String, user_id: String?): String {
+    fun deleteNote(id: String, user_id: String?): Boolean {
         return try {
             val sql = """DELETE FROM "Note" WHERE id = ? AND user_id = ?"""
             val rowAffected = jdbcTemplate.update(
@@ -91,9 +91,9 @@ class NoteRepository(private val jdbcTemplate: JdbcTemplate) {
             )
 
             if(rowAffected > 0) {
-                "Note deleted successfully"
+                true
             } else {
-                "Failed to delete note"
+                false
             }
         } catch (e: Exception) {
             e.printStackTrace()

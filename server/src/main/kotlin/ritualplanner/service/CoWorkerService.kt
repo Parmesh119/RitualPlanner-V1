@@ -3,60 +3,54 @@ package ritualplanner.service
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import ritualplanner.config.JwtUtil
-import ritualplanner.model.DeleteNote
-import ritualplanner.model.ListNote
-import ritualplanner.model.Note
+import ritualplanner.model.CoWorker
+import ritualplanner.model.ListCoWorker
 import ritualplanner.repository.AuthRepository
-import ritualplanner.repository.NoteRepository
+import ritualplanner.repository.CoWorkerRepository
 
 @Service
-class NoteService(
-    private val noteRepository: NoteRepository,
+class CoWorkerService(
+    private val coWorkerRepository: CoWorkerRepository,
     private val jwtUtil: JwtUtil,
     private val authRepository: AuthRepository
 ) {
-    fun createNote(note: Note, authorization: String): Note {
+    fun createCoWorker(coWorker: CoWorker, authorization: String): CoWorker {
         val token = authorization.substringAfter("Bearer")
         val email = jwtUtil.getEmailFromToken(token)
         val user_id = authRepository.getUserDetailsByEmail(email).id
-        return noteRepository.createNote(note, user_id)
+
+        return coWorkerRepository.createCoWorker(coWorker, user_id)
     }
 
-    fun updateNote(note: Note, authorization: String): Note {
+    fun updateCoWorker(coWorker: CoWorker, authorization: String): CoWorker {
         val token = authorization.substringAfter("Bearer")
         val email = jwtUtil.getEmailFromToken(token)
         val user_id = authRepository.getUserDetailsByEmail(email).id
 
-        if(user_id != null) {
-            return noteRepository.updateNote(note)
-        }
-        throw Exception("User Not Found")
+        return coWorkerRepository.updateCoWorker(coWorker, user_id!!)
     }
 
-    fun deleteNote(id: String, authorization: String): Boolean {
+    fun listCoWorker(authorization: String, listCoWorker: ListCoWorker): List<CoWorker> {
         val token = authorization.substringAfter("Bearer")
         val email = jwtUtil.getEmailFromToken(token)
         val user_id = authRepository.getUserDetailsByEmail(email).id
-        return noteRepository.deleteNote(id, user_id)
+
+        return coWorkerRepository.listCoWorker(user_id!!, listCoWorker)
     }
 
-    fun getNoteById(id: String, authorization: String): Note? {
+    fun getCoWorkerById(id: String, authorization: String): CoWorker {
         val token = authorization.substringAfter("Bearer")
         val email = jwtUtil.getEmailFromToken(token)
         val user_id = authRepository.getUserDetailsByEmail(email).id
-        val result = noteRepository.getNoteById(id, user_id)
 
-        if(result != null) {
-            return result
-        }
-        return null
+        return coWorkerRepository.getCoWorkerById(id, user_id!!)
     }
 
-    fun listNotes(listNote: ListNote, authorization: String): List<Note> {
+    fun deleteCoWorker(id: String, authorization: String): Boolean {
         val token = authorization.substringAfter("Bearer")
         val email = jwtUtil.getEmailFromToken(token)
         val user_id = authRepository.getUserDetailsByEmail(email).id
 
-        return noteRepository.listNotes(listNote, user_id)
+        return coWorkerRepository.deleteCoWorker(user_id!!, id)
     }
 }
