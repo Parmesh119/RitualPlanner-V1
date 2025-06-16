@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react"
-import { ChevronUp, User2, Settings, LayoutDashboard, Flame, BadgeCheck, ListTodo, LogOut, Moon, Sun, NotebookText, IndianRupee, Bell, NotebookPen, BookUser, Calendar, List, ScrollText } from 'lucide-react'
+import { ChevronUp, User2, CircleHelp, LayoutDashboard, UsersRound, Flame, BadgeCheck, ListTodo, LogOut, Moon, Sun, NotebookText, IndianRupee, Bell, NotebookPen, BookUser, Calendar, List, ScrollText } from 'lucide-react'
 import {
     Sidebar,
     SidebarContent,
@@ -70,6 +70,11 @@ const items = [
         icon: BookUser,
     },
     {
+        title: "Co-Worker",
+        url: "/app/co-worker",
+        icon: UsersRound
+    },
+    {
         title: "Daily Panchang",
         url: "https://v0-dynamic-astrology-form.vercel.app/",
         icon: NotebookText
@@ -79,11 +84,11 @@ const items = [
         url: "/app/notifications/",
         icon: Bell,
     },
-    // {
-    //     title: "Settings",
-    //     url: "/app/setting/",
-    //     icon: Settings,
-    // },
+    {
+        title: "Suggestions or Question?",
+        url: "/app/question",
+        icon: CircleHelp
+    }
 ]
 
 export function AppSidebar() {

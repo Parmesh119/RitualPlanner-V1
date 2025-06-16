@@ -94,7 +94,14 @@ function RouteComponent() {
 
       // Show success message
       toast.success("Notes deleted successfully", {
-        description: `${selectedNotes.length} note${selectedNotes.length > 1 ? 's' : ''} have been permanently deleted.`
+        description: `${selectedNotes.length} note${selectedNotes.length > 1 ? 's' : ''} have been permanently deleted.`,
+        style: {
+          background: "linear-gradient(90deg, #38A169, #2F855A)",
+          color: "white",
+          fontWeight: "bolder",
+          fontSize: "13px",
+          letterSpacing: "1px",
+        }
       })
 
       // Clear selection

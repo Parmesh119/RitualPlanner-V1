@@ -18,10 +18,13 @@ import { Route as AuthRegisterImport } from './routes/auth/register'
 import { Route as AuthLoginImport } from './routes/auth/login'
 import { Route as AuthForgotPasswordImport } from './routes/auth/forgot-password'
 import { Route as AppTasksIndexImport } from './routes/app/tasks/index'
+import { Route as AppQuestionIndexImport } from './routes/app/question/index'
 import { Route as AppNotesIndexImport } from './routes/app/notes/index'
 import { Route as AppDashboardIndexImport } from './routes/app/dashboard/index'
+import { Route as AppCoWorkerIndexImport } from './routes/app/co-worker/index'
 import { Route as AppAccountIndexImport } from './routes/app/account/index'
 import { Route as AppNotesNoteIdImport } from './routes/app/notes/note/$id'
+import { Route as AppCoWorkerGetIdImport } from './routes/app/co-worker/get/$id'
 
 // Create/Update Routes
 
@@ -67,6 +70,12 @@ const AppTasksIndexRoute = AppTasksIndexImport.update({
   getParentRoute: () => AppRouteRoute,
 } as any)
 
+const AppQuestionIndexRoute = AppQuestionIndexImport.update({
+  id: '/question/',
+  path: '/question/',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+
 const AppNotesIndexRoute = AppNotesIndexImport.update({
   id: '/notes/',
   path: '/notes/',
@@ -79,6 +88,12 @@ const AppDashboardIndexRoute = AppDashboardIndexImport.update({
   getParentRoute: () => AppRouteRoute,
 } as any)
 
+const AppCoWorkerIndexRoute = AppCoWorkerIndexImport.update({
+  id: '/co-worker/',
+  path: '/co-worker/',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+
 const AppAccountIndexRoute = AppAccountIndexImport.update({
   id: '/account/',
   path: '/account/',
@@ -88,6 +103,12 @@ const AppAccountIndexRoute = AppAccountIndexImport.update({
 const AppNotesNoteIdRoute = AppNotesNoteIdImport.update({
   id: '/notes/note/$id',
   path: '/notes/note/$id',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+
+const AppCoWorkerGetIdRoute = AppCoWorkerGetIdImport.update({
+  id: '/co-worker/get/$id',
+  path: '/co-worker/get/$id',
   getParentRoute: () => AppRouteRoute,
 } as any)
 
@@ -144,6 +165,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAccountIndexImport
       parentRoute: typeof AppRouteImport
     }
+    '/app/co-worker/': {
+      id: '/app/co-worker/'
+      path: '/co-worker'
+      fullPath: '/app/co-worker'
+      preLoaderRoute: typeof AppCoWorkerIndexImport
+      parentRoute: typeof AppRouteImport
+    }
     '/app/dashboard/': {
       id: '/app/dashboard/'
       path: '/dashboard'
@@ -158,11 +186,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppNotesIndexImport
       parentRoute: typeof AppRouteImport
     }
+    '/app/question/': {
+      id: '/app/question/'
+      path: '/question'
+      fullPath: '/app/question'
+      preLoaderRoute: typeof AppQuestionIndexImport
+      parentRoute: typeof AppRouteImport
+    }
     '/app/tasks/': {
       id: '/app/tasks/'
       path: '/tasks'
       fullPath: '/app/tasks'
       preLoaderRoute: typeof AppTasksIndexImport
+      parentRoute: typeof AppRouteImport
+    }
+    '/app/co-worker/get/$id': {
+      id: '/app/co-worker/get/$id'
+      path: '/co-worker/get/$id'
+      fullPath: '/app/co-worker/get/$id'
+      preLoaderRoute: typeof AppCoWorkerGetIdImport
       parentRoute: typeof AppRouteImport
     }
     '/app/notes/note/$id': {
@@ -179,17 +221,23 @@ declare module '@tanstack/react-router' {
 
 interface AppRouteRouteChildren {
   AppAccountIndexRoute: typeof AppAccountIndexRoute
+  AppCoWorkerIndexRoute: typeof AppCoWorkerIndexRoute
   AppDashboardIndexRoute: typeof AppDashboardIndexRoute
   AppNotesIndexRoute: typeof AppNotesIndexRoute
+  AppQuestionIndexRoute: typeof AppQuestionIndexRoute
   AppTasksIndexRoute: typeof AppTasksIndexRoute
+  AppCoWorkerGetIdRoute: typeof AppCoWorkerGetIdRoute
   AppNotesNoteIdRoute: typeof AppNotesNoteIdRoute
 }
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppAccountIndexRoute: AppAccountIndexRoute,
+  AppCoWorkerIndexRoute: AppCoWorkerIndexRoute,
   AppDashboardIndexRoute: AppDashboardIndexRoute,
   AppNotesIndexRoute: AppNotesIndexRoute,
+  AppQuestionIndexRoute: AppQuestionIndexRoute,
   AppTasksIndexRoute: AppTasksIndexRoute,
+  AppCoWorkerGetIdRoute: AppCoWorkerGetIdRoute,
   AppNotesNoteIdRoute: AppNotesNoteIdRoute,
 }
 
@@ -205,9 +253,12 @@ export interface FileRoutesByFullPath {
   '/auth/register': typeof AuthRegisterRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/app/account': typeof AppAccountIndexRoute
+  '/app/co-worker': typeof AppCoWorkerIndexRoute
   '/app/dashboard': typeof AppDashboardIndexRoute
   '/app/notes': typeof AppNotesIndexRoute
+  '/app/question': typeof AppQuestionIndexRoute
   '/app/tasks': typeof AppTasksIndexRoute
+  '/app/co-worker/get/$id': typeof AppCoWorkerGetIdRoute
   '/app/notes/note/$id': typeof AppNotesNoteIdRoute
 }
 
@@ -219,9 +270,12 @@ export interface FileRoutesByTo {
   '/auth/register': typeof AuthRegisterRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/app/account': typeof AppAccountIndexRoute
+  '/app/co-worker': typeof AppCoWorkerIndexRoute
   '/app/dashboard': typeof AppDashboardIndexRoute
   '/app/notes': typeof AppNotesIndexRoute
+  '/app/question': typeof AppQuestionIndexRoute
   '/app/tasks': typeof AppTasksIndexRoute
+  '/app/co-worker/get/$id': typeof AppCoWorkerGetIdRoute
   '/app/notes/note/$id': typeof AppNotesNoteIdRoute
 }
 
@@ -234,9 +288,12 @@ export interface FileRoutesById {
   '/auth/register': typeof AuthRegisterRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/app/account/': typeof AppAccountIndexRoute
+  '/app/co-worker/': typeof AppCoWorkerIndexRoute
   '/app/dashboard/': typeof AppDashboardIndexRoute
   '/app/notes/': typeof AppNotesIndexRoute
+  '/app/question/': typeof AppQuestionIndexRoute
   '/app/tasks/': typeof AppTasksIndexRoute
+  '/app/co-worker/get/$id': typeof AppCoWorkerGetIdRoute
   '/app/notes/note/$id': typeof AppNotesNoteIdRoute
 }
 
@@ -250,9 +307,12 @@ export interface FileRouteTypes {
     | '/auth/register'
     | '/auth/reset-password'
     | '/app/account'
+    | '/app/co-worker'
     | '/app/dashboard'
     | '/app/notes'
+    | '/app/question'
     | '/app/tasks'
+    | '/app/co-worker/get/$id'
     | '/app/notes/note/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -263,9 +323,12 @@ export interface FileRouteTypes {
     | '/auth/register'
     | '/auth/reset-password'
     | '/app/account'
+    | '/app/co-worker'
     | '/app/dashboard'
     | '/app/notes'
+    | '/app/question'
     | '/app/tasks'
+    | '/app/co-worker/get/$id'
     | '/app/notes/note/$id'
   id:
     | '__root__'
@@ -276,9 +339,12 @@ export interface FileRouteTypes {
     | '/auth/register'
     | '/auth/reset-password'
     | '/app/account/'
+    | '/app/co-worker/'
     | '/app/dashboard/'
     | '/app/notes/'
+    | '/app/question/'
     | '/app/tasks/'
+    | '/app/co-worker/get/$id'
     | '/app/notes/note/$id'
   fileRoutesById: FileRoutesById
 }
@@ -326,9 +392,12 @@ export const routeTree = rootRoute
       "filePath": "app/route.tsx",
       "children": [
         "/app/account/",
+        "/app/co-worker/",
         "/app/dashboard/",
         "/app/notes/",
+        "/app/question/",
         "/app/tasks/",
+        "/app/co-worker/get/$id",
         "/app/notes/note/$id"
       ]
     },
@@ -348,6 +417,10 @@ export const routeTree = rootRoute
       "filePath": "app/account/index.tsx",
       "parent": "/app"
     },
+    "/app/co-worker/": {
+      "filePath": "app/co-worker/index.tsx",
+      "parent": "/app"
+    },
     "/app/dashboard/": {
       "filePath": "app/dashboard/index.tsx",
       "parent": "/app"
@@ -356,8 +429,16 @@ export const routeTree = rootRoute
       "filePath": "app/notes/index.tsx",
       "parent": "/app"
     },
+    "/app/question/": {
+      "filePath": "app/question/index.tsx",
+      "parent": "/app"
+    },
     "/app/tasks/": {
       "filePath": "app/tasks/index.tsx",
+      "parent": "/app"
+    },
+    "/app/co-worker/get/$id": {
+      "filePath": "app/co-worker/get/$id.tsx",
       "parent": "/app"
     },
     "/app/notes/note/$id": {

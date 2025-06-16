@@ -4,7 +4,7 @@ import { type User } from '@/schemas/User'
 import { authService } from './auth'
 import { toast } from 'sonner'
 import { type TNote, type TDeleteNote, type ListNote } from "@/schemas/Note"
-import { dateMatchModifiers } from 'react-day-picker'
+import type { ListCoWorker, TCoWorker } from '@/schemas/CoWorker'
 
 export function getBackendUrl() {
     const backendUrl = 'http://localhost:8080'
@@ -118,7 +118,7 @@ export async function verifyOTPAction(otp: string, email: string): Promise<boole
     const response = await axios.post(
         `${getBackendUrl()}/api/v2/user/verify-otp`,
         { otp: otp, email: email },
-        { headers: {Authorization: bearerToken}}
+        { headers: { Authorization: bearerToken } }
     )
     return response.data
 }
@@ -238,7 +238,7 @@ export async function updateNoteAction(data: TNote): Promise<TNote> {
     return response.data
 }
 
-export async function deleteNoteAction(id: string): Promise<string> {
+export async function deleteNoteAction(id: string): Promise<boolean> {
     const token = await authService.getAccessToken()
 
     if (!token) {
@@ -365,7 +365,7 @@ export async function deleteAccountAction(): Promise<string> {
 
     const response = await axios.delete(
         `${getBackendUrl()}/api/v2/user/delete-account`,
-        {headers: {Authorization: bearerToken}}
+        { headers: { Authorization: bearerToken } }
     )
 
     return response.data
@@ -392,7 +392,140 @@ export async function updateAccountDetailsAction(data: User): Promise<User> {
     const response = await axios.put(
         `${getBackendUrl()}/api/v2/user/account/update`,
         data,
-        { headers: {Authorization: bearerToken}}
+        { headers: { Authorization: bearerToken } }
+    )
+
+    return response.data
+}
+
+export async function createCoWorkerAction(data: TCoWorker): Promise<TCoWorker> {
+    const token = await authService.getAccessToken()
+
+    if (!token) {
+        toast.error("User is not authenticated", {
+            style: {
+                background: "linear-gradient(90deg, #E53E3E, #C53030)",
+                color: "white",
+                fontWeight: "bolder",
+                fontSize: "13px",
+                letterSpacing: "1px"
+            }
+        })
+        localStorage.clear()
+        throw new Error("User is not authenticated")
+    }
+    const bearerToken = `Bearer ${token}`
+
+    const response = await axios.post(
+        `${getBackendUrl()}/api/v2/co-worker/create`,
+        data,
+        { headers: { Authorization: bearerToken } }
+    )
+
+    return response.data
+}
+
+export async function updateCoWorkerAction(data: TCoWorker): Promise<TCoWorker> {
+    const token = await authService.getAccessToken()
+
+    if (!token) {
+        toast.error("User is not authenticated", {
+            style: {
+                background: "linear-gradient(90deg, #E53E3E, #C53030)",
+                color: "white",
+                fontWeight: "bolder",
+                fontSize: "13px",
+                letterSpacing: "1px"
+            }
+        })
+        localStorage.clear()
+        throw new Error("User is not authenticated")
+    }
+    const bearerToken = `Bearer ${token}`
+
+    const response = await axios.put(
+        `${getBackendUrl()}/api/v2/co-worker/update`,
+        data,
+        { headers: { Authorization: bearerToken } }
+    )
+
+    return response.data
+}
+
+export async function listCoWorkerAction(data: ListCoWorker): Promise<TCoWorker[]> {
+    const token = await authService.getAccessToken()
+
+    if (!token) {
+        toast.error("User is not authenticated", {
+            style: {
+                background: "linear-gradient(90deg, #E53E3E, #C53030)",
+                color: "white",
+                fontWeight: "bolder",
+                fontSize: "13px",
+                letterSpacing: "1px"
+            }
+        })
+        localStorage.clear()
+        throw new Error("User is not authenticated")
+    }
+    const bearerToken = `Bearer ${token}`
+
+    const response = await axios.post(
+        `${getBackendUrl()}/api/v2/co-worker`,
+        data,
+        { headers: { Authorization: bearerToken } }
+    )
+
+    return response.data
+}
+
+export async function getCoWorkerById(id: string): Promise<TCoWorker> {
+    const token = await authService.getAccessToken()
+
+    if (!token) {
+        toast.error("User is not authenticated", {
+            style: {
+                background: "linear-gradient(90deg, #E53E3E, #C53030)",
+                color: "white",
+                fontWeight: "bolder",
+                fontSize: "13px",
+                letterSpacing: "1px"
+            }
+        })
+        localStorage.clear()
+        throw new Error("User is not authenticated")
+    }
+    const bearerToken = `Bearer ${token}`
+
+    const response = await axios.get(
+        `${getBackendUrl()}/api/v2/co-worker/get/${id}`,
+        { headers: { Authorization: bearerToken } },
+    )
+
+    return response.data
+}
+
+export async function deleteCoWorkerAction(id: string): Promise<boolean> {
+    const token = await authService.getAccessToken()
+
+    if (!token) {
+        toast.error("User is not authenticated", {
+            style: {
+                background: "linear-gradient(90deg, #E53E3E, #C53030)",
+                color: "white",
+                fontWeight: "bolder",
+                fontSize: "13px",
+                letterSpacing: "1px"
+            }
+        })
+        localStorage.clear()
+        throw new Error("User is not authenticated")
+    }
+    const bearerToken = `Bearer ${token}`
+
+    const response = await axios.delete(
+        `${getBackendUrl()}/api/v2/co-worker/delete/${id}`,
+        { headers: { Authorization: bearerToken } }
     )
 
     return response.data
