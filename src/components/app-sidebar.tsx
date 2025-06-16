@@ -86,7 +86,7 @@ const items = [
     },
     {
         title: "Suggestions or Question?",
-        url: "/app/question",
+        url: "/app/help",
         icon: CircleHelp
     }
 ]

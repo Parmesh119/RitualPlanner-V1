@@ -1,4 +1,5 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { Button } from '@/components/ui/button'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { z } from 'zod'
 
 export const Route = createFileRoute('/app/tasks/')({
@@ -10,6 +11,7 @@ export const Route = createFileRoute('/app/tasks/')({
 
 function RouteComponent() {
   const { view } = Route.useSearch()
+  const navigate = useNavigate()
 
   return (
     <div className="container py-6">
@@ -30,6 +32,9 @@ function RouteComponent() {
           <p>Calendar view content</p>
         </div>
       )}
+      <Button variant="outline" onClick={() => {
+        navigate({to: "/app/tasks/create"})
+      }}>Create Task</Button>
     </div>
   )
 }

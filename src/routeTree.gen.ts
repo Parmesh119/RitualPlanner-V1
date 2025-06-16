@@ -18,11 +18,12 @@ import { Route as AuthRegisterImport } from './routes/auth/register'
 import { Route as AuthLoginImport } from './routes/auth/login'
 import { Route as AuthForgotPasswordImport } from './routes/auth/forgot-password'
 import { Route as AppTasksIndexImport } from './routes/app/tasks/index'
-import { Route as AppQuestionIndexImport } from './routes/app/question/index'
 import { Route as AppNotesIndexImport } from './routes/app/notes/index'
+import { Route as AppHelpIndexImport } from './routes/app/help/index'
 import { Route as AppDashboardIndexImport } from './routes/app/dashboard/index'
 import { Route as AppCoWorkerIndexImport } from './routes/app/co-worker/index'
 import { Route as AppAccountIndexImport } from './routes/app/account/index'
+import { Route as AppTasksCreateImport } from './routes/app/tasks/create'
 import { Route as AppNotesNoteIdImport } from './routes/app/notes/note/$id'
 import { Route as AppCoWorkerGetIdImport } from './routes/app/co-worker/get/$id'
 
@@ -70,15 +71,15 @@ const AppTasksIndexRoute = AppTasksIndexImport.update({
   getParentRoute: () => AppRouteRoute,
 } as any)
 
-const AppQuestionIndexRoute = AppQuestionIndexImport.update({
-  id: '/question/',
-  path: '/question/',
-  getParentRoute: () => AppRouteRoute,
-} as any)
-
 const AppNotesIndexRoute = AppNotesIndexImport.update({
   id: '/notes/',
   path: '/notes/',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+
+const AppHelpIndexRoute = AppHelpIndexImport.update({
+  id: '/help/',
+  path: '/help/',
   getParentRoute: () => AppRouteRoute,
 } as any)
 
@@ -97,6 +98,12 @@ const AppCoWorkerIndexRoute = AppCoWorkerIndexImport.update({
 const AppAccountIndexRoute = AppAccountIndexImport.update({
   id: '/account/',
   path: '/account/',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+
+const AppTasksCreateRoute = AppTasksCreateImport.update({
+  id: '/tasks/create',
+  path: '/tasks/create',
   getParentRoute: () => AppRouteRoute,
 } as any)
 
@@ -158,6 +165,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthResetPasswordImport
       parentRoute: typeof rootRoute
     }
+    '/app/tasks/create': {
+      id: '/app/tasks/create'
+      path: '/tasks/create'
+      fullPath: '/app/tasks/create'
+      preLoaderRoute: typeof AppTasksCreateImport
+      parentRoute: typeof AppRouteImport
+    }
     '/app/account/': {
       id: '/app/account/'
       path: '/account'
@@ -179,18 +193,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppDashboardIndexImport
       parentRoute: typeof AppRouteImport
     }
+    '/app/help/': {
+      id: '/app/help/'
+      path: '/help'
+      fullPath: '/app/help'
+      preLoaderRoute: typeof AppHelpIndexImport
+      parentRoute: typeof AppRouteImport
+    }
     '/app/notes/': {
       id: '/app/notes/'
       path: '/notes'
       fullPath: '/app/notes'
       preLoaderRoute: typeof AppNotesIndexImport
-      parentRoute: typeof AppRouteImport
-    }
-    '/app/question/': {
-      id: '/app/question/'
-      path: '/question'
-      fullPath: '/app/question'
-      preLoaderRoute: typeof AppQuestionIndexImport
       parentRoute: typeof AppRouteImport
     }
     '/app/tasks/': {
@@ -220,22 +234,24 @@ declare module '@tanstack/react-router' {
 // Create and export the route tree
 
 interface AppRouteRouteChildren {
+  AppTasksCreateRoute: typeof AppTasksCreateRoute
   AppAccountIndexRoute: typeof AppAccountIndexRoute
   AppCoWorkerIndexRoute: typeof AppCoWorkerIndexRoute
   AppDashboardIndexRoute: typeof AppDashboardIndexRoute
+  AppHelpIndexRoute: typeof AppHelpIndexRoute
   AppNotesIndexRoute: typeof AppNotesIndexRoute
-  AppQuestionIndexRoute: typeof AppQuestionIndexRoute
   AppTasksIndexRoute: typeof AppTasksIndexRoute
   AppCoWorkerGetIdRoute: typeof AppCoWorkerGetIdRoute
   AppNotesNoteIdRoute: typeof AppNotesNoteIdRoute
 }
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
+  AppTasksCreateRoute: AppTasksCreateRoute,
   AppAccountIndexRoute: AppAccountIndexRoute,
   AppCoWorkerIndexRoute: AppCoWorkerIndexRoute,
   AppDashboardIndexRoute: AppDashboardIndexRoute,
+  AppHelpIndexRoute: AppHelpIndexRoute,
   AppNotesIndexRoute: AppNotesIndexRoute,
-  AppQuestionIndexRoute: AppQuestionIndexRoute,
   AppTasksIndexRoute: AppTasksIndexRoute,
   AppCoWorkerGetIdRoute: AppCoWorkerGetIdRoute,
   AppNotesNoteIdRoute: AppNotesNoteIdRoute,
@@ -252,11 +268,12 @@ export interface FileRoutesByFullPath {
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
+  '/app/tasks/create': typeof AppTasksCreateRoute
   '/app/account': typeof AppAccountIndexRoute
   '/app/co-worker': typeof AppCoWorkerIndexRoute
   '/app/dashboard': typeof AppDashboardIndexRoute
+  '/app/help': typeof AppHelpIndexRoute
   '/app/notes': typeof AppNotesIndexRoute
-  '/app/question': typeof AppQuestionIndexRoute
   '/app/tasks': typeof AppTasksIndexRoute
   '/app/co-worker/get/$id': typeof AppCoWorkerGetIdRoute
   '/app/notes/note/$id': typeof AppNotesNoteIdRoute
@@ -269,11 +286,12 @@ export interface FileRoutesByTo {
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
+  '/app/tasks/create': typeof AppTasksCreateRoute
   '/app/account': typeof AppAccountIndexRoute
   '/app/co-worker': typeof AppCoWorkerIndexRoute
   '/app/dashboard': typeof AppDashboardIndexRoute
+  '/app/help': typeof AppHelpIndexRoute
   '/app/notes': typeof AppNotesIndexRoute
-  '/app/question': typeof AppQuestionIndexRoute
   '/app/tasks': typeof AppTasksIndexRoute
   '/app/co-worker/get/$id': typeof AppCoWorkerGetIdRoute
   '/app/notes/note/$id': typeof AppNotesNoteIdRoute
@@ -287,11 +305,12 @@ export interface FileRoutesById {
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
+  '/app/tasks/create': typeof AppTasksCreateRoute
   '/app/account/': typeof AppAccountIndexRoute
   '/app/co-worker/': typeof AppCoWorkerIndexRoute
   '/app/dashboard/': typeof AppDashboardIndexRoute
+  '/app/help/': typeof AppHelpIndexRoute
   '/app/notes/': typeof AppNotesIndexRoute
-  '/app/question/': typeof AppQuestionIndexRoute
   '/app/tasks/': typeof AppTasksIndexRoute
   '/app/co-worker/get/$id': typeof AppCoWorkerGetIdRoute
   '/app/notes/note/$id': typeof AppNotesNoteIdRoute
@@ -306,11 +325,12 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/register'
     | '/auth/reset-password'
+    | '/app/tasks/create'
     | '/app/account'
     | '/app/co-worker'
     | '/app/dashboard'
+    | '/app/help'
     | '/app/notes'
-    | '/app/question'
     | '/app/tasks'
     | '/app/co-worker/get/$id'
     | '/app/notes/note/$id'
@@ -322,11 +342,12 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/register'
     | '/auth/reset-password'
+    | '/app/tasks/create'
     | '/app/account'
     | '/app/co-worker'
     | '/app/dashboard'
+    | '/app/help'
     | '/app/notes'
-    | '/app/question'
     | '/app/tasks'
     | '/app/co-worker/get/$id'
     | '/app/notes/note/$id'
@@ -338,11 +359,12 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/register'
     | '/auth/reset-password'
+    | '/app/tasks/create'
     | '/app/account/'
     | '/app/co-worker/'
     | '/app/dashboard/'
+    | '/app/help/'
     | '/app/notes/'
-    | '/app/question/'
     | '/app/tasks/'
     | '/app/co-worker/get/$id'
     | '/app/notes/note/$id'
@@ -391,11 +413,12 @@ export const routeTree = rootRoute
     "/app": {
       "filePath": "app/route.tsx",
       "children": [
+        "/app/tasks/create",
         "/app/account/",
         "/app/co-worker/",
         "/app/dashboard/",
+        "/app/help/",
         "/app/notes/",
-        "/app/question/",
         "/app/tasks/",
         "/app/co-worker/get/$id",
         "/app/notes/note/$id"
@@ -413,6 +436,10 @@ export const routeTree = rootRoute
     "/auth/reset-password": {
       "filePath": "auth/reset-password.tsx"
     },
+    "/app/tasks/create": {
+      "filePath": "app/tasks/create.tsx",
+      "parent": "/app"
+    },
     "/app/account/": {
       "filePath": "app/account/index.tsx",
       "parent": "/app"
@@ -425,12 +452,12 @@ export const routeTree = rootRoute
       "filePath": "app/dashboard/index.tsx",
       "parent": "/app"
     },
-    "/app/notes/": {
-      "filePath": "app/notes/index.tsx",
+    "/app/help/": {
+      "filePath": "app/help/index.tsx",
       "parent": "/app"
     },
-    "/app/question/": {
-      "filePath": "app/question/index.tsx",
+    "/app/notes/": {
+      "filePath": "app/notes/index.tsx",
       "parent": "/app"
     },
     "/app/tasks/": {
