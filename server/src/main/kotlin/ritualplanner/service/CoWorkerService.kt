@@ -18,8 +18,11 @@ class CoWorkerService(
         val token = authorization.substringAfter("Bearer")
         val email = jwtUtil.getEmailFromToken(token)
         val user_id = authRepository.getUserDetailsByEmail(email).id
-
-        return coWorkerRepository.createCoWorker(coWorker, user_id)
+        var newCoWorker = coWorker.copy()
+        if(coWorker.email == null) {
+            newCoWorker = newCoWorker.copy(email = "abc@yopmail.com")
+        }
+        return coWorkerRepository.createCoWorker(newCoWorker, user_id)
     }
 
     fun updateCoWorker(coWorker: CoWorker, authorization: String): CoWorker {

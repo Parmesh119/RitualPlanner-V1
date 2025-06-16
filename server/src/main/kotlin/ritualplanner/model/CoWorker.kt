@@ -6,7 +6,7 @@ import java.util.UUID
 data class CoWorker (
     val id: String? = UUID.randomUUID().toString(),
     val name: String,
-    val email: String? = null,
+    val email: String? = "abc@yopmail.com",
     val phone: String,
     val createdAt: Long = Instant.now().toEpochMilli(),
     val updatedAt: Long = Instant.now().toEpochMilli()
