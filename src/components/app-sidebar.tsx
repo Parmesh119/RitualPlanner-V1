@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react"
-import { ChevronUp, User2, CircleHelp, LayoutDashboard, UsersRound, Flame, BadgeCheck, ListTodo, LogOut, Moon, Sun, NotebookText, IndianRupee, Bell, NotebookPen, BookUser, Calendar, List, ScrollText } from 'lucide-react'
+import { ChevronUp, User2, CircleHelp, ReceiptIndianRupee, LayoutDashboard, UsersRound, Flame, BadgeCheck, ListTodo, LogOut, Moon, Sun, NotebookText, IndianRupee, Bell, NotebookPen, BookUser, Calendar, List, ScrollText } from 'lucide-react'
 import {
     Sidebar,
     SidebarContent,
@@ -50,19 +50,9 @@ const items = [
         ]
     },
     {
-        title: "Ritual Templates",
-        url: "/app/ritual-templates/",
-        icon: ScrollText,
-    },
-    {
-        title: "Expense Tracking",
-        url: "/app/expense/",
-        icon: IndianRupee,
-    },
-    {
-        title: "Notes",
-        url: "/app/notes/",
-        icon: NotebookPen,
+        title: "Co-Worker Directory",
+        url: "/app/co-worker",
+        icon: UsersRound
     },
     {
         title: "Client Directory",
@@ -70,9 +60,19 @@ const items = [
         icon: BookUser,
     },
     {
-        title: "Co-Worker",
-        url: "/app/co-worker",
-        icon: UsersRound
+        title: "Ritual Templates",
+        url: "/app/ritual-templates/",
+        icon: ScrollText,
+    },
+    {
+        title: "Billing & Payments",
+        url: "/app/bills-payment",
+        icon: ReceiptIndianRupee
+    },
+    {
+        title: "Expense Tracking",
+        url: "/app/expense/",
+        icon: IndianRupee,
     },
     {
         title: "Daily Panchang",
@@ -80,12 +80,17 @@ const items = [
         icon: NotebookText
     },
     {
+        title: "Notes",
+        url: "/app/notes/",
+        icon: NotebookPen,
+    },
+    {
         title: "Notifications",
         url: "/app/notifications/",
         icon: Bell,
     },
     {
-        title: "Suggestions or Question?",
+        title: "Feedback & Help",
         url: "/app/help",
         icon: CircleHelp
     }
