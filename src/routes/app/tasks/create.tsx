@@ -57,9 +57,9 @@ import {
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { toast } from "sonner"
 
 // Add this type near the top of the file
 type AssistantPaymentDetails = {
@@ -69,7 +69,7 @@ type AssistantPaymentDetails = {
   paymentDate?: Date;
   paymentMode: 'CASH' | 'ONLINE';
   onlinePaymentMode?: 'NET-BANKING' | 'UPI' | 'CHECK' | 'CARD';
-  status: 'PENDING' | 'COMPLETED';
+  status: 'PENDING' | 'COMPLETED' | 'CANCELED';
 }
 
 export const Route = createFileRoute('/app/tasks/create')({
@@ -85,12 +85,14 @@ function RouteComponent() {
   const [self, setSelf] = useState(true)
   const [status, setStatus] = useState("PENDING")
   const [taskOwner, setTaskOwner] = useState("")
+  const [description, setDescription] = useState("")
   const [open, setOpen] = useState(false)
   const [errors, setErrors] = useState<{
     taskName?: string
     location?: string
     date?: string
     taskOwner?: string
+    description?: string
   }>({})
 
   // Step 2 States
@@ -172,7 +174,8 @@ function RouteComponent() {
         date: date ? Math.floor(date.getTime() / 1000) : undefined,
         self,
         status,
-        taskOwner_id: !self ? taskOwner : undefined
+        taskOwner_id: !self ? taskOwner : undefined,
+        description: description || null
       }
 
       // Custom validation for taskOwner_id if self is false
@@ -191,11 +194,66 @@ function RouteComponent() {
           taskName: fieldErrors.name?.[0],
           location: fieldErrors.location?.[0],
           date: fieldErrors.date?.[0],
-          taskOwner: fieldErrors.taskOwner_id?.[0]
+          taskOwner: fieldErrors.taskOwner_id?.[0],
+          description: fieldErrors.description?.[0]
         })
       }
       return false
     }
+  }
+
+  const validateStep3 = () => {
+    if (self) {
+      // If self is true, we need at least one assistant with payment details
+      if (selectedAssistantIds.length === 0) {
+        toast.error("Select an assistant because this is your task", {
+          description: "And If it is not your make toggle as false in step 1",
+          style: {
+            background: "linear-gradient(90deg, #E53E3E, #C53030)",
+            color: "white",
+            fontWeight: "bolder",
+            fontSize: "13px",
+            letterSpacing: "1px",
+          }
+        })
+        return false
+      }
+
+      // Check if all selected assistants have payment details
+      const assistantsWithoutPayment = selectedAssistantIds.filter(id =>
+        !assistantPayments.find(payment => payment.assistantId === id)
+      )
+
+      if (assistantsWithoutPayment.length > 0) {
+        const assistantNames = assistantsWithoutPayment
+          .map(id => coWorkers.find(a => a.id === id)?.name)
+          .filter(Boolean)
+          .join(", ")
+
+        toast.error("Incomplete payment details", {
+          description: `Please provide payment details for: ${assistantNames}`
+        })
+        return false
+      }
+
+      // Validate payment details for each assistant
+      for (const payment of assistantPayments) {
+        if (payment.totalAmount <= 0 && status !== "CANCELED") {
+          toast.error("Invalid payment amount", {
+            description: `Total amount must be greater than 0 for ${coWorkers.find(a => a.id === payment.assistantId)?.name}`
+          })
+          return false
+        }
+
+        if (payment.paymentMode === 'ONLINE' && !payment.onlinePaymentMode) {
+          toast.error("Missing payment mode", {
+            description: `Please select an online payment mode for ${coWorkers.find(a => a.id === payment.assistantId)?.name}`
+          })
+          return false
+        }
+      }
+    }
+    return true
   }
 
   const handleNext = () => {
@@ -206,12 +264,15 @@ function RouteComponent() {
     } else if (currentStep === 2) {
       setCurrentStep(3)
     } else if (currentStep === 3) {
-      setCurrentStep(4)
+      if (validateStep3()) {
+        setCurrentStep(4)
+      }
     } else if (currentStep === 4) {
       // Final submission
       console.log("Final form submission", {
         selectedNoteIds,
         selectedAssistantIds,
+        assistantPayments,
         totalAmount,
         paidAmount,
         paymentDate,
@@ -254,15 +315,27 @@ function RouteComponent() {
   // Add this function to handle assistant selection
   const handleAssistantSelection = (assistantId: string, checked: boolean) => {
     if (checked) {
-      setCurrentAssistantId(assistantId)
-      setCurrentPayment({
-        assistantId,
-        totalAmount: 0,
-        paidAmount: 0,
-        paymentMode: 'CASH',
-        status: 'PENDING'
-      })
-      setShowPaymentDialog(true)
+      if (status === 'CANCELED' && self) {
+        // For canceled tasks, directly add the assistant with CANCELED status
+        setSelectedAssistantIds(prev => [...prev, assistantId])
+        setAssistantPayments(prev => [...prev, {
+          assistantId,
+          totalAmount: 0,
+          paidAmount: 0,
+          paymentMode: 'CASH',
+          status: 'CANCELED'
+        }])
+      } else {
+        setCurrentAssistantId(assistantId)
+        setCurrentPayment({
+          assistantId,
+          totalAmount: 0,
+          paidAmount: 0,
+          paymentMode: 'CASH',
+          status: 'PENDING'
+        })
+        setShowPaymentDialog(true)
+      }
     } else {
       setSelectedAssistantIds(prev => prev.filter(id => id !== assistantId))
       setAssistantPayments(prev => prev.filter(payment => payment.assistantId !== assistantId))
@@ -375,6 +448,26 @@ function RouteComponent() {
                         )}
                       </div>
 
+                      {/* Description */}
+                      <div>
+                        <Label htmlFor="description" className="mb-1.5 block">Description</Label>
+                        <div className="relative">
+                          <textarea
+                            id="description"
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                            placeholder="Enter task description"
+                            className={cn(
+                              "w-full min-h-[100px] rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+                              errors.description && "border-red-500"
+                            )}
+                          />
+                        </div>
+                        {errors.description && (
+                          <p className="text-sm text-red-500 mt-1">{errors.description}</p>
+                        )}
+                      </div>
+
                       {/* Location */}
                       <div>
                         <Label htmlFor="location" className="mb-1.5 block">Location</Label>
@@ -430,6 +523,14 @@ function RouteComponent() {
                         {errors.date && (
                           <p className="text-sm text-red-500 mt-1">{errors.date}</p>
                         )}
+                        <p className="text-md text-muted-foreground mt-1.5">
+                          Note: Date selection is filtered based on the task status:
+                          <ul className="list-disc pl-4 mt-1 space-y-0.5">
+                            <li>Pending: Future dates only</li>
+                            <li>Completed: Past dates only</li>
+                            <li>Canceled: All dates available</li>
+                          </ul>
+                        </p>
                       </div>
                     </CardContent>
                   </Card>
@@ -470,7 +571,7 @@ function RouteComponent() {
                                 </SelectItem>
                               </SelectContent>
                             </Select>
-                            <div className="mt-1.5 text-sm text-muted-foreground">
+                            <div className="mt-1.5 text-md text-muted-foreground">
                               <p>• Pending: Future work</p>
                               <p>• Completed: Past work</p>
                               <p>• Canceled: Cancelled work</p>
@@ -790,7 +891,7 @@ function RouteComponent() {
               )}
 
               {currentStep === 3 && (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 lg:grid-2 gap-6">
                   <Card className="border-0">
                     <CardHeader className="pb-2 space-y-1">
                       <div className="flex items-center gap-2">
@@ -798,7 +899,9 @@ function RouteComponent() {
                         <h2 className="text-lg font-semibold">Task Assistant</h2>
                       </div>
                       <p className="text-sm text-muted-foreground">
-                        Select assistants for this task
+                        {self
+                          ? "Select assistants and provide their payment details"
+                          : "Enable self mode to select assistants"}
                       </p>
                     </CardHeader>
                     <CardContent className="space-y-4">
@@ -916,19 +1019,27 @@ function RouteComponent() {
                                         <span className="truncate text-sm font-medium">{assistant.name}</span>
                                         {payment && (
                                           <div className="flex flex-col gap-0.5 mt-1">
-                                            <span className="text-xs text-muted-foreground">
-                                              Payment: ₹{payment.paidAmount}/{payment.totalAmount}
-                                            </span>
-                                            <span className="text-xs text-muted-foreground">
-                                              {payment.paymentDate && format(payment.paymentDate, "PPP")} • {payment.paymentMode}
-                                              {payment.onlinePaymentMode && ` (${payment.onlinePaymentMode})`}
-                                            </span>
-                                            <span className={cn(
-                                              "text-xs font-medium",
-                                              payment.status === 'COMPLETED' ? "text-green-600" : "text-yellow-600"
-                                            )}>
-                                              {payment.status}
-                                            </span>
+                                            {status === 'CANCELED' && self ? (
+                                              <span className="text-xs text-destructive font-medium">
+                                                Task Canceled
+                                              </span>
+                                            ) : (
+                                              <>
+                                                <span className="text-xs text-muted-foreground">
+                                                  Payment: ₹{payment.paidAmount}/{payment.totalAmount}
+                                                </span>
+                                                <span className="text-xs text-muted-foreground">
+                                                  {payment.paymentDate && format(payment.paymentDate, "PPP")} • {payment.paymentMode}
+                                                  {payment.onlinePaymentMode && ` (${payment.onlinePaymentMode})`}
+                                                </span>
+                                                <span className={cn(
+                                                  "text-xs font-medium",
+                                                  payment.status === 'COMPLETED' ? "text-green-600" : "text-yellow-600"
+                                                )}>
+                                                  {payment.status}
+                                                </span>
+                                              </>
+                                            )}
                                           </div>
                                         )}
                                       </div>
@@ -942,24 +1053,26 @@ function RouteComponent() {
                                       >
                                         <XCircle className="h-4 w-4 hover:text-destructive transition-colors" />
                                       </Button>
-                                      <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        className="h-8 w-8 p-0 opacity-60 hover:opacity-100"
-                                        onClick={() => {
-                                          setCurrentAssistantId(assistant.id)
-                                          setCurrentPayment(assistantPayments.find(p => p.assistantId === assistant.id) || {
-                                            assistantId: assistant.id,
-                                            totalAmount: 0,
-                                            paidAmount: 0,
-                                            paymentMode: 'CASH',
-                                            status: 'PENDING'
-                                          })
-                                          setShowPaymentDialog(true)
-                                        }}
-                                      >
-                                        <Edit className="h-4 w-4 hover:text-primary transition-colors" />
-                                      </Button>
+                                      {!(status === 'CANCELED' && self) && (
+                                        <Button
+                                          variant="ghost"
+                                          size="sm"
+                                          className="h-8 w-8 p-0 opacity-60 hover:opacity-100"
+                                          onClick={() => {
+                                            setCurrentAssistantId(assistant.id)
+                                            setCurrentPayment(assistantPayments.find(p => p.assistantId === assistant.id) || {
+                                              assistantId: assistant.id,
+                                              totalAmount: 0,
+                                              paidAmount: 0,
+                                              paymentMode: 'CASH',
+                                              status: 'PENDING'
+                                            })
+                                            setShowPaymentDialog(true)
+                                          }}
+                                        >
+                                          <Edit className="h-4 w-4 hover:text-primary transition-colors" />
+                                        </Button>
+                                      )}
                                     </div>
                                   </div>
                                 ) : null
@@ -1130,7 +1243,11 @@ function RouteComponent() {
                         <h2 className="text-lg font-semibold">Your Payment Details</h2>
                       </div>
                       <p className="text-sm text-muted-foreground">
-                        Enter payment information for the task
+                        {status === 'CANCELED' ? (
+                          <span className="text-destructive">Payment details are disabled for canceled tasks</span>
+                        ) : (
+                          "Enter payment information for the task"
+                        )}
                       </p>
                     </CardHeader>
                     <CardContent className="space-y-6">
@@ -1147,6 +1264,7 @@ function RouteComponent() {
                                 onChange={(e) => handleStep4PaymentAmountChange('totalAmount', Number(e.target.value))}
                                 className="pl-8"
                                 placeholder="Enter total amount"
+                                disabled={status === 'CANCELED'}
                               />
                             </div>
                           </div>
@@ -1161,6 +1279,7 @@ function RouteComponent() {
                                 onChange={(e) => handleStep4PaymentAmountChange('paidAmount', Number(e.target.value))}
                                 className="pl-8"
                                 placeholder="Enter paid amount"
+                                disabled={status === 'CANCELED'}
                               />
                             </div>
                           </div>
@@ -1170,7 +1289,8 @@ function RouteComponent() {
                           <Label>Payment Status</Label>
                           <div className={cn(
                             "flex text-black items-center gap-2 p-2 border rounded-md",
-                            step4PaymentStatus === 'COMPLETED' ? "bg-green-50" : "bg-yellow-50"
+                            step4PaymentStatus === 'COMPLETED' ? "bg-green-50" : "bg-yellow-50",
+                            status === 'CANCELED' && "opacity-50"
                           )}>
                             {step4PaymentStatus === 'COMPLETED' ? (
                               <CheckCircle className="h-4 w-4 text-green-500" />
@@ -1189,8 +1309,10 @@ function RouteComponent() {
                                 variant="outline"
                                 className={cn(
                                   "w-full justify-between text-left font-normal",
-                                  !step4PaymentDate && "text-muted-foreground"
+                                  !step4PaymentDate && "text-muted-foreground",
+                                  status === 'CANCELED' && "opacity-50"
                                 )}
+                                disabled={status === 'CANCELED'}
                               >
                                 <div className="flex items-center gap-2">
                                   <CalendarIcon className="h-4 w-4" />
@@ -1221,8 +1343,9 @@ function RouteComponent() {
                           <Select
                             value={step4PaymentMode}
                             onValueChange={(value: 'CASH' | 'ONLINE') => setStep4PaymentMode(value)}
+                            disabled={status === 'CANCELED'}
                           >
-                            <SelectTrigger>
+                            <SelectTrigger className={cn(status === 'CANCELED' && "opacity-50")}>
                               <SelectValue placeholder="Select payment mode" />
                             </SelectTrigger>
                             <SelectContent>
@@ -1248,8 +1371,9 @@ function RouteComponent() {
                             <Select
                               value={step4OnlinePaymentMode || ''}
                               onValueChange={(value: 'NET-BANKING' | 'UPI' | 'CHECK' | 'CARD') => setStep4OnlinePaymentMode(value)}
+                              disabled={status === 'CANCELED'}
                             >
-                              <SelectTrigger>
+                              <SelectTrigger className={cn(status === 'CANCELED' && "opacity-50")}>
                                 <SelectValue placeholder="Select online payment mode" />
                               </SelectTrigger>
                               <SelectContent>

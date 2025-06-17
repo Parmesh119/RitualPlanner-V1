@@ -29,7 +29,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { format } from "date-fns"
-import { Calendar as CalendarIcon, Plus, Search, Trash2 } from "lucide-react"
+import { Calendar as CalendarIcon, Plus, Search, Trash2, List, Grid } from "lucide-react"
 import {
   Table,
   TableBody,
@@ -58,6 +58,7 @@ function RouteComponent() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [selectedNotes, setSelectedNotes] = useState<string[]>([])
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [viewMode, setViewMode] = useState<'list' | 'grid'>('list')
   const DEFAULT_PAGE_SIZE = 10
 
   const { data: notesData, isLoading } = useQuery({
@@ -142,6 +143,24 @@ function RouteComponent() {
           <div className="flex items-center justify-between">
             <h1 className="text-2xl font-bold">Notes List</h1>
             <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 border rounded-md">
+                <Button
+                  variant={viewMode === 'list' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setViewMode('list')}
+                  className="h-8 px-2"
+                >
+                  <List className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant={viewMode === 'grid' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setViewMode('grid')}
+                  className="h-8 px-2"
+                >
+                  <Grid className="h-4 w-4" />
+                </Button>
+              </div>
               {selectedNotes.length > 0 && (
                 <Button
                   variant="destructive"
@@ -209,58 +228,93 @@ function RouteComponent() {
           </div>
         </div>
 
-        <div className="rounded-md border overflow-x-auto px-6 py-2">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[50px]">
-                  <Checkbox
-                    checked={notesData && notesData.length > 0 && selectedNotes.length === notesData.length}
-                    onCheckedChange={(checked: boolean) => handleSelectAll(checked)}
-                    aria-label="Select all"
-                    className="border-2 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground dark:border-gray-600 dark:data-[state=checked]:bg-primary dark:data-[state=checked]:border-primary"
-                  />
-                </TableHead>
-                <TableHead className="w-[240px]">Sr No.</TableHead>
-                <TableHead>Title</TableHead>
-                <TableHead>Reminder Date</TableHead>
-                <TableHead>Created At</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
+        {viewMode === 'list' ? (
+          <div className="rounded-md border overflow-x-auto px-6 py-2">
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center">Loading...</TableCell>
+                  <TableHead className="w-[50px]">
+                    <Checkbox
+                      checked={notesData && notesData.length > 0 && selectedNotes.length === notesData.length}
+                      onCheckedChange={(checked: boolean) => handleSelectAll(checked)}
+                      aria-label="Select all"
+                      className="border-2 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground dark:border-gray-600 dark:data-[state=checked]:bg-primary dark:data-[state=checked]:border-primary"
+                    />
+                  </TableHead>
+                  <TableHead className="w-[240px]">Sr No.</TableHead>
+                  <TableHead>Title</TableHead>
+                  <TableHead>Reminder Date</TableHead>
+                  <TableHead>Created At</TableHead>
                 </TableRow>
-              ) : notesData?.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={5} className="text-center">No notes found</TableCell>
-                </TableRow>
-              ) : (
-                notesData?.map((note, index) => (
-                  <TableRow
-                    key={note.id}
-                    onClick={() => navigate({ to: '/app/notes/note/$id', params: { id: note.id } })}
-                    className="cursor-pointer hover:bg-muted/50 transition-colors"
-                  >
-                    <TableCell onClick={(e) => e.stopPropagation()}>
-                      <Checkbox
-                        checked={selectedNotes.includes(note.id)}
-                        onCheckedChange={(checked) => handleSelectNote(note.id, checked as boolean)}
-                        aria-label={`Select note ${note.title}`}
-                        className="border-2 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground dark:border-gray-600 dark:data-[state=checked]:bg-primary dark:data-[state=checked]:border-primary"
-                      />
-                    </TableCell>
-                    <TableCell>{(currentPage - 1) * DEFAULT_PAGE_SIZE + index + 1}</TableCell>
-                    <TableCell>{note.title}</TableCell>
-                    <TableCell>{note.reminder_date ? format(new Date(note.reminder_date * 1000), "PPP") : "No reminder"}</TableCell>
-                    <TableCell>{format(new Date(note.createdAt * 1000), "PPP")}</TableCell>
+              </TableHeader>
+              <TableBody>
+                {isLoading ? (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center">Loading...</TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </div>
+                ) : notesData?.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center">No notes found</TableCell>
+                  </TableRow>
+                ) : (
+                  notesData?.map((note, index) => (
+                    <TableRow
+                      key={note.id}
+                      onClick={() => navigate({ to: '/app/notes/note/$id', params: { id: note.id } })}
+                      className="cursor-pointer hover:bg-muted/50 transition-colors"
+                    >
+                      <TableCell onClick={(e) => e.stopPropagation()}>
+                        <Checkbox
+                          checked={selectedNotes.includes(note.id)}
+                          onCheckedChange={(checked) => handleSelectNote(note.id, checked as boolean)}
+                          aria-label={`Select note ${note.title}`}
+                          className="border-2 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground dark:border-gray-600 dark:data-[state=checked]:bg-primary dark:data-[state=checked]:border-primary"
+                        />
+                      </TableCell>
+                      <TableCell>{(currentPage - 1) * DEFAULT_PAGE_SIZE + index + 1}</TableCell>
+                      <TableCell>{note.title}</TableCell>
+                      <TableCell>{note.reminder_date ? format(new Date(note.reminder_date * 1000), "PPP") : "No reminder"}</TableCell>
+                      <TableCell>{format(new Date(note.createdAt * 1000), "PPP")}</TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {isLoading ? (
+              <div className="col-span-full text-center py-4">Loading...</div>
+            ) : notesData?.length === 0 ? (
+              <div className="col-span-full text-center py-4">No notes found</div>
+            ) : (
+              notesData?.map((note, index) => (
+                <div
+                  key={note.id}
+                  className="relative border rounded-lg p-4 hover:bg-muted/50 transition-colors cursor-pointer group"
+                  onClick={() => navigate({ to: '/app/notes/note/$id', params: { id: note.id } })}
+                >
+                  <div
+                    className="absolute top-2 right-2"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <Checkbox
+                      checked={selectedNotes.includes(note.id)}
+                      onCheckedChange={(checked) => handleSelectNote(note.id, checked as boolean)}
+                      aria-label={`Select note ${note.title}`}
+                      className="border-2 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground dark:border-gray-600 dark:data-[state=checked]:bg-primary dark:data-[state=checked]:border-primary"
+                    />
+                  </div>
+                  <h3 className="font-semibold text-lg mb-2 pr-8">{note.title}</h3>
+                  <div className="space-y-1 text-sm text-muted-foreground">
+                    <p>Reminder: {note.reminder_date ? format(new Date(note.reminder_date * 1000), "PPP") : "No reminder"}</p>
+                    <p>Created: {format(new Date(note.createdAt * 1000), "PPP")}</p>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        )}
 
         <div className="flex items-center justify-end gap-2">
           <Button

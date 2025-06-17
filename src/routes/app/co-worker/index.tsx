@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/breadcrumb"
 import { Separator } from "@/components/ui/separator"
 import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
-import { Plus, Search, Trash2 } from "lucide-react"
+import { Plus, Search, Trash2, List, Grid } from "lucide-react"
 import { format } from "date-fns"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
@@ -52,6 +52,7 @@ function RouteComponent() {
   const [selectedCoWorkers, setSelectedCoWorkers] = useState<string[]>([])
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
+  const [viewMode, setViewMode] = useState<'list' | 'grid'>('list')
   const size = 10
 
   // Debounce search
@@ -148,6 +149,24 @@ function RouteComponent() {
           <div className="flex items-center justify-between">
             <h1 className="text-2xl font-bold">Co-Workers List</h1>
             <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 border rounded-md">
+                <Button
+                  variant={viewMode === 'list' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setViewMode('list')}
+                  className="h-8 px-2"
+                >
+                  <List className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant={viewMode === 'grid' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setViewMode('grid')}
+                  className="h-8 px-2"
+                >
+                  <Grid className="h-4 w-4" />
+                </Button>
+              </div>
               {selectedCoWorkers.length > 0 && (
                 <Button
                   variant="destructive"
@@ -181,62 +200,98 @@ function RouteComponent() {
           </div>
         </div>
 
-        <div className="rounded-md border overflow-x-auto px-6 py-2">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[50px]">
-                  <Checkbox
-                    checked={coWorkers && coWorkers.length > 0 && selectedCoWorkers.length === coWorkers.length}
-                    onCheckedChange={(checked: boolean) => handleSelectAll(checked)}
-                    aria-label="Select all"
-                    className="border-2 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground dark:border-gray-600 dark:data-[state=checked]:bg-primary dark:data-[state=checked]:border-primary"
-                  />
-                </TableHead>
-                <TableHead>Sr No.</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Phone</TableHead>
-                <TableHead>Created At</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
+        {viewMode === 'list' ? (
+          <div className="rounded-md border overflow-x-auto px-6 py-2">
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center">Loading...</TableCell>
+                  <TableHead className="w-[50px]">
+                    <Checkbox
+                      checked={coWorkers && coWorkers.length > 0 && selectedCoWorkers.length === coWorkers.length}
+                      onCheckedChange={(checked: boolean) => handleSelectAll(checked)}
+                      aria-label="Select all"
+                      className="border-2 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground dark:border-gray-600 dark:data-[state=checked]:bg-primary dark:data-[state=checked]:border-primary"
+                    />
+                  </TableHead>
+                  <TableHead>Sr No.</TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Phone</TableHead>
+                  <TableHead>Created At</TableHead>
                 </TableRow>
-              ) : coWorkers.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={6} className="text-center">
-                    No co-workers found
-                  </TableCell>
-                </TableRow>
-              ) : (
-                coWorkers.map((coWorker, index) => (
-                  <TableRow
-                    key={coWorker.id}
-                    onClick={() => navigate({ to: '/app/co-worker/get/$id', params: { id: coWorker.id } })}
-                    className="cursor-pointer hover:bg-muted/50 transition-colors"
-                  >
-                    <TableCell onClick={(e) => e.stopPropagation()}>
-                      <Checkbox
-                        checked={selectedCoWorkers.includes(coWorker.id)}
-                        onCheckedChange={(checked) => handleSelectCoWorker(coWorker.id, checked as boolean)}
-                        aria-label={`Select co-worker ${coWorker.name}`}
-                        className="border-2 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground dark:border-gray-600 dark:data-[state=checked]:bg-primary dark:data-[state=checked]:border-primary"
-                      />
-                    </TableCell>
-                    <TableCell>{(page - 1) * size + index + 1}</TableCell>
-                    <TableCell>{coWorker.name}</TableCell>
-                    <TableCell>{coWorker.email || '-'}</TableCell>
-                    <TableCell>{coWorker.phone}</TableCell>
-                    <TableCell>{format(new Date(coWorker.createdAt * 1000), "PPP")}</TableCell>
+              </TableHeader>
+              <TableBody>
+                {isLoading ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center">Loading...</TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </div>
+                ) : coWorkers.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center">
+                      No co-workers found
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  coWorkers.map((coWorker, index) => (
+                    <TableRow
+                      key={coWorker.id}
+                      onClick={() => navigate({ to: '/app/co-worker/get/$id', params: { id: coWorker.id } })}
+                      className="cursor-pointer hover:bg-muted/50 transition-colors"
+                    >
+                      <TableCell onClick={(e) => e.stopPropagation()}>
+                        <Checkbox
+                          checked={selectedCoWorkers.includes(coWorker.id)}
+                          onCheckedChange={(checked) => handleSelectCoWorker(coWorker.id, checked as boolean)}
+                          aria-label={`Select co-worker ${coWorker.name}`}
+                          className="border-2 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground dark:border-gray-600 dark:data-[state=checked]:bg-primary dark:data-[state=checked]:border-primary"
+                        />
+                      </TableCell>
+                      <TableCell>{(page - 1) * size + index + 1}</TableCell>
+                      <TableCell>{coWorker.name}</TableCell>
+                      <TableCell>{coWorker.email || '-'}</TableCell>
+                      <TableCell>{coWorker.phone}</TableCell>
+                      <TableCell>{format(new Date(coWorker.createdAt * 1000), "PPP")}</TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {isLoading ? (
+              <div className="col-span-full text-center py-4">Loading...</div>
+            ) : coWorkers.length === 0 ? (
+              <div className="col-span-full text-center py-4">No co-workers found</div>
+            ) : (
+              coWorkers.map((coWorker, index) => (
+                <div
+                  key={coWorker.id}
+                  className="relative border rounded-lg p-4 hover:bg-muted/50 transition-colors cursor-pointer group"
+                  onClick={() => navigate({ to: '/app/co-worker/get/$id', params: { id: coWorker.id } })}
+                >
+                  <div
+                    className="absolute top-2 right-2"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <Checkbox
+                      checked={selectedCoWorkers.includes(coWorker.id)}
+                      onCheckedChange={(checked) => handleSelectCoWorker(coWorker.id, checked as boolean)}
+                      aria-label={`Select co-worker ${coWorker.name}`}
+                      className="border-2 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground dark:border-gray-600 dark:data-[state=checked]:bg-primary dark:data-[state=checked]:border-primary"
+                    />
+                  </div>
+                  <h3 className="font-semibold text-lg mb-2 pr-8">{coWorker.name}</h3>
+                  <div className="space-y-1 text-sm text-muted-foreground">
+                    <p>Email: {coWorker.email || '-'}</p>
+                    <p>Phone: {coWorker.phone}</p>
+                    <p>Created: {format(new Date(coWorker.createdAt * 1000), "PPP")}</p>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        )}
 
         <div className="flex items-center justify-end gap-2">
           <Button

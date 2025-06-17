@@ -4,6 +4,7 @@ export const TaskSchema = z.object({
     id: z.string().uuid().optional().default(() => crypto.randomUUID()),
     taskOwner_id: z.string().uuid().optional(),
     name: z.string().min(1, { message: "Task name is required and cannot be empty" }).max(255, { message: "Task name cannot exceed 255 characters" }),
+    description: z.string().nullable().optional(),
     date: z.number().int({ message: "Date must be an integer timestamp" }).positive({ message: "Date must be a positive timestamp" }).default(() => Date.now()),
     self: z.boolean({ message: "Self field must be a boolean value" }),
     location: z.string().min(1, { message: "Place is required and cannot be empty" }).max(255, { message: "Place cannot exceed 255 characters" }),
