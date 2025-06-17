@@ -60,6 +60,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { toast } from "sonner"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 // Add this type near the top of the file
 type AssistantPaymentDetails = {
@@ -128,6 +138,10 @@ function RouteComponent() {
 
   // Add search term state
   const [searchTerm, setSearchTerm] = useState("")
+
+  // Add new state for cancel confirmation
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false)
+  const [pendingStatus, setPendingStatus] = useState<string | null>(null)
 
   // Fetch co-workers for task owner dropdown
   const { data: coWorkers = [] } = useQuery({
@@ -384,6 +398,25 @@ function RouteComponent() {
     }
   }
 
+  // Add this function to handle status change
+  const handleStatusChange = (newStatus: string) => {
+    if (newStatus === 'CANCELED') {
+      setPendingStatus(newStatus)
+      setShowCancelConfirm(true)
+    } else {
+      setStatus(newStatus)
+    }
+  }
+
+  // Add this function to handle cancel confirmation
+  const handleCancelConfirm = () => {
+    if (pendingStatus) {
+      setStatus(pendingStatus)
+      setPendingStatus(null)
+    }
+    setShowCancelConfirm(false)
+  }
+
   return (
     <>
       <SidebarInset className='w-full'>
@@ -552,7 +585,7 @@ function RouteComponent() {
                           {/* Status */}
                           <div>
                             <Label htmlFor="status" className="mb-1.5 block">Status</Label>
-                            <Select value={status} onValueChange={setStatus}>
+                            <Select value={status} onValueChange={handleStatusChange}>
                               <SelectTrigger id="status">
                                 <SelectValue placeholder="Select status" />
                               </SelectTrigger>
@@ -1399,6 +1432,29 @@ function RouteComponent() {
             </div>
           </div>
         </div>
+
+        {/* Add Alert Dialog */}
+        <AlertDialog open={showCancelConfirm} onOpenChange={setShowCancelConfirm}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Cancel Task</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to cancel this task? This action will:
+                <ul className="list-disc pl-4 mt-2 space-y-1">
+                  <li>Disable all payment fields</li>
+                  <li>Set assistant payments to canceled status</li>
+                  <li>This action cannot be undone</li>
+                </ul>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => setPendingStatus(null)}>Keep Task</AlertDialogCancel>
+              <AlertDialogAction onClick={handleCancelConfirm} className="bg-destructive text-white hover:bg-destructive/90">
+                Yes, Cancel Task
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </SidebarInset>
     </>
   )
