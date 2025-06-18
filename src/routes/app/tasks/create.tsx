@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/popover"
 import { cn } from "@/lib/utils"
 import { TaskSchema, type TTask } from "@/schemas/Task"
-import { listCoWorkerAction, listNoteAction, getNoteByIdAction, getUserDetails } from "@/lib/actions"
+import { listCoWorkerAction, listNoteAction, getNoteByIdAction, getUserDetails, listClientAction } from "@/lib/actions"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -143,6 +143,10 @@ function RouteComponent() {
   const [showCancelConfirm, setShowCancelConfirm] = useState(false)
   const [pendingStatus, setPendingStatus] = useState<string | null>(null)
 
+  // Add this after the existing state declarations
+  const [selectedClientIds, setSelectedClientIds] = useState<string[]>([])
+  const [clientSearchTerm, setClientSearchTerm] = useState("")
+
   // Fetch co-workers for task owner dropdown
   const { data: coWorkers = [] } = useQuery({
     queryKey: ['co-workers'],
@@ -168,6 +172,12 @@ function RouteComponent() {
     queryFn: getUserDetails
   })
 
+  // Fetch clients query
+  const { data: clients = [] } = useQuery({
+    queryKey: ['clients'],
+    queryFn: () => listClientAction({ page: 1, size: 1000 })
+  })
+
   // Calculate payment status
   const paymentStatus = totalAmount > 0 && totalAmount === paidAmount ? 'COMPLETED' : 'PENDING'
 
@@ -178,6 +188,12 @@ function RouteComponent() {
   const filteredAssistants = selectedAssistantIds.filter(id => {
     const assistant = coWorkers.find(a => a.id === id)
     return assistant?.name.toLowerCase().includes(searchTerm.toLowerCase())
+  })
+
+  // Add this after the existing filtered assistants
+  const filteredClients = selectedClientIds.filter(id => {
+    const client = clients.find(c => c.id === id)
+    return client?.name.toLowerCase().includes(clientSearchTerm.toLowerCase())
   })
 
   const validateStep1 = () => {
@@ -282,11 +298,14 @@ function RouteComponent() {
         setCurrentStep(4)
       }
     } else if (currentStep === 4) {
+      setCurrentStep(5)
+    } else if (currentStep === 5) {
       // Final submission
       console.log("Final form submission", {
         selectedNoteIds,
         selectedAssistantIds,
         assistantPayments,
+        selectedClientIds,
         totalAmount,
         paidAmount,
         paymentDate,
@@ -297,7 +316,9 @@ function RouteComponent() {
   }
 
   const handlePrevious = () => {
-    if (currentStep === 4) {
+    if (currentStep === 5) {
+      setCurrentStep(4)
+    } else if (currentStep === 4) {
       setCurrentStep(3)
     } else if (currentStep === 3) {
       setCurrentStep(2)
@@ -417,6 +438,15 @@ function RouteComponent() {
     setShowCancelConfirm(false)
   }
 
+  // Add this function after handleAssistantSelection
+  const handleClientSelection = (clientId: string, checked: boolean) => {
+    if (checked) {
+      setSelectedClientIds(prev => [...prev, clientId])
+    } else {
+      setSelectedClientIds(prev => prev.filter(id => id !== clientId))
+    }
+  }
+
   return (
     <>
       <SidebarInset className='w-full'>
@@ -431,7 +461,7 @@ function RouteComponent() {
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
-                  <BreadcrumbPage>Create Task (Step {currentStep} of 4)</BreadcrumbPage>
+                  <BreadcrumbPage>Create Task (Step {currentStep} of 5)</BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
@@ -448,7 +478,7 @@ function RouteComponent() {
               </div>
               <div className="flex items-center gap-2 bg-muted/50 px-3 py-1.5 rounded-full border">
                 <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
-                <span className="text-sm font-medium">Step {currentStep} of 4</span>
+                <span className="text-sm font-medium">Step {currentStep} of 5</span>
               </div>
             </div>
 
@@ -1419,6 +1449,172 @@ function RouteComponent() {
                           </div>
                         )}
                       </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
+
+              {currentStep === 5 && (
+                <div className="grid grid-cols-1 lg:grid-2 gap-6">
+                  <Card className="border-0">
+                    <CardHeader className="pb-2 space-y-1">
+                      <div className="flex items-center gap-2">
+                        <User className="h-5 w-5 text-muted-foreground" />
+                        <h2 className="text-lg font-semibold">Task Clients</h2>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        {self
+                          ? "Select clients for this task"
+                          : "Enable self mode to select clients"}
+                      </p>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      {self ? (
+                        <div className="space-y-2">
+                          <Label className="text-sm font-medium flex items-center gap-2">
+                            <Search className="h-4 w-4" />
+                            Select Clients
+                          </Label>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <Button
+                                variant="outline"
+                                className="w-full justify-between h-11 px-3 border-2 hover:border-primary/20 focus:border-primary transition-colors"
+                              >
+                                <div className="flex items-center gap-2">
+                                  <User className="h-4 w-4 text-muted-foreground" />
+                                  <span className="text-sm">
+                                    Select Clients ({selectedClientIds.length} selected)
+                                  </span>
+                                </div>
+                                <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-60 lg:w-130 p-0" align="center">
+                              <Command className="rounded-lg border-0">
+                                <CommandInput
+                                  placeholder="Search clients..."
+                                  className="h-9"
+                                />
+                                <CommandEmpty className="py-6 text-center text-sm text-muted-foreground">
+                                  <div className="flex flex-col items-center gap-2">
+                                    <User className="h-8 w-8 opacity-20" />
+                                    <span>No clients found</span>
+                                  </div>
+                                </CommandEmpty>
+                                <CommandGroup>
+                                  <ScrollArea className="h-[200px]">
+                                    <CommandList>
+                                      {clients.map((client) => (
+                                        <CommandItem
+                                          key={client.id}
+                                          className="flex items-center justify-between p-3 cursor-pointer hover:bg-accent/50"
+                                        >
+                                          <Label
+                                            htmlFor={`client-${client.id}`}
+                                            className="text-sm font-medium leading-none cursor-pointer flex-1 min-w-0 mr-3"
+                                          >
+                                            <div className="flex items-center gap-2">
+                                              <Avatar className="h-6 w-6">
+                                                <AvatarFallback>{client.name?.[0] || '?'}</AvatarFallback>
+                                              </Avatar>
+                                              <span className="truncate">{client.name || 'Unnamed Client'}</span>
+                                            </div>
+                                          </Label>
+                                          <Checkbox
+                                            id={`client-${client.id}`}
+                                            checked={selectedClientIds.includes(client.id)}
+                                            onCheckedChange={(checked) => handleClientSelection(client.id, checked === true)}
+                                            className="shrink-0"
+                                          />
+                                        </CommandItem>
+                                      ))}
+                                    </CommandList>
+                                  </ScrollArea>
+                                </CommandGroup>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-center h-32">
+                          <p className="text-sm text-muted-foreground">Enable self mode to select clients</p>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+
+                  <Card className="border-0">
+                    <CardHeader className="pb-2 space-y-1">
+                      <div className="flex items-center gap-2">
+                        <User className="h-5 w-5 text-muted-foreground" />
+                        <h2 className="text-lg font-semibold">Selected Clients</h2>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        View and manage selected clients
+                      </p>
+                    </CardHeader>
+                    <CardContent>
+                      {selectedClientIds.length > 0 ? (
+                        <div className="space-y-4">
+                          <div className="relative">
+                            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                            <Input
+                              placeholder="Search selected clients..."
+                              className="pl-9"
+                              value={clientSearchTerm}
+                              onChange={(e) => setClientSearchTerm(e.target.value)}
+                            />
+                          </div>
+                          <div>
+                            <div className="space-y-3 max-h-64 overflow-y-auto">
+                              {filteredClients.map(id => {
+                                const client = clients.find(c => c.id === id)
+                                return client ? (
+                                  <div key={id} className="group flex items-center justify-between p-3 rounded-md bg-accent/30 hover:bg-accent/50 transition-colors">
+                                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                                      <Avatar className="h-8 w-8">
+                                        <AvatarFallback>{client.name?.[0] || '?'}</AvatarFallback>
+                                      </Avatar>
+                                      <div className="flex flex-col min-w-0">
+                                        <Link
+                                          to="/app/client/get/$id"
+                                          params={{ id: client.id }}
+                                          className="truncate text-sm font-medium hover:text-primary transition-colors"
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                        >
+                                          {client.name || 'Unnamed Client'}
+                                        </Link>
+                                        <div className="flex flex-col gap-0.5 mt-1">
+                                          <span className="text-xs text-muted-foreground">
+                                            Email: {client.email || '-'}
+                                          </span>
+                                          <span className="text-xs text-muted-foreground">
+                                            Phone: {client.phone || '-'}
+                                          </span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="h-8 w-8 p-0 opacity-60 hover:opacity-100"
+                                      onClick={() => handleClientSelection(client.id, false)}
+                                    >
+                                      <XCircle className="h-4 w-4 hover:text-destructive transition-colors" />
+                                    </Button>
+                                  </div>
+                                ) : null
+                              })}
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-center h-32">
+                          <p className="text-sm text-muted-foreground">No clients selected</p>
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
                 </div>

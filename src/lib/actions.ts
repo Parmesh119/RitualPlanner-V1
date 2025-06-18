@@ -6,6 +6,7 @@ import { toast } from 'sonner'
 import { type TNote, type TDeleteNote, type ListNote } from "@/schemas/Note"
 import type { ListCoWorker, TCoWorker } from '@/schemas/CoWorker'
 import type { ListClient, TClient } from '@/schemas/Client'
+import type { THelp } from '@/schemas/Help'
 
 export function getBackendUrl() {
     const backendUrl = 'http://localhost:8080'
@@ -660,6 +661,33 @@ export async function deleteClientByIdAction(id: string): Promise<boolean> {
     const response = await axios.delete(
         `${getBackendUrl()}/api/v2/client/delete/${id}`,
         { headers: { Authorization: bearerToken } }
+    )
+
+    return response.data
+}
+
+export async function helpAction(data: THelp): Promise<boolean> {
+    const token = await authService.getAccessToken()
+
+    if (!token) {
+        toast.error("User is not authenticated", {
+            style: {
+                background: "linear-gradient(90deg, #E53E3E, #C53030)",
+                color: "white",
+                fontWeight: "bolder",
+                fontSize: "13px",
+                letterSpacing: "1px"
+            }
+        })
+        localStorage.clear()
+        throw new Error("User is not authenticated")
+    }
+    const bearerToken = `Bearer ${token}`
+
+    const response = await axios.post(
+        `${getBackendUrl()}/api/v2/help/message`,
+        data,
+        { headers: {Authorization: bearerToken}}
     )
 
     return response.data
