@@ -7,6 +7,7 @@ data class Task (
     val id: String? = UUID.randomUUID().toString(),
     val taskOwner_id: String,
     val name: String,
+    val description: String? = null,
     val date: Long = Instant.now().toEpochMilli(),
     val self: Boolean,
     val location: String,
@@ -34,7 +35,7 @@ data class TaskAssistant (
     val updatedAt: Long = Instant.now().toEpochMilli()
 )
 
-data class Payment (
+data class TaskPayment (
     val id: String? = UUID.randomUUID().toString(),
     val task_id: String,
     val taskOwner_id: String,
@@ -44,6 +45,15 @@ data class Payment (
     val paymentMode: String? = "CASH",
     val onlinePaymentMode: String? = null,
     val paymentStatus: String? = "PENDING", // PENDING means not received and COMPLETED means received
+    val createdAt: Long = Instant.now().toEpochMilli(),
+    val updatedAt: Long = Instant.now().toEpochMilli()
+)
+
+data class TaskClient (
+    val id: String? = UUID.randomUUID().toString(),
+    val task_id: String,
+    val taskOwner_id: String,
+    val client_id: String,
     val createdAt: Long = Instant.now().toEpochMilli(),
     val updatedAt: Long = Instant.now().toEpochMilli()
 )

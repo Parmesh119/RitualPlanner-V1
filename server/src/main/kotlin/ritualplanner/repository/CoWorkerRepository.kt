@@ -41,7 +41,7 @@ class CoWorkerRepository(
     }
 
     @Transactional
-    fun updateCoWorker(coWorker: CoWorker, user_id: String): CoWorker {
+    fun updateCoWorker(coWorker: CoWorker): CoWorker {
         return try {
             val updateSql = """
             UPDATE "CoWorker" 

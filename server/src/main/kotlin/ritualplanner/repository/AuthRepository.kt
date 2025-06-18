@@ -29,8 +29,10 @@ class AuthRepository(
             name = rs.getString("name"),
             email = rs.getString("email"),
             phone = rs.getString("phone"),
+            city = rs.getString("city"),
             state = rs.getString("state"),
             country = rs.getString("country"),
+            zipcode = rs.getString("zipcode"),
             createdAt = rs.getTimestamp("created_at").toInstant().epochSecond,
             updatedAt = rs.getTimestamp("updated_at").toInstant().epochSecond
         )
@@ -39,8 +41,8 @@ class AuthRepository(
     @Transactional
     fun register(registerRequest: RegisterRequest, username: String, hashPassword: String, userId: String, createdAt: Long, updatedAt: Long): Boolean {
         val sql = """
-            INSERT INTO "User" (id, name, email, phone, state, country, created_at, updated_at) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO "User" (id, name, email, phone, city, state, country, zipcode, created_at, updated_at) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """
 
         try {
@@ -50,8 +52,10 @@ class AuthRepository(
                 registerRequest.name,
                 registerRequest.email,
                 registerRequest.phone,
+                registerRequest.city,
                 registerRequest.state,
                 "India",
+                registerRequest.zipcode,
                 Timestamp.from(Instant.ofEpochMilli(createdAt)),
                 Timestamp.from(Instant.ofEpochMilli(updatedAt))
             )
@@ -121,8 +125,10 @@ class AuthRepository(
                     name = rs.getString("name"),
                     email = rs.getString("email"),
                     phone = rs.getString("phone"),
+                    city = rs.getString("city"),
                     state = rs.getString("state"),
                     country = rs.getString("country"),
+                    zipcode = rs.getString("zipcode"),
                     createdAt = rs.getTimestamp("created_at").toInstant().epochSecond,
                     updatedAt = rs.getTimestamp("updated_at").toInstant().epochSecond
                 )

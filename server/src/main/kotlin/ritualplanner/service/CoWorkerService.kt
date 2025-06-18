@@ -25,12 +25,8 @@ class CoWorkerService(
         return coWorkerRepository.createCoWorker(newCoWorker, user_id)
     }
 
-    fun updateCoWorker(coWorker: CoWorker, authorization: String): CoWorker {
-        val token = authorization.substringAfter("Bearer")
-        val email = jwtUtil.getEmailFromToken(token)
-        val user_id = authRepository.getUserDetailsByEmail(email).id
-
-        return coWorkerRepository.updateCoWorker(coWorker, user_id!!)
+    fun updateCoWorker(coWorker: CoWorker): CoWorker {
+        return coWorkerRepository.updateCoWorker(coWorker)
     }
 
     fun listCoWorker(authorization: String, listCoWorker: ListCoWorker): List<CoWorker> {

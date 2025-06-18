@@ -24,8 +24,10 @@ class UserRepository(
             name = rs.getString("name"),
             email = rs.getString("email"),
             phone = rs.getString("phone"),
+            city = rs.getString("city"),
             state = rs.getString("state"),
             country = rs.getString("country"),
+            zipcode = rs.getString("zipcode"),
             createdAt = rs.getTimestamp("created_at").toInstant().epochSecond,
             updatedAt = rs.getTimestamp("updated_at").toInstant().epochSecond
         )
@@ -85,8 +87,8 @@ class UserRepository(
     @Transactional
     fun updateAccount(user: User): User {
         return try {
-            val sql = """UPDATE "User" SET name = ?, email = ?, phone = ?, state = ?, updated_at = ? WHERE id = ?"""
-            val updatedRows = jdbcTemplate.update(sql, user.name, user.email, user.phone, user.state, Timestamp.from(Instant.ofEpochMilli(user.updatedAt)), user.id)
+            val sql = """UPDATE "User" SET name = ?, email = ?, phone = ?, city = ?, state = ?, zipcode = ?, updated_at = ? WHERE id = ?"""
+            val updatedRows = jdbcTemplate.update(sql, user.name, user.email, user.phone, user.city, user.state, user.zipcode, Timestamp.from(Instant.ofEpochMilli(user.updatedAt)), user.id)
 
             if(updatedRows > 0) {
                 authRepository.findUserById(user.id!!)

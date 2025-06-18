@@ -9,7 +9,9 @@ data class RegisterRequest (
     val phone: String,
     val password: String,
     val signin: String,
+    val city: String,
     val state: String,
+    val zipcode: String,
 )
 
 data class RegisterResponse (

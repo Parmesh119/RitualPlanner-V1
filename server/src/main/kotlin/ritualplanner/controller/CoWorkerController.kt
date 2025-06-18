@@ -27,8 +27,8 @@ class CoWorkerController(
     }
 
     @PutMapping("/update")
-    fun updateCoWorker(@RequestBody coWorker: CoWorker, @RequestHeader("Authorization") authorization: String): ResponseEntity<CoWorker> {
-        return ResponseEntity.ok(coWorkerService.updateCoWorker(coWorker, authorization))
+    fun updateCoWorker(@RequestBody coWorker: CoWorker): ResponseEntity<CoWorker> {
+        return ResponseEntity.ok(coWorkerService.updateCoWorker(coWorker))
     }
 
     @PostMapping("")
