@@ -17,6 +17,7 @@ import { Route as AuthResetPasswordImport } from './routes/auth/reset-password'
 import { Route as AuthRegisterImport } from './routes/auth/register'
 import { Route as AuthLoginImport } from './routes/auth/login'
 import { Route as AuthForgotPasswordImport } from './routes/auth/forgot-password'
+import { Route as AppTemplateIndexImport } from './routes/app/template/index'
 import { Route as AppTasksIndexImport } from './routes/app/tasks/index'
 import { Route as AppNotesIndexImport } from './routes/app/notes/index'
 import { Route as AppHelpIndexImport } from './routes/app/help/index'
@@ -24,7 +25,9 @@ import { Route as AppDashboardIndexImport } from './routes/app/dashboard/index'
 import { Route as AppCoWorkerIndexImport } from './routes/app/co-worker/index'
 import { Route as AppClientIndexImport } from './routes/app/client/index'
 import { Route as AppAccountIndexImport } from './routes/app/account/index'
+import { Route as AppTemplateCreateImport } from './routes/app/template/create'
 import { Route as AppTasksCreateImport } from './routes/app/tasks/create'
+import { Route as AppTemplateGetIdImport } from './routes/app/template/get/$id'
 import { Route as AppNotesNoteIdImport } from './routes/app/notes/note/$id'
 import { Route as AppCoWorkerGetIdImport } from './routes/app/co-worker/get/$id'
 import { Route as AppClientGetIdImport } from './routes/app/client/get/$id'
@@ -66,6 +69,12 @@ const AuthForgotPasswordRoute = AuthForgotPasswordImport.update({
   id: '/auth/forgot-password',
   path: '/auth/forgot-password',
   getParentRoute: () => rootRoute,
+} as any)
+
+const AppTemplateIndexRoute = AppTemplateIndexImport.update({
+  id: '/template/',
+  path: '/template/',
+  getParentRoute: () => AppRouteRoute,
 } as any)
 
 const AppTasksIndexRoute = AppTasksIndexImport.update({
@@ -110,9 +119,21 @@ const AppAccountIndexRoute = AppAccountIndexImport.update({
   getParentRoute: () => AppRouteRoute,
 } as any)
 
+const AppTemplateCreateRoute = AppTemplateCreateImport.update({
+  id: '/template/create',
+  path: '/template/create',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+
 const AppTasksCreateRoute = AppTasksCreateImport.update({
   id: '/tasks/create',
   path: '/tasks/create',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+
+const AppTemplateGetIdRoute = AppTemplateGetIdImport.update({
+  id: '/template/get/$id',
+  path: '/template/get/$id',
   getParentRoute: () => AppRouteRoute,
 } as any)
 
@@ -193,6 +214,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppTasksCreateImport
       parentRoute: typeof AppRouteImport
     }
+    '/app/template/create': {
+      id: '/app/template/create'
+      path: '/template/create'
+      fullPath: '/app/template/create'
+      preLoaderRoute: typeof AppTemplateCreateImport
+      parentRoute: typeof AppRouteImport
+    }
     '/app/account/': {
       id: '/app/account/'
       path: '/account'
@@ -242,6 +270,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppTasksIndexImport
       parentRoute: typeof AppRouteImport
     }
+    '/app/template/': {
+      id: '/app/template/'
+      path: '/template'
+      fullPath: '/app/template'
+      preLoaderRoute: typeof AppTemplateIndexImport
+      parentRoute: typeof AppRouteImport
+    }
     '/app/client/edit/$id': {
       id: '/app/client/edit/$id'
       path: '/client/edit/$id'
@@ -270,6 +305,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppNotesNoteIdImport
       parentRoute: typeof AppRouteImport
     }
+    '/app/template/get/$id': {
+      id: '/app/template/get/$id'
+      path: '/template/get/$id'
+      fullPath: '/app/template/get/$id'
+      preLoaderRoute: typeof AppTemplateGetIdImport
+      parentRoute: typeof AppRouteImport
+    }
   }
 }
 
@@ -277,6 +319,7 @@ declare module '@tanstack/react-router' {
 
 interface AppRouteRouteChildren {
   AppTasksCreateRoute: typeof AppTasksCreateRoute
+  AppTemplateCreateRoute: typeof AppTemplateCreateRoute
   AppAccountIndexRoute: typeof AppAccountIndexRoute
   AppClientIndexRoute: typeof AppClientIndexRoute
   AppCoWorkerIndexRoute: typeof AppCoWorkerIndexRoute
@@ -284,14 +327,17 @@ interface AppRouteRouteChildren {
   AppHelpIndexRoute: typeof AppHelpIndexRoute
   AppNotesIndexRoute: typeof AppNotesIndexRoute
   AppTasksIndexRoute: typeof AppTasksIndexRoute
+  AppTemplateIndexRoute: typeof AppTemplateIndexRoute
   AppClientEditIdRoute: typeof AppClientEditIdRoute
   AppClientGetIdRoute: typeof AppClientGetIdRoute
   AppCoWorkerGetIdRoute: typeof AppCoWorkerGetIdRoute
   AppNotesNoteIdRoute: typeof AppNotesNoteIdRoute
+  AppTemplateGetIdRoute: typeof AppTemplateGetIdRoute
 }
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppTasksCreateRoute: AppTasksCreateRoute,
+  AppTemplateCreateRoute: AppTemplateCreateRoute,
   AppAccountIndexRoute: AppAccountIndexRoute,
   AppClientIndexRoute: AppClientIndexRoute,
   AppCoWorkerIndexRoute: AppCoWorkerIndexRoute,
@@ -299,10 +345,12 @@ const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppHelpIndexRoute: AppHelpIndexRoute,
   AppNotesIndexRoute: AppNotesIndexRoute,
   AppTasksIndexRoute: AppTasksIndexRoute,
+  AppTemplateIndexRoute: AppTemplateIndexRoute,
   AppClientEditIdRoute: AppClientEditIdRoute,
   AppClientGetIdRoute: AppClientGetIdRoute,
   AppCoWorkerGetIdRoute: AppCoWorkerGetIdRoute,
   AppNotesNoteIdRoute: AppNotesNoteIdRoute,
+  AppTemplateGetIdRoute: AppTemplateGetIdRoute,
 }
 
 const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
@@ -317,6 +365,7 @@ export interface FileRoutesByFullPath {
   '/auth/register': typeof AuthRegisterRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/app/tasks/create': typeof AppTasksCreateRoute
+  '/app/template/create': typeof AppTemplateCreateRoute
   '/app/account': typeof AppAccountIndexRoute
   '/app/client': typeof AppClientIndexRoute
   '/app/co-worker': typeof AppCoWorkerIndexRoute
@@ -324,10 +373,12 @@ export interface FileRoutesByFullPath {
   '/app/help': typeof AppHelpIndexRoute
   '/app/notes': typeof AppNotesIndexRoute
   '/app/tasks': typeof AppTasksIndexRoute
+  '/app/template': typeof AppTemplateIndexRoute
   '/app/client/edit/$id': typeof AppClientEditIdRoute
   '/app/client/get/$id': typeof AppClientGetIdRoute
   '/app/co-worker/get/$id': typeof AppCoWorkerGetIdRoute
   '/app/notes/note/$id': typeof AppNotesNoteIdRoute
+  '/app/template/get/$id': typeof AppTemplateGetIdRoute
 }
 
 export interface FileRoutesByTo {
@@ -338,6 +389,7 @@ export interface FileRoutesByTo {
   '/auth/register': typeof AuthRegisterRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/app/tasks/create': typeof AppTasksCreateRoute
+  '/app/template/create': typeof AppTemplateCreateRoute
   '/app/account': typeof AppAccountIndexRoute
   '/app/client': typeof AppClientIndexRoute
   '/app/co-worker': typeof AppCoWorkerIndexRoute
@@ -345,10 +397,12 @@ export interface FileRoutesByTo {
   '/app/help': typeof AppHelpIndexRoute
   '/app/notes': typeof AppNotesIndexRoute
   '/app/tasks': typeof AppTasksIndexRoute
+  '/app/template': typeof AppTemplateIndexRoute
   '/app/client/edit/$id': typeof AppClientEditIdRoute
   '/app/client/get/$id': typeof AppClientGetIdRoute
   '/app/co-worker/get/$id': typeof AppCoWorkerGetIdRoute
   '/app/notes/note/$id': typeof AppNotesNoteIdRoute
+  '/app/template/get/$id': typeof AppTemplateGetIdRoute
 }
 
 export interface FileRoutesById {
@@ -360,6 +414,7 @@ export interface FileRoutesById {
   '/auth/register': typeof AuthRegisterRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/app/tasks/create': typeof AppTasksCreateRoute
+  '/app/template/create': typeof AppTemplateCreateRoute
   '/app/account/': typeof AppAccountIndexRoute
   '/app/client/': typeof AppClientIndexRoute
   '/app/co-worker/': typeof AppCoWorkerIndexRoute
@@ -367,10 +422,12 @@ export interface FileRoutesById {
   '/app/help/': typeof AppHelpIndexRoute
   '/app/notes/': typeof AppNotesIndexRoute
   '/app/tasks/': typeof AppTasksIndexRoute
+  '/app/template/': typeof AppTemplateIndexRoute
   '/app/client/edit/$id': typeof AppClientEditIdRoute
   '/app/client/get/$id': typeof AppClientGetIdRoute
   '/app/co-worker/get/$id': typeof AppCoWorkerGetIdRoute
   '/app/notes/note/$id': typeof AppNotesNoteIdRoute
+  '/app/template/get/$id': typeof AppTemplateGetIdRoute
 }
 
 export interface FileRouteTypes {
@@ -383,6 +440,7 @@ export interface FileRouteTypes {
     | '/auth/register'
     | '/auth/reset-password'
     | '/app/tasks/create'
+    | '/app/template/create'
     | '/app/account'
     | '/app/client'
     | '/app/co-worker'
@@ -390,10 +448,12 @@ export interface FileRouteTypes {
     | '/app/help'
     | '/app/notes'
     | '/app/tasks'
+    | '/app/template'
     | '/app/client/edit/$id'
     | '/app/client/get/$id'
     | '/app/co-worker/get/$id'
     | '/app/notes/note/$id'
+    | '/app/template/get/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -403,6 +463,7 @@ export interface FileRouteTypes {
     | '/auth/register'
     | '/auth/reset-password'
     | '/app/tasks/create'
+    | '/app/template/create'
     | '/app/account'
     | '/app/client'
     | '/app/co-worker'
@@ -410,10 +471,12 @@ export interface FileRouteTypes {
     | '/app/help'
     | '/app/notes'
     | '/app/tasks'
+    | '/app/template'
     | '/app/client/edit/$id'
     | '/app/client/get/$id'
     | '/app/co-worker/get/$id'
     | '/app/notes/note/$id'
+    | '/app/template/get/$id'
   id:
     | '__root__'
     | '/'
@@ -423,6 +486,7 @@ export interface FileRouteTypes {
     | '/auth/register'
     | '/auth/reset-password'
     | '/app/tasks/create'
+    | '/app/template/create'
     | '/app/account/'
     | '/app/client/'
     | '/app/co-worker/'
@@ -430,10 +494,12 @@ export interface FileRouteTypes {
     | '/app/help/'
     | '/app/notes/'
     | '/app/tasks/'
+    | '/app/template/'
     | '/app/client/edit/$id'
     | '/app/client/get/$id'
     | '/app/co-worker/get/$id'
     | '/app/notes/note/$id'
+    | '/app/template/get/$id'
   fileRoutesById: FileRoutesById
 }
 
@@ -480,6 +546,7 @@ export const routeTree = rootRoute
       "filePath": "app/route.tsx",
       "children": [
         "/app/tasks/create",
+        "/app/template/create",
         "/app/account/",
         "/app/client/",
         "/app/co-worker/",
@@ -487,10 +554,12 @@ export const routeTree = rootRoute
         "/app/help/",
         "/app/notes/",
         "/app/tasks/",
+        "/app/template/",
         "/app/client/edit/$id",
         "/app/client/get/$id",
         "/app/co-worker/get/$id",
-        "/app/notes/note/$id"
+        "/app/notes/note/$id",
+        "/app/template/get/$id"
       ]
     },
     "/auth/forgot-password": {
@@ -507,6 +576,10 @@ export const routeTree = rootRoute
     },
     "/app/tasks/create": {
       "filePath": "app/tasks/create.tsx",
+      "parent": "/app"
+    },
+    "/app/template/create": {
+      "filePath": "app/template/create.tsx",
       "parent": "/app"
     },
     "/app/account/": {
@@ -537,6 +610,10 @@ export const routeTree = rootRoute
       "filePath": "app/tasks/index.tsx",
       "parent": "/app"
     },
+    "/app/template/": {
+      "filePath": "app/template/index.tsx",
+      "parent": "/app"
+    },
     "/app/client/edit/$id": {
       "filePath": "app/client/edit/$id.tsx",
       "parent": "/app"
@@ -551,6 +628,10 @@ export const routeTree = rootRoute
     },
     "/app/notes/note/$id": {
       "filePath": "app/notes/note/$id.tsx",
+      "parent": "/app"
+    },
+    "/app/template/get/$id": {
+      "filePath": "app/template/get/$id.tsx",
       "parent": "/app"
     }
   }

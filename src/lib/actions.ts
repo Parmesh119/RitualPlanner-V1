@@ -7,6 +7,8 @@ import { type TNote, type TDeleteNote, type ListNote } from "@/schemas/Note"
 import type { ListCoWorker, TCoWorker } from '@/schemas/CoWorker'
 import type { ListClient, TClient } from '@/schemas/Client'
 import type { THelp } from '@/schemas/Help'
+import type { TRitualTemplateRequest } from '@/schemas/Template'
+import type { ListTemplate, TTemplate } from '@/schemas/Template'
 
 export function getBackendUrl() {
     const backendUrl = 'http://localhost:8080'
@@ -554,7 +556,7 @@ export async function createClientAction(data: TClient): Promise<TClient> {
     const response = await axios.post(
         `${getBackendUrl()}/api/v2/client/create`,
         data,
-        { headers: {Authorization: bearerToken}}
+        { headers: { Authorization: bearerToken } }
     )
 
     return response.data
@@ -687,7 +689,87 @@ export async function helpAction(data: THelp): Promise<boolean> {
     const response = await axios.post(
         `${getBackendUrl()}/api/v2/help/message`,
         data,
-        { headers: {Authorization: bearerToken}}
+        { headers: { Authorization: bearerToken } }
+    )
+
+    return response.data
+}
+
+export async function createTemplateAction(data: TRitualTemplateRequest): Promise<TRitualTemplateRequest> {
+    const token = await authService.getAccessToken()
+
+    if (!token) {
+        toast.error("User is not authenticated", {
+            style: {
+                background: "linear-gradient(90deg, #E53E3E, #C53030)",
+                color: "white",
+                fontWeight: "bolder",
+                fontSize: "13px",
+                letterSpacing: "1px"
+            }
+        })
+        localStorage.clear()
+        throw new Error("User is not authenticated")
+    }
+    const bearerToken = `Bearer ${token}`
+
+    const response = await axios.post(
+        `${getBackendUrl()}/api/v2/template/create`,
+        data,
+        { headers: { Authorization: bearerToken } }
+    )
+
+    return response.data
+}
+
+export async function listTemplateAction(data: ListTemplate): Promise<TTemplate[]> {
+    const token = await authService.getAccessToken()
+
+    if (!token) {
+        toast.error("User is not authenticated", {
+            style: {
+                background: "linear-gradient(90deg, #E53E3E, #C53030)",
+                color: "white",
+                fontWeight: "bolder",
+                fontSize: "13px",
+                letterSpacing: "1px"
+            }
+        })
+        localStorage.clear()
+        throw new Error("User is not authenticated")
+    }
+    const bearerToken = `Bearer ${token}`
+
+    const response = await axios.post(
+        `${getBackendUrl()}/api/v2/template`,
+        data,
+        { headers: { Authorization: bearerToken } }
+    )
+
+    return response.data
+}
+
+export async function getTemplateByIdAction(id: string): Promise<TRitualTemplateRequest> {
+    const token = await authService.getAccessToken()
+
+    if (!token) {
+        toast.error("User is not authenticated", {
+            style: {
+                background: "linear-gradient(90deg, #E53E3E, #C53030)",
+                color: "white",
+                fontWeight: "bolder",
+                fontSize: "13px",
+                letterSpacing: "1px"
+            }
+        })
+        localStorage.clear()
+        throw new Error("User is not authenticated")
+    }
+    const bearerToken = `Bearer ${token}`
+
+    const response = await axios.get(
+        `${getBackendUrl()}/api/v2/template/get/${id}`,
+        { headers: { Authorization: bearerToken } }
     )
 
     return response.data

@@ -61,7 +61,7 @@ const items = [
     },
     {
         title: "Ritual Templates",
-        url: "/app/ritual-templates/",
+        url: "/app/template/",
         icon: ScrollText,
     },
     {
