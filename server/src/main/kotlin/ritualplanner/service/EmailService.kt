@@ -109,4 +109,37 @@ class EmailService (
             throw RuntimeException("Email sending failed", e)
         }
     }
+
+    @Async
+    fun contactUsEmail(from: String, subject: String, name: String, email: String, phone: String, Subject: String, message: String) {
+        try {
+            val mimeMessage = mailSender.createMimeMessage()
+            val helper = MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.name())
+
+            // Set email properties
+            helper.setFrom(from)
+            helper.setTo("parmeshb90@gmail.com")
+            helper.setSubject(subject)
+
+            // Load HTML template from resources/Registration.html
+            val emailTemplate = loadHtmlTemplate("templates/Help.html")
+
+            // Replace placeholders with actual data
+            val emailContent = emailTemplate
+                .replace("{{name}}", name)
+                .replace("{{email}}", email)
+                .replace("{{phone}}", phone)
+                .replace("{{subject}}", Subject)
+                .replace("{{message}}", message)
+
+
+            // Set HTML content
+            helper.setText(emailContent, true) // true indicates HTML content
+
+            // Send email
+            mailSender.send(mimeMessage)
+        } catch (e: Exception) {
+            throw RuntimeException("Email sending failed", e)
+        }
+    }
 }

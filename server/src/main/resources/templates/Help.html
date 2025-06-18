@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>New Contact Form Submission - RitualPlanner</title>
+    <style>
+        body {
+            background-color: #f3f4f6;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        .email-container {
+            max-width: 600px;
+            margin: 40px auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+        }
+
+        .header {
+            background-color: #1f2937;
+            padding: 24px;
+            text-align: center;
+            color: #ffffff;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .body {
+            padding: 32px;
+        }
+
+        .body h2 {
+            font-size: 20px;
+            color: #111827;
+            margin-bottom: 16px;
+        }
+
+        .body p {
+            font-size: 15px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .contact-info {
+            background-color: #f9fafb;
+            padding: 20px;
+            border-radius: 6px;
+            margin: 20px 0;
+            text-align: left;
+            border: 1px solid #e5e7eb;
+        }
+
+        .contact-info h3 {
+            margin: 0 0 16px 0;
+            font-size: 16px;
+            color: #111827;
+            font-weight: 600;
+        }
+
+        .contact-info p {
+            margin: 8px 0;
+            font-weight: 500;
+        }
+
+        .message-content {
+            background-color: #f8fafc;
+            padding: 20px;
+            border-radius: 6px;
+            margin: 20px 0;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .message-content h3 {
+            margin: 0 0 12px 0;
+            font-size: 16px;
+            color: #111827;
+            font-weight: 600;
+        }
+
+        .message-content p {
+            margin: 0;
+            font-style: italic;
+            color: #4b5563;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 12px 20px;
+            background-color: #3b82f6;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: 600;
+            margin-top: 20px;
+        }
+
+        .footer {
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #6b7280;
+            background-color: #f9fafb;
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 12px;
+            border-radius: 100px;
+            background-color: white;
+            padding: 10px;
+        }
+
+        .label {
+            color: #6b7280;
+            font-size: 13px;
+            font-weight: 400;
+        }
+
+        .value {
+            color: #111827;
+            font-weight: 600;
+            font-size: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="email-container">
+    <div class="header">
+        <img class="logo" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLWZsYW1lLWljb24gbHVjaWRlLWZsYW1lIj48cGF0aCBkPSJNOC41IDE0LjVBMi41IDIuNSAwIDAgMCAxMSAxMmMwLTEuMzgtLjUtMi0xLTMtMS4wNzItMi4xNDMtLjIyNC00LjA1NCAyLTYgLjUgMi41IDIgNC45IDQgNi41IDIgMS42IDMgMy41IDMgNS41YTcgNyAwIDEgMS0xNCAwYzAtMS4xNTMuNDMzLTIuMjk0IDEtM2EyLjUgMi41IDAgMCAwIDIuNSAyLjV6Ii8+PC9zdmc+" alt="RitualPlanner" />
+        <h1>New Contact Form Submission</h1>
+    </div>
+
+    <div class="body">
+        <h2>Contact Form Message</h2>
+        <p>You have received a new message through the RitualPlanner contact form.</p>
+
+        <div class="contact-info">
+            <h3>Contact Details</h3>
+            <p><span class="label">Name:</span><br><span class="value">{{name}}</span></p>
+            <p><span class="label">Email:</span><br><span class="value">{{email}}</span></p>
+            <p><span class="label">Phone:</span><br><span class="value">{{phone}}</span></p>
+            <p><span class="label">Subject:</span><br><span class="value">{{subject}}</span></p>
+        </div>
+
+        <div class="message-content">
+            <h3>Message</h3>
+            <p>{{message}}</p>
+        </div>
+
+        <p>Please respond to this inquiry promptly to maintain excellent customer service.</p>
+        <a class="button" href="mailto:{{email}}" target="_blank">Reply to {{name}}</a>
+    </div>
+
+    <div class="footer">
+        &copy; 2025 RitualPlanner. All rights reserved.<br />
+        Helping you organize traditions, effortlessly.
+    </div>
+</div>
+
+</body>
+</html>
