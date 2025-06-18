@@ -61,6 +61,8 @@ function RouteComponent() {
                     phone: data.phone || "",
                     createdAt: data.createdAt || 0,
                     state: data.state || "",
+                    city: data.city || "",
+                    zipcode: data.zipcode || ""
                 })
             } else {
                 toast.error("Error while fetching user details", {
@@ -324,7 +326,9 @@ function RouteComponent() {
         email: "",
         phone: "",
         createdAt: 0,
-        state: ""
+        state: "",
+        city: "",
+        zipcode: ""
     })
 
     // Initialize darkMode state based on current theme
@@ -405,7 +409,7 @@ function RouteComponent() {
         doc.text(`Name: ${userData.name}`, 20, 55)
         doc.text(`Email: ${userData.email}`, 20, 65)
         doc.text(`Phone: ${userData.phone}`, 20, 75)
-        doc.text(`Location: ${userData.state}`, 20, 85)
+        doc.text(`Location: ${userData.city}, ${userData.state} - ${userData.zipcode}`, 20, 85)
         doc.text(`Member Since: ${formatCreationDate(userData.createdAt)}`, 20, 95)
 
         // Account Settings Section
@@ -491,13 +495,15 @@ function RouteComponent() {
         setShowNewPasswordDialog(false)
     }
 
-    const handleUpdateAccount = (data: { id: string; name: string; email: string; phone: string; state: string }) => {
+    const handleUpdateAccount = (data: { id: string; name: string; email: string; phone: string; state: string; city: string; zipcode: string }) => {
         updateAccountMutation.mutate({
             id: data.id,
             name: data.name,
             email: data.email,
             phone: data.phone,
-            state: data.state
+            state: data.state,
+            city: data.city,
+            zipcode: data.zipcode
         })
     }
 
@@ -724,7 +730,7 @@ function RouteComponent() {
                                                                     <MapPin className="h-4 w-4 text-primary" />
                                                                 </div>
                                                                 <div className="flex-1">
-                                                                    <p className="font-medium">{userData.state}</p>
+                                                                    <p className="font-medium">{userData.city}, {userData.state} - {userData.zipcode}</p>
                                                                     <p className="text-sm text-muted-foreground">Current location</p>
                                                                 </div>
 

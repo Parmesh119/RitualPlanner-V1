@@ -71,7 +71,9 @@ function RegisterPage() {
       password: "",
       confirmPassword: "",
       signin: "",
-      state: ""
+      state: "",
+      city: "",
+      zipcode: ""
     },
     mode: "onChange"
   })
@@ -85,7 +87,9 @@ function RegisterPage() {
       password: "",
       confirmPassword: "",
       signin: "google",
-      state: ""
+      state: "",
+      city: "",
+      zipcode: ""
     },
     mode: "onChange"
   })
@@ -121,7 +125,9 @@ function RegisterPage() {
       password: data.password,
       confirmPassword: data.confirmPassword,
       signin: "normal",
-      state: data.state
+      state: data.state,
+      city: data.city,
+      zipcode: data.zipcode
     }
     setSignupMethod("normal")
     try {
@@ -150,7 +156,9 @@ function RegisterPage() {
       password: data.password,
       confirmPassword: data.confirmPassword,
       signin: "google",
-      state: data.state
+      state: data.state,
+      city: data.city,
+      zipcode: data.zipcode
     }
     setSignupMethod("google")
     try {
@@ -208,7 +216,9 @@ function RegisterPage() {
               password: user.uid,
               confirmPassword: user.uid,
               signin: "google",
-              state: ""
+              state: "",
+              city: "",
+              zipcode: ""
             }
             setSignupMethod("google")
             registerMutation.mutate(registerData)
@@ -344,6 +354,47 @@ function RegisterPage() {
                               ))}
                             </SelectContent>
                           </Select>
+                        </FormControl>
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="city"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="relative">
+                        <MapPin className="absolute left-3 top-2 h-5 w-5 text-black" />
+                        <FormControl>
+                          <Input
+                            placeholder="City"
+                            className="pl-10 placeholder:text-black"
+                            {...field}
+                          />
+                        </FormControl>
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="zipcode"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="relative">
+                        <MapPin className="absolute left-3 top-2 h-5 w-5 text-black" />
+                        <FormControl>
+                          <Input
+                            type="text"
+                            placeholder="Zipcode"
+                            className="pl-10 placeholder:text-black"
+                            {...field}
+                          />
                         </FormControl>
                       </div>
                       <FormMessage />
@@ -565,6 +616,47 @@ function RegisterPage() {
                                 ))}
                               </SelectContent>
                             </Select>
+                          </FormControl>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={googleForm.control}
+                    name="city"
+                    render={({ field }) => (
+                      <FormItem>
+                        <div className="relative">
+                          <MapPin className="absolute left-3 top-2 h-5 w-5 text-black" />
+                          <FormControl>
+                            <Input
+                              placeholder="City"
+                              className="pl-10 placeholder:text-black"
+                              {...field}
+                            />
+                          </FormControl>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={googleForm.control}
+                    name="zipcode"
+                    render={({ field }) => (
+                      <FormItem>
+                        <div className="relative">
+                          <MapPin className="absolute left-3 top-2 h-5 w-5 text-black" />
+                          <FormControl>
+                            <Input
+                              type="text"
+                              placeholder="Zipcode"
+                              className="pl-10 placeholder:text-black"
+                              {...field}
+                            />
                           </FormControl>
                         </div>
                         <FormMessage />

@@ -29,6 +29,8 @@ interface UpdateAccountDialogProps {
         email: string
         phone: string
         state: string
+        city: string
+        zipcode: string
     }
     onUpdate: (data: {
         id: string
@@ -36,6 +38,8 @@ interface UpdateAccountDialogProps {
         email: string
         phone: string
         state: string
+        city: string
+        zipcode: string
     }) => void
 }
 
@@ -50,12 +54,14 @@ export function UpdateAccountDialog({
         name: userData.name,
         email: userData.email,
         phone: userData.phone,
-        state: userData.state
+        state: userData.state,
+        city: userData.city,
+        zipcode: userData.zipcode
     })
 
     const handleSubmit = () => {
         // Basic validation
-        if (!formData.name || !formData.email || !formData.phone || !formData.state) {
+        if (!formData.name || !formData.email || !formData.phone || !formData.state || !formData.city || !formData.zipcode) {
             toast.error("Please fill in all fields", {
                 style: {
                     background: "linear-gradient(90deg, #E53E3E, #C53030)",
@@ -98,6 +104,21 @@ export function UpdateAccountDialog({
             return
         }
 
+        // Zipcode validation
+        const zipcodeRegex = /^\d{6}$/
+        if (!zipcodeRegex.test(formData.zipcode)) {
+            toast.error("Please enter a valid 6-digit zipcode", {
+                style: {
+                    background: "linear-gradient(90deg, #E53E3E, #C53030)",
+                    color: "white",
+                    fontWeight: "bolder",
+                    fontSize: "13px",
+                    letterSpacing: "1px",
+                }
+            })
+            return
+        }
+
         onUpdate(formData)
         onOpenChange(false)
     }
@@ -108,7 +129,9 @@ export function UpdateAccountDialog({
             name: userData.name,
             email: userData.email,
             phone: userData.phone,
-            state: userData.state
+            state: userData.state,
+            city: userData.city,
+            zipcode: userData.zipcode
         })
         onOpenChange(false)
     }
@@ -153,6 +176,27 @@ export function UpdateAccountDialog({
                             onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                             className="text-black [&::placeholder]:text-black"
                             placeholder="Enter your phone number"
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="city" className="text-black">City</Label>
+                        <Input
+                            id="city"
+                            value={formData.city}
+                            onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                            className="text-black [&::placeholder]:text-black"
+                            placeholder="Enter your city"
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="zipcode" className="text-black">Zipcode</Label>
+                        <Input
+                            id="zipcode"
+                            value={formData.zipcode}
+                            onChange={(e) => setFormData({ ...formData, zipcode: e.target.value })}
+                            className="text-black [&::placeholder]:text-black"
+                            placeholder="Enter your zipcode"
+                            maxLength={6}
                         />
                     </div>
                     <div className="space-y-2">

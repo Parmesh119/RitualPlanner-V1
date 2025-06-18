@@ -5,6 +5,7 @@ import { authService } from './auth'
 import { toast } from 'sonner'
 import { type TNote, type TDeleteNote, type ListNote } from "@/schemas/Note"
 import type { ListCoWorker, TCoWorker } from '@/schemas/CoWorker'
+import type { ListClient, TClient } from '@/schemas/Client'
 
 export function getBackendUrl() {
     const backendUrl = 'http://localhost:8080'
@@ -525,6 +526,139 @@ export async function deleteCoWorkerAction(id: string): Promise<boolean> {
 
     const response = await axios.delete(
         `${getBackendUrl()}/api/v2/co-worker/delete/${id}`,
+        { headers: { Authorization: bearerToken } }
+    )
+
+    return response.data
+}
+
+export async function createClientAction(data: TClient): Promise<TClient> {
+    const token = await authService.getAccessToken()
+
+    if (!token) {
+        toast.error("User is not authenticated", {
+            style: {
+                background: "linear-gradient(90deg, #E53E3E, #C53030)",
+                color: "white",
+                fontWeight: "bolder",
+                fontSize: "13px",
+                letterSpacing: "1px"
+            }
+        })
+        localStorage.clear()
+        throw new Error("User is not authenticated")
+    }
+    const bearerToken = `Bearer ${token}`
+
+    const response = await axios.post(
+        `${getBackendUrl()}/api/v2/client/create`,
+        data,
+        { headers: {Authorization: bearerToken}}
+    )
+
+    return response.data
+}
+
+export async function updateClientAction(data: TClient): Promise<TClient> {
+    const token = await authService.getAccessToken()
+
+    if (!token) {
+        toast.error("User is not authenticated", {
+            style: {
+                background: "linear-gradient(90deg, #E53E3E, #C53030)",
+                color: "white",
+                fontWeight: "bolder",
+                fontSize: "13px",
+                letterSpacing: "1px"
+            }
+        })
+        localStorage.clear()
+        throw new Error("User is not authenticated")
+    }
+    const bearerToken = `Bearer ${token}`
+
+    const response = await axios.put(
+        `${getBackendUrl()}/api/v2/client/update`,
+        data,
+        { headers: { Authorization: bearerToken } }
+    )
+
+    return response.data
+}
+
+export async function listClientAction(data: ListClient): Promise<TClient[]> {
+    const token = await authService.getAccessToken()
+
+    if (!token) {
+        toast.error("User is not authenticated", {
+            style: {
+                background: "linear-gradient(90deg, #E53E3E, #C53030)",
+                color: "white",
+                fontWeight: "bolder",
+                fontSize: "13px",
+                letterSpacing: "1px"
+            }
+        })
+        localStorage.clear()
+        throw new Error("User is not authenticated")
+    }
+    const bearerToken = `Bearer ${token}`
+
+    const response = await axios.post(
+        `${getBackendUrl()}/api/v2/client`,
+        data,
+        { headers: { Authorization: bearerToken } }
+    )
+
+    return response.data
+}
+
+export async function getClientByIdAction(id: string): Promise<TClient> {
+    const token = await authService.getAccessToken()
+
+    if (!token) {
+        toast.error("User is not authenticated", {
+            style: {
+                background: "linear-gradient(90deg, #E53E3E, #C53030)",
+                color: "white",
+                fontWeight: "bolder",
+                fontSize: "13px",
+                letterSpacing: "1px"
+            }
+        })
+        localStorage.clear()
+        throw new Error("User is not authenticated")
+    }
+    const bearerToken = `Bearer ${token}`
+
+    const response = await axios.get(
+        `${getBackendUrl()}/api/v2/client/get/${id}`,
+        { headers: { Authorization: bearerToken } }
+    )
+
+    return response.data
+}
+
+export async function deleteClientByIdAction(id: string): Promise<boolean> {
+    const token = await authService.getAccessToken()
+
+    if (!token) {
+        toast.error("User is not authenticated", {
+            style: {
+                background: "linear-gradient(90deg, #E53E3E, #C53030)",
+                color: "white",
+                fontWeight: "bolder",
+                fontSize: "13px",
+                letterSpacing: "1px"
+            }
+        })
+        localStorage.clear()
+        throw new Error("User is not authenticated")
+    }
+    const bearerToken = `Bearer ${token}`
+
+    const response = await axios.delete(
+        `${getBackendUrl()}/api/v2/client/delete/${id}`,
         { headers: { Authorization: bearerToken } }
     )
 

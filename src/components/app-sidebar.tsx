@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react"
-import { ChevronUp, User2, CircleHelp, ReceiptIndianRupee, LayoutDashboard, UsersRound, Flame, BadgeCheck, ListTodo, LogOut, Moon, Sun, NotebookText, IndianRupee, Bell, NotebookPen, BookUser, Calendar, List, ScrollText } from 'lucide-react'
+import { ChevronUp, User2, CircleHelp, ReceiptIndianRupee, LayoutDashboard, UsersRound, Flame, BadgeCheck, ListTodo, LogOut, Moon, Sun, NotebookText, IndianRupee, Bell, NotebookPen, BookUser, Calendar, List, ScrollText, GraduationCap } from 'lucide-react'
 import {
     Sidebar,
     SidebarContent,
@@ -56,7 +56,7 @@ const items = [
     },
     {
         title: "Client Directory",
-        url: "/app/clients/",
+        url: "/app/client/",
         icon: BookUser,
     },
     {
@@ -93,6 +93,11 @@ const items = [
         title: "Feedback & Help",
         url: "/app/help",
         icon: CircleHelp
+    },
+    {
+        title: "Tutorial",
+        url: "/app/tutorial",
+        icon: GraduationCap
     }
 ]
 
