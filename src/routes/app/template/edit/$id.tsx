@@ -436,6 +436,27 @@ function RouteComponent() {
                         Add Item
                       </Button>
                     )}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setStep(1)}
+                    >
+                      Previous
+                    </Button>
+                    <Button
+                      type="button"
+                      onClick={onUpdate}
+                      disabled={isSubmitting || items.length === 0}
+                    >
+                      {isSubmitting ? 'Updating...' : 'Update Template'}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => navigate({ to: `/app/template/get/${id}` })}
+                    >
+                      Cancel
+                    </Button>
                   </div>
                 </form>
               </Form>
@@ -474,29 +495,6 @@ function RouteComponent() {
                   </div>
                 </div>
               )}
-              <div className="flex justify-end gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setStep(1)}
-                >
-                  Previous
-                </Button>
-                <Button
-                  type="button"
-                  onClick={onUpdate}
-                  disabled={isSubmitting || items.length === 0}
-                >
-                  {isSubmitting ? 'Updating...' : 'Update Template'}
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => navigate({ to: `/app/template/get/${id}` })}
-                >
-                  Cancel
-                </Button>
-              </div>
             </div>
           )}
         </div>

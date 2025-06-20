@@ -317,6 +317,22 @@ function RouteComponent() {
                       <Plus className="h-4 w-4" />
                       Add Item
                     </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setStep(1)}
+                      className="ml-2"
+                    >
+                      Previous
+                    </Button>
+                    <Button
+                      type="button"
+                      onClick={onComplete}
+                      disabled={isSubmitting || items.length === 0}
+                      className="ml-2"
+                    >
+                      {isSubmitting ? "Creating..." : "Complete"}
+                    </Button>
                   </div>
                 </form>
               </Form>
@@ -345,23 +361,6 @@ function RouteComponent() {
                   </div>
                 </div>
               )}
-
-              <div className="flex justify-end gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setStep(1)}
-                >
-                  Previous
-                </Button>
-                <Button
-                  type="button"
-                  onClick={onComplete}
-                  disabled={isSubmitting || items.length === 0}
-                >
-                  {isSubmitting ? "Creating..." : "Complete"}
-                </Button>
-              </div>
             </div>
           )}
         </div>

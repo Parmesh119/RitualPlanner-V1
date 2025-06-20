@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate, useParams } from '@tanstack/react-router'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { getAccountDetails, getTemplateByIdAction } from '@/lib/actions'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -16,10 +16,15 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { Separator } from "@/components/ui/separator"
-import { Calendar, Package, FileText, AlertCircle, Pencil, Download } from 'lucide-react'
+import { Calendar, Package, FileText, AlertCircle, Pencil, ExternalLink, Download } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
+import jsPDF from 'jspdf'
+import autoTable from 'jspdf-autotable'
+import { gujaratiFont } from '@/lib/gujaratiFont'
+import { useState } from 'react'
+import { Input } from '@/components/ui/input'
 
 export const Route = createFileRoute('/app/template/get/$id')({
   component: RouteComponent,
@@ -43,6 +48,13 @@ function RouteComponent() {
     queryFn: getAccountDetails,
     staleTime: 1000 * 60 * 60,
   })
+
+  const [search, setSearch] = useState('')
+  const filteredItems = items.filter(item =>
+    [item.itemname, item.quantity, item.unit, item.note]
+      .map(val => (val ? val.toString().toLowerCase() : ''))
+      .some(val => val.includes(search.toLowerCase()))
+  )
 
   if (isError) {
     toast.error("Error while fetching user details! Please login again. ", {
@@ -103,6 +115,128 @@ function RouteComponent() {
     )
   }
 
+  function handleDownload() {
+    if (!template || !userData) return;
+    const doc = new jsPDF();
+
+    // Register and use Gujarati font for the heading
+    doc.addFileToVFS('Gujarati.ttf', gujaratiFont);
+    doc.addFont('Gujarati.ttf', 'Gujarati', 'normal');
+    doc.setFont('Gujarati');
+    doc.setFontSize(22);
+    doc.setTextColor(44, 62, 80); // dark blue
+    const gujaratiText = '|| શ્રી ગણેશાય નમઃ ||';
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const textWidth = doc.getTextWidth(gujaratiText);
+    doc.text(gujaratiText, (pageWidth - textWidth) / 2, 22);
+
+    let y = 35;
+
+    // Switch back to helvetica for the rest
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(0, 0, 0);
+
+    // User Information Section Header
+    doc.setFillColor(230, 240, 255);
+    doc.roundedRect(10, y - 7, pageWidth - 20, 14, 3, 3, 'F');
+    doc.setFontSize(15);
+    doc.setFont('helvetica', 'bold');
+    doc.text('User Information', 14, y + 3);
+    y += 14;
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Name: ${userData.name || ''}`, 16, y);
+    y += 7;
+    doc.text(`Phone: ${userData.phone || ''}`, 16, y);
+    y += 12;
+
+    // Template Information Section Header
+    doc.setFillColor(230, 240, 255);
+    doc.roundedRect(10, y - 7, pageWidth - 20, 14, 3, 3, 'F');
+    doc.setFontSize(15);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Template Information', 14, y + 3);
+    y += 14;
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Title: ${template.name || 'No title provided'}`, 16, y);
+    y += 7;
+    doc.text(`Created Date: ${template.createdAt ? format(new Date(template.createdAt * 1000), 'PPP') : 'Not available'}`, 16, y);
+    y += 7;
+    doc.text('Description:', 16, y);
+    y += 7;
+    doc.setFontSize(11);
+    doc.text(template.description || 'No description provided', 20, y, { maxWidth: pageWidth - 32 });
+    y += 14;
+
+    // Required Items Section Header
+    doc.setFontSize(15);
+    doc.setFont('helvetica', 'bold');
+    doc.setFillColor(230, 240, 255);
+    doc.roundedRect(10, y - 7, pageWidth - 20, 14, 3, 3, 'F');
+    doc.text('Required Items', 14, y + 3);
+    y += 10;
+
+    // Table
+    if (items.length > 0) {
+      autoTable(doc, {
+        startY: y + 4,
+        head: [['Sr No', 'Item Name', 'Quantity', 'Unit', 'Note']],
+        body: items.map((item, idx) => [
+          (idx + 1).toString(),
+          item.itemname || '',
+          item.quantity?.toString() || '',
+          item.unit || '',
+          item.note || ''
+        ]),
+        theme: 'grid',
+        headStyles: { fillColor: [44, 62, 80], textColor: [255, 255, 255], fontStyle: 'bold' },
+        styles: { fontSize: 11 },
+        margin: { left: 14, right: 14 },
+      });
+    } else {
+      doc.setFontSize(12);
+      doc.text('No items found for this template.', 14, y + 10);
+    }
+
+    // Footer
+    doc.setFontSize(10);
+    doc.setTextColor(150, 150, 150);
+    const queryText = `For any kind of query regarding this template please contact ${userData?.name || 'N/A'} (${userData?.phone || 'N/A'}).`;
+    doc.text(queryText, pageWidth / 2, 285, { align: 'center', baseline: 'middle' });
+    doc.text('Generated by Ritual Planner', pageWidth / 2, 292, { align: 'center' });
+
+    doc.save(`${template.name || 'template'}.pdf`);
+  }
+
+  function handleShare() {
+    if (!template || !userData) return;
+
+    // Compose the message
+    const message =
+      `|| શ્રી ગણેશાય નમઃ ||\n\n` +
+      `*Template Information*\n` +
+      `Title: ${template.name || 'No title provided'}\n` +
+      `Created Date: ${template.createdAt ? format(new Date(template.createdAt * 1000), 'PPP') : 'Not available'}\n` +
+      `Description: ${template.description || 'No description provided'}\n\n` +
+      `*Required Items:*\n` +
+      (items.length > 0
+        ? items.map((item, idx) =>
+          `${idx + 1}. ${item.itemname || ''} (${item.quantity || ''} ${item.unit || ''})${item.note ? ' - ' + item.note : ''}`
+        ).join('\n')
+        : 'No items found for this template.') +
+      `\n\nFor any kind of query regarding this template please contact ${userData?.name || 'N/A'} (${userData?.phone || 'N/A'}).`;
+
+    // Encode the message for URL
+    const encodedMessage = encodeURIComponent(message);
+
+    // WhatsApp share URL
+    const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
+
+    // Open WhatsApp in a new tab
+    window.open(whatsappUrl, '_blank');
+  }
+
   return (
     <SidebarInset className='w-full'>
       <header className="flex h-16 shrink-0 items-center gap-2 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -140,16 +274,24 @@ function RouteComponent() {
               </Badge>
             </span>
             <span className='flex flex-row gap-4'>
-            <Button
-              size="sm"
-              variant="outline"
-              className="ml-2"
-              onClick={() => navigate({ to: `/app/template/edit/${id}` })}
-            >
-              <Pencil className="h-4 w-4 mr-1" />
-              Edit Template
-            </Button>
-              <Button className='cursor-pointer'><Download />Download Template</Button></span>
+              <Button
+                size="sm"
+                variant="outline"
+                className="ml-2"
+                onClick={() => navigate({ to: `/app/template/edit/${id}` })}
+              >
+                <Pencil className="h-4 w-4 mr-1" />
+                Edit Template
+              </Button>
+              <Button className='cursor-pointer' onClick={handleDownload}><Download />
+                Download Template
+              </Button>
+              <Button className='cursor-pointer' onClick={handleShare}>
+                {/* WhatsApp SVG icon */}
+                <ExternalLink />
+                Share Template
+              </Button>
+            </span>
           </div>
           {template?.description && (
             <p className="text-muted-foreground text-base leading-relaxed max-w-2xl">
@@ -207,7 +349,7 @@ function RouteComponent() {
                 </div>
 
                 <div className="mt-4 text-sm text-muted-foreground">
-                  For any kind of query contact {userData?.name} ({userData?.phone})
+                  For any kind of query regarding this template please contact <b>{userData?.name} ({userData?.phone})</b>.
                 </div>
               </CardContent>
             </Card>
@@ -225,46 +367,48 @@ function RouteComponent() {
                     </Badge>
                   )}
                 </CardTitle>
+                <Input
+                  placeholder="Search items..."
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                  className="mt-2 w-64"
+                />
               </CardHeader>
               <CardContent>
-                {items.length > 0 ? (
-                  <div className="rounded-lg border border-border/50 overflow-hidden">
-                    <Table>
-                      <TableHeader>
-                        <TableRow className="bg-muted/30">
-                          <TableHead className="font-semibold">Item Name</TableHead>
-                          <TableHead className="font-semibold">Quantity</TableHead>
-                          <TableHead className="font-semibold">Unit</TableHead>
-                          <TableHead className="font-semibold">Note</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {(items as { id?: string; itemname?: string; quantity?: number; unit?: string; note?: string | null }[]).map((item, idx) => (
-                          <TableRow key={item.id || idx} className="hover:bg-muted/20 transition-colors">
-                            <TableCell className="font-medium">
-                              {item.itemname}
-                            </TableCell>
-                            <TableCell>
-                              {item.quantity}
-                            </TableCell>
-                            <TableCell>
-                              {item.unit}
-                            </TableCell>
-                            <TableCell>
-                              {item.note ?? undefined}
-                            </TableCell>
+                <div style={{ maxHeight: 300, overflowY: 'auto' }}>
+                  {filteredItems.length > 0 ? (
+                    <div className="rounded-lg border border-border/50 overflow-hidden">
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="bg-muted/30">
+                            <TableHead className="font-semibold">Sr No</TableHead>
+                            <TableHead className="font-semibold">Item Name</TableHead>
+                            <TableHead className="font-semibold">Quantity</TableHead>
+                            <TableHead className="font-semibold">Unit</TableHead>
+                            <TableHead className="font-semibold">Note</TableHead>
                           </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </div>
-                ) : (
-                  <div className="text-center py-12">
-                    <Package className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium mb-2">No Items Found</h3>
-                    <p className="text-muted-foreground">This template doesn't have any required items yet.</p>
-                  </div>
-                )}
+                        </TableHeader>
+                        <TableBody>
+                          {(filteredItems as { id?: string; itemname?: string; quantity?: number; unit?: string; note?: string | null }[]).map((item, idx) => (
+                            <TableRow key={item.id || idx} className="hover:bg-muted/20 transition-colors">
+                              <TableCell className="font-medium">{idx + 1}</TableCell>
+                              <TableCell className="font-medium">{item.itemname}</TableCell>
+                              <TableCell>{item.quantity}</TableCell>
+                              <TableCell>{item.unit}</TableCell>
+                              <TableCell>{item.note ?? undefined}</TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  ) : (
+                    <div className="text-center py-12">
+                      <Package className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
+                      <h3 className="text-lg font-medium mb-2">No Items Found</h3>
+                      <p className="text-muted-foreground">No items match your search.</p>
+                    </div>
+                  )}
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
