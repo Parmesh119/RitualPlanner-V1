@@ -1,6 +1,5 @@
 package ritualplanner.repository
 
-import org.springframework.http.ResponseEntity
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.stereotype.Repository
@@ -33,6 +32,7 @@ class TemplateRepository(
                     itemname = rs.getString("itemname"),
                     quantity = rs.getInt("quantity"),
                     unit = rs.getString("unit"),
+                    note = rs.getString("note"),
                     createdAt = rs.getTimestamp("created_at").toInstant().epochSecond,
                     updatedAt = rs.getTimestamp("updated_at").toInstant().epochSecond
                 )
@@ -57,6 +57,7 @@ class TemplateRepository(
             itemname = rs.getString("itemname"),
             quantity = rs.getInt("quantity"),
             unit = rs.getString("unit"),
+            note = rs.getString("note"),
             createdAt = rs.getTimestamp("created_at").toInstant().epochSecond,
             updatedAt = rs.getTimestamp("updated_at").toInstant().epochSecond
         )
@@ -84,8 +85,8 @@ class TemplateRepository(
             )
 
             val insertItemSql = """
-            INSERT INTO "ItemTemplate" (id, template_id, itemname, quantity, unit, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO "ItemTemplate" (id, template_id, itemname, quantity, unit, note, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         """
 
             ritualTemplateRequest.requiredItems.forEach { item ->
@@ -97,6 +98,7 @@ class TemplateRepository(
                     item.itemname,
                     item.quantity,
                     item.unit,
+                    item.note,
                     Timestamp.from(Instant.ofEpochMilli(item.createdAt)),
                     Timestamp.from(Instant.ofEpochMilli(item.updatedAt))
                 )
@@ -143,8 +145,8 @@ class TemplateRepository(
 
             // Insert updated items
             val insertItemSql = """
-            INSERT INTO "ItemTemplate" (id, template_id, itemname, quantity, unit, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO "ItemTemplate" (id, template_id, itemname, quantity, unit, note, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         """
 
             val updatedItems = ritualTemplateRequest.requiredItems.map { item ->
@@ -156,6 +158,7 @@ class TemplateRepository(
                     item.itemname,
                     item.quantity,
                     item.unit,
+                    item.note,
                     Timestamp.from(Instant.ofEpochMilli(item.createdAt)),
                     Timestamp.from(Instant.ofEpochMilli(item.updatedAt))
                 )

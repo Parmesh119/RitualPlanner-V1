@@ -17,6 +17,7 @@ data class ItemTemplate (
     val itemname: String,
     val quantity: Int,
     val unit: String,
+    val note: String? = null,
     val createdAt: Long = Instant.now().toEpochMilli(),
     val updatedAt: Long = Instant.now().toEpochMilli()
 )

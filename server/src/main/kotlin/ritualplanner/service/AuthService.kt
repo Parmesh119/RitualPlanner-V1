@@ -84,14 +84,9 @@ class AuthService(
 
     fun getUserDetails(authorization: String): User {
         val token = authorization.substringAfter("Bearer")
-        val username = jwtUtil.extractUsername(token)
+        val email = jwtUtil.getEmailFromToken(token)
 
-        if(username == null) {
-            val email = jwtUtil.getEmailFromToken(authorization)
-            return authRepository.getUserDetailsByEmail(email)
-        }
-
-        return authRepository.getUserDetails(username)
+        return authRepository.getUserDetailsByEmail(email)
     }
 
     fun checkAuthTypeByEmail(authorization: String): String {
