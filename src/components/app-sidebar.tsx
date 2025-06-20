@@ -21,10 +21,11 @@ import {
 import { Link } from "@tanstack/react-router"
 import { useNavigate } from "@tanstack/react-router"
 import { useTheme } from "@/components/theme-provider"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { getUserDetails } from "@/lib/actions"
 import { toast } from "sonner"
 import { Helmet } from "react-helmet"
+import { type User } from "@/schemas/User"
 
 const items = [
     {
@@ -105,39 +106,37 @@ export function AppSidebar() {
 
     const navigate = useNavigate()
     const queryClient = useQueryClient()
-
-    const profileMutation = useMutation({
-        mutationFn: getUserDetails,
-        onSuccess: (data) => {
-            setEmail(data.email)
-            setName(data.name)
-        },
-        onError: (error: any) => {
-            toast.error(error.message)
-            toast.error("Error while fetching user details! Please login again. ", {
-                description: "Logging out ...",
-                style: {
-                    background: "linear-gradient(90deg, #E53E3E, #C53030)",
-                    color: "white",
-                    fontWeight: "bolder",
-                    fontSize: "13px",
-                    letterSpacing: "1px",
-                }
-            })
-            navigate({ to: "/auth/login" })
-            localStorage.clear()
-            throw new Error("Error while fetching user details!")
-        }
+    
+    const { data: user, isError } = useQuery({
+        queryKey: ["accountDetails"],
+        queryFn: getUserDetails,
+        staleTime: 1000 * 60 * 60,
     })
 
-    useEffect(() => {
-        if (!initialized.current) {
-            initialized.current = true;
-            if (initialized) {
-                profileMutation.mutate()
+    if(isError) {
+        toast.error("Error while fetching user details! Please login again. ", {
+            description: "Logging out ...",
+            style: {
+                background: "linear-gradient(90deg, #E53E3E, #C53030)",
+                color: "white",
+                fontWeight: "bolder",
+                fontSize: "13px",
+                letterSpacing: "1px",
             }
+        })
+        navigate({ to: "/auth/login" })
+        localStorage.clear()
+        throw new Error("Error while fetching user details!")
+    }
+
+
+
+    useEffect(() => {
+        if (user) {
+            setEmail(user.email)
+            setName(user.name)
         }
-    }, [])
+    }, [user])
 
     const [email, setEmail] = useState("")
     const [name, setName] = useState("")

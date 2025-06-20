@@ -11,7 +11,7 @@ import {
     Mail, Phone, MapPin, Calendar, Shield, Bell, CreditCard, Settings,
     Edit3, LogOut, Activity, Users,
     Eye, EyeOff, Smartphone, Lock, Key, Crown, ChevronRight,
-    Globe, Moon, Download, User2, Upload, X
+    Globe, Moon, Download, User2, Upload, X, LoaderCircle
 } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
 import {
@@ -24,8 +24,8 @@ import {
 } from "@/components/ui/breadcrumb"
 import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 import { useTheme } from '@/components/theme-provider'
-import { getAccountDetails, sendOTPAction, verifyOTPAction, updatePasswordAction, deleteAccountAction, checkAuthTypeByEmail, updateAccountDetailsAction } from '@/lib/actions'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { getUserDetails, sendOTPAction, verifyOTPAction, updatePasswordAction, deleteAccountAction, checkAuthTypeByEmail, updateAccountDetailsAction } from '@/lib/actions'
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { jsPDF } from 'jspdf'
 import {
@@ -40,7 +40,7 @@ import { Input } from "@/components/ui/input"
 import { getAuth, deleteUser } from "firebase/auth"
 import { app } from '@/util/firebaseConfig'
 import { UpdateAccountDialog } from "@/components/account/update-account-dialog"
-
+import { type User } from '@/schemas/User'
 export const Route = createFileRoute('/app/account/')({
     component: RouteComponent,
 })
@@ -49,47 +49,27 @@ function RouteComponent() {
     const queryClient = useQueryClient()
     const navigate = useNavigate()
     const { theme, setTheme } = useTheme()
-
-    const getAccountDetailsMutation = useMutation({
-        mutationFn: getAccountDetails,
-        onSuccess: (data) => {
-            if (data) {
-                setUserData({
-                    id: data.id || "",
-                    name: data.name || "",
-                    email: data.email || "",
-                    phone: data.phone || "",
-                    createdAt: data.createdAt || 0,
-                    state: data.state || "",
-                    city: data.city || "",
-                    zipcode: data.zipcode || ""
-                })
-            } else {
-                toast.error("Error while fetching user details", {
-                    style: {
-                        background: "linear-gradient(90deg, #E53E3E, #C53030)",
-                        color: "white",
-                        fontWeight: "bolder",
-                        fontSize: "13px",
-                        letterSpacing: "1px",
-                    }
-                })
-                throw new Error("Error while fetching user details")
-            }
-        },
-        onError: () => {
-            toast.error("Error while fetching user details", {
-                style: {
-                    background: "linear-gradient(90deg, #E53E3E, #C53030)",
-                    color: "white",
-                    fontWeight: "bolder",
-                    fontSize: "13px",
-                    letterSpacing: "1px",
-                }
-            })
-            throw new Error("Error while fetching user details")
-        }
+    const { data: userData, isError } = useQuery({
+        queryKey: ["accountDetails"],
+        queryFn: getUserDetails,
+        staleTime: 1000 * 60 * 60,
     })
+
+    if (isError) {
+        toast.error("Error while fetching user details! Please login again. ", {
+            description: "Logging out ...",
+            style: {
+                background: "linear-gradient(90deg, #E53E3E, #C53030)",
+                color: "white",
+                fontWeight: "bolder",
+                fontSize: "13px",
+                letterSpacing: "1px",
+            }
+        })
+        navigate({ to: "/auth/login" })
+        localStorage.clear()
+        throw new Error("Error while fetching user details!")
+    }
 
     const sendOTPMutaion = useMutation({
         mutationFn: sendOTPAction,
@@ -121,7 +101,7 @@ function RouteComponent() {
     })
 
     const verifyOtpMutation = useMutation({
-        mutationFn: () => verifyOTPAction(otp, userData.email),
+        mutationFn: () => verifyOTPAction(otp, userData?.email || ""),
         onSuccess: async (data) => {
             if (data) {
                 toast.success("OTP verified successfully", {
@@ -166,7 +146,7 @@ function RouteComponent() {
     })
 
     const updatePasswordMutation = useMutation({
-        mutationFn: () => updatePasswordAction(userData.email, newPassword, confirmNewPassword),
+        mutationFn: () => updatePasswordAction(userData?.email || "", newPassword, confirmNewPassword),
         onSuccess: async (data) => {
             if (data) {
                 toast.success("Password updated successfully", {
@@ -273,10 +253,6 @@ function RouteComponent() {
     const updateAccountMutation = useMutation({
         mutationFn: updateAccountDetailsAction,
         onSuccess: (data) => {
-            setUserData(prev => ({
-                ...prev,
-                ...data
-            }))
             queryClient.invalidateQueries({ queryKey: ['accountDetails'] })
             toast.success("Account information updated successfully", {
                 style: {
@@ -307,33 +283,12 @@ function RouteComponent() {
         setDarkMode(theme === "dark")
     }, [theme])
 
-    // Fetch user data only once
-    useEffect(() => {
-        if (!initialized.current) {
-            initialized.current = true
-            getAccountDetailsMutation.mutate()
-        }
-    }, [])
-
-    const initialized = useRef(false)
+    // Initialize darkMode state based on current theme
+    const [darkMode, setDarkMode] = useState(theme === "dark")
 
     const [notifications, setNotifications] = useState(true)
     const [twoFactorAuth, setTwoFactorAuth] = useState(false)
     const [publicProfile, setPublicProfile] = useState(true)
-    const [userData, setUserData] = useState({
-        id: "",
-        name: "",
-        email: "",
-        phone: "",
-        createdAt: 0,
-        state: "",
-        city: "",
-        zipcode: ""
-    })
-
-    // Initialize darkMode state based on current theme
-    const [darkMode, setDarkMode] = useState(theme === "dark")
-
     const [showOtpDialog, setShowOtpDialog] = useState(false)
     const [otp, setOtp] = useState("")
     const [showNewPasswordDialog, setShowNewPasswordDialog] = useState(false)
@@ -362,10 +317,11 @@ function RouteComponent() {
 
     // Calculate profile completion percentage
     const calculateProfileCompletion = () => {
+        if (!userData) return 0;
         const requiredFields = ['name', 'email', 'phone', 'state']
         const totalFields = requiredFields.length
         const completedFields = requiredFields.filter(field => {
-            const value = userData[field as keyof typeof userData]
+            const value = userData && userData[field as keyof typeof userData]
             return value && value.toString().trim() !== ''
         }).length
 
@@ -387,6 +343,7 @@ function RouteComponent() {
 
     // Handle data download
     const handleDownloadData = () => {
+        if (!userData) return;
         const doc = new jsPDF()
 
         // Add title
@@ -406,11 +363,11 @@ function RouteComponent() {
         doc.setFontSize(16)
         doc.text('Personal Information', 20, 45)
         doc.setFontSize(12)
-        doc.text(`Name: ${userData.name}`, 20, 55)
-        doc.text(`Email: ${userData.email}`, 20, 65)
-        doc.text(`Phone: ${userData.phone}`, 20, 75)
-        doc.text(`Location: ${userData.city}, ${userData.state} - ${userData.zipcode}`, 20, 85)
-        doc.text(`Member Since: ${formatCreationDate(userData.createdAt)}`, 20, 95)
+        doc.text(`Name: ${userData?.name}`, 20, 55)
+        doc.text(`Email: ${userData?.email}`, 20, 65)
+        doc.text(`Phone: ${userData?.phone}`, 20, 75)
+        doc.text(`Location: ${userData?.city}, ${userData?.state} - ${userData?.zipcode}`, 20, 85)
+        doc.text(`Member Since: ${formatCreationDate(userData?.createdAt || 0)}`, 20, 95)
 
         // Account Settings Section
         doc.setFontSize(16)
@@ -433,7 +390,7 @@ function RouteComponent() {
         doc.text('This is a computer-generated document. No signature is required.', 20, 280)
 
         // Save the PDF
-        doc.save(`ritual-planner-data-${userData.name}.pdf`)
+        doc.save(`ritual-planner-data-${userData?.name}.pdf`)
 
         toast.success("Your data has been downloaded successfully!", {
             style: {
@@ -496,6 +453,7 @@ function RouteComponent() {
     }
 
     const handleUpdateAccount = (data: { id: string; name: string; email: string; phone: string; state: string; city: string; zipcode: string }) => {
+        if (!userData) return;
         updateAccountMutation.mutate({
             id: data.id,
             name: data.name,
@@ -573,7 +531,7 @@ function RouteComponent() {
                                 </BreadcrumbItem>
                                 <BreadcrumbSeparator />
                                 <BreadcrumbItem>
-                                    <BreadcrumbPage>{userData.name}</BreadcrumbPage>
+                                    <BreadcrumbPage>{userData?.name}</BreadcrumbPage>
                                 </BreadcrumbItem>
                             </BreadcrumbList>
                         </Breadcrumb>
@@ -620,7 +578,7 @@ function RouteComponent() {
                                         <CardHeader className="pb-4">
                                             <div className="flex items-center justify-between">
                                                 <div>
-                                                    <CardTitle className="text-2xl font-bold">{userData.name}</CardTitle>
+                                                    <CardTitle className="text-2xl font-bold">{userData?.name}</CardTitle>
                                                     <CardDescription className="text-muted-foreground">
                                                         Your personal details and public information
                                                     </CardDescription>
@@ -704,7 +662,7 @@ function RouteComponent() {
                                                                     <Mail className="h-4 w-4 text-primary" />
                                                                 </div>
                                                                 <div className="flex-1">
-                                                                    <p className="font-medium">{userData.email}</p>
+                                                                    <p className="font-medium">{userData?.email}</p>
                                                                     <p className="text-sm text-muted-foreground">Primary email address</p>
                                                                 </div>
 
@@ -717,7 +675,7 @@ function RouteComponent() {
                                                                     <Phone className="h-4 w-4 text-primary" />
                                                                 </div>
                                                                 <div className="flex-1">
-                                                                    <p className="font-medium">{userData.phone}</p>
+                                                                    <p className="font-medium">{userData?.phone}</p>
                                                                     <p className="text-sm text-muted-foreground">Phone number</p>
                                                                 </div>
 
@@ -730,7 +688,7 @@ function RouteComponent() {
                                                                     <MapPin className="h-4 w-4 text-primary" />
                                                                 </div>
                                                                 <div className="flex-1">
-                                                                    <p className="font-medium">{userData.city}, {userData.state} - {userData.zipcode}</p>
+                                                                    <p className="font-medium">{userData?.city}, {userData?.state} - {userData?.zipcode}</p>
                                                                     <p className="text-sm text-muted-foreground">Current location</p>
                                                                 </div>
 
@@ -743,7 +701,7 @@ function RouteComponent() {
                                                                     <Calendar className="h-4 w-4 text-primary" />
                                                                 </div>
                                                                 <div className="flex-1">
-                                                                    <p className="font-medium">Member since {formatCreationDate(userData.createdAt)}</p>
+                                                                    <p className="font-medium">Member since {formatCreationDate(userData?.createdAt || 0)}</p>
                                                                     <p className="text-sm text-muted-foreground">Account creation date</p>
                                                                 </div>
 
@@ -1155,7 +1113,7 @@ function RouteComponent() {
             <UpdateAccountDialog
                 open={showUpdateDialog}
                 onOpenChange={setShowUpdateDialog}
-                userData={userData}
+                userData={userData ?? { id: '', name: '', email: '', phone: '', state: '', city: '', zipcode: '' }}
                 onUpdate={handleUpdateAccount}
             />
         </>

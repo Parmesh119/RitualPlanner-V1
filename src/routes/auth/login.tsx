@@ -77,7 +77,7 @@ function LoginPage() {
           }
         })
 
-        navigate({ to: '/app/dashboard' })
+        navigate({ to: '/app/account' })
       }
     },
     onError: (error) => {

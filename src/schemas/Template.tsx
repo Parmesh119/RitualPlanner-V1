@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-const TemplateSchema = z.object({
+export const TemplateSchema = z.object({
     id: z.string().uuid().optional().default(() => crypto.randomUUID()),
     name: z.string().min(1, "name is required"),
     description: z.string().nullable().optional(),
@@ -8,12 +8,13 @@ const TemplateSchema = z.object({
     updatedAt: z.number().int().positive().default(() => Date.now())
 })
 
-const ItemTemplateSchema = z.object({
+export const ItemTemplateSchema = z.object({
     id: z.string().uuid().optional().default(() => crypto.randomUUID()),
     template_id: z.string().uuid().nullable().optional().default(() => crypto.randomUUID()),
     itemname: z.string().min(1, "Item name is required"),
     quantity: z.number().int().min(1, "Quantity is required"),
     unit: z.string().min(1, "Unit is required"),
+    note: z.string().nullable().optional(),
     createdAt: z.number().int().positive().default(() => Date.now()),
     updatedAt: z.number().int().positive().default(() => Date.now())
 })

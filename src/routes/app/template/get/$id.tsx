@@ -1,11 +1,10 @@
 import { createFileRoute, useNavigate, useParams } from '@tanstack/react-router'
-import { useQuery } from '@tanstack/react-query'
-import { getTemplateByIdAction } from '@/lib/actions'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { getAccountDetails, getTemplateByIdAction } from '@/lib/actions'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
-import { Skeleton } from '@/components/ui/skeleton'
 import { format } from 'date-fns'
 import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 import {
@@ -17,9 +16,10 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { Separator } from "@/components/ui/separator"
-import { Calendar, Package, FileText, AlertCircle, Pencil } from 'lucide-react'
+import { Calendar, Package, FileText, AlertCircle, Pencil, Download } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
+import { toast } from 'sonner'
 
 export const Route = createFileRoute('/app/template/get/$id')({
   component: RouteComponent,
@@ -37,6 +37,28 @@ function RouteComponent() {
   const items = data?.requiredItems ?? []
 
   const navigate = useNavigate()
+
+  const { data: userData, isError } = useQuery({
+    queryKey: ["accountDetails"],
+    queryFn: getAccountDetails,
+    staleTime: 1000 * 60 * 60,
+  })
+
+  if (isError) {
+    toast.error("Error while fetching user details! Please login again. ", {
+      description: "Logging out ...",
+      style: {
+        background: "linear-gradient(90deg, #E53E3E, #C53030)",
+        color: "white",
+        fontWeight: "bolder",
+        fontSize: "13px",
+        letterSpacing: "1px",
+      }
+    })
+    navigate({ to: "/auth/login" })
+    localStorage.clear()
+    throw new Error("Error while fetching user details!")
+  }
 
   if (isLoading) {
     return (
@@ -112,11 +134,12 @@ function RouteComponent() {
         <div className="space-y-2">
           <div className="flex items-center gap-3 justify-between">
             <span className='flex flex-row gap-4'>
-            <h1 className="text-2xl font-bold tracking-tight">{template?.name || 'Untitled Template'}</h1>
-            <Badge variant="secondary" className="text-xs">
-              Template
-            </Badge>
+              <h1 className="text-2xl font-bold tracking-tight">{template?.name || 'Untitled Template'}</h1>
+              <Badge variant="secondary" className="text-xs">
+                Template
+              </Badge>
             </span>
+            <span className='flex flex-row gap-4'>
             <Button
               size="sm"
               variant="outline"
@@ -126,6 +149,7 @@ function RouteComponent() {
               <Pencil className="h-4 w-4 mr-1" />
               Edit Template
             </Button>
+              <Button className='cursor-pointer'><Download />Download Template</Button></span>
           </div>
           {template?.description && (
             <p className="text-muted-foreground text-base leading-relaxed max-w-2xl">
@@ -168,7 +192,7 @@ function RouteComponent() {
                       Created Date
                     </label>
                     <p className="text-base">
-                      {template?.createdAt ? format(new Date(template.createdAt), 'PPP') : 'Not available'}
+                      {template?.createdAt ? format(new Date(template.createdAt * 1000), 'PPP') : 'Not available'}
                     </p>
                   </div>
                 </div>
@@ -180,6 +204,10 @@ function RouteComponent() {
                       {template?.description || 'No description provided'}
                     </p>
                   </div>
+                </div>
+
+                <div className="mt-4 text-sm text-muted-foreground">
+                  For any kind of query contact {userData?.name} ({userData?.phone})
                 </div>
               </CardContent>
             </Card>
@@ -207,19 +235,23 @@ function RouteComponent() {
                           <TableHead className="font-semibold">Item Name</TableHead>
                           <TableHead className="font-semibold">Quantity</TableHead>
                           <TableHead className="font-semibold">Unit</TableHead>
+                          <TableHead className="font-semibold">Note</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {items.map((item: { id?: string; itemname?: string; quantity?: number; unit?: string }, idx: number) => (
+                        {(items as { id?: string; itemname?: string; quantity?: number; unit?: string; note?: string | null }[]).map((item, idx) => (
                           <TableRow key={item.id || idx} className="hover:bg-muted/20 transition-colors">
                             <TableCell className="font-medium">
-                              {item.itemname || <span className="text-muted-foreground italic">No name</span>}
+                              {item.itemname}
                             </TableCell>
                             <TableCell>
-                              {item.quantity !== undefined ? item.quantity : <span className="text-muted-foreground">-</span>}
+                              {item.quantity}
                             </TableCell>
                             <TableCell>
-                              {item.unit || <span className="text-muted-foreground">-</span>}
+                              {item.unit}
+                            </TableCell>
+                            <TableCell>
+                              {item.note ?? undefined}
                             </TableCell>
                           </TableRow>
                         ))}

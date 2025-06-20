@@ -28,6 +28,7 @@ import { Route as AppAccountIndexImport } from './routes/app/account/index'
 import { Route as AppTemplateCreateImport } from './routes/app/template/create'
 import { Route as AppTasksCreateImport } from './routes/app/tasks/create'
 import { Route as AppTemplateGetIdImport } from './routes/app/template/get/$id'
+import { Route as AppTemplateEditIdImport } from './routes/app/template/edit/$id'
 import { Route as AppNotesNoteIdImport } from './routes/app/notes/note/$id'
 import { Route as AppCoWorkerGetIdImport } from './routes/app/co-worker/get/$id'
 import { Route as AppClientGetIdImport } from './routes/app/client/get/$id'
@@ -134,6 +135,12 @@ const AppTasksCreateRoute = AppTasksCreateImport.update({
 const AppTemplateGetIdRoute = AppTemplateGetIdImport.update({
   id: '/template/get/$id',
   path: '/template/get/$id',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+
+const AppTemplateEditIdRoute = AppTemplateEditIdImport.update({
+  id: '/template/edit/$id',
+  path: '/template/edit/$id',
   getParentRoute: () => AppRouteRoute,
 } as any)
 
@@ -305,6 +312,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppNotesNoteIdImport
       parentRoute: typeof AppRouteImport
     }
+    '/app/template/edit/$id': {
+      id: '/app/template/edit/$id'
+      path: '/template/edit/$id'
+      fullPath: '/app/template/edit/$id'
+      preLoaderRoute: typeof AppTemplateEditIdImport
+      parentRoute: typeof AppRouteImport
+    }
     '/app/template/get/$id': {
       id: '/app/template/get/$id'
       path: '/template/get/$id'
@@ -332,6 +346,7 @@ interface AppRouteRouteChildren {
   AppClientGetIdRoute: typeof AppClientGetIdRoute
   AppCoWorkerGetIdRoute: typeof AppCoWorkerGetIdRoute
   AppNotesNoteIdRoute: typeof AppNotesNoteIdRoute
+  AppTemplateEditIdRoute: typeof AppTemplateEditIdRoute
   AppTemplateGetIdRoute: typeof AppTemplateGetIdRoute
 }
 
@@ -350,6 +365,7 @@ const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppClientGetIdRoute: AppClientGetIdRoute,
   AppCoWorkerGetIdRoute: AppCoWorkerGetIdRoute,
   AppNotesNoteIdRoute: AppNotesNoteIdRoute,
+  AppTemplateEditIdRoute: AppTemplateEditIdRoute,
   AppTemplateGetIdRoute: AppTemplateGetIdRoute,
 }
 
@@ -378,6 +394,7 @@ export interface FileRoutesByFullPath {
   '/app/client/get/$id': typeof AppClientGetIdRoute
   '/app/co-worker/get/$id': typeof AppCoWorkerGetIdRoute
   '/app/notes/note/$id': typeof AppNotesNoteIdRoute
+  '/app/template/edit/$id': typeof AppTemplateEditIdRoute
   '/app/template/get/$id': typeof AppTemplateGetIdRoute
 }
 
@@ -402,6 +419,7 @@ export interface FileRoutesByTo {
   '/app/client/get/$id': typeof AppClientGetIdRoute
   '/app/co-worker/get/$id': typeof AppCoWorkerGetIdRoute
   '/app/notes/note/$id': typeof AppNotesNoteIdRoute
+  '/app/template/edit/$id': typeof AppTemplateEditIdRoute
   '/app/template/get/$id': typeof AppTemplateGetIdRoute
 }
 
@@ -427,6 +445,7 @@ export interface FileRoutesById {
   '/app/client/get/$id': typeof AppClientGetIdRoute
   '/app/co-worker/get/$id': typeof AppCoWorkerGetIdRoute
   '/app/notes/note/$id': typeof AppNotesNoteIdRoute
+  '/app/template/edit/$id': typeof AppTemplateEditIdRoute
   '/app/template/get/$id': typeof AppTemplateGetIdRoute
 }
 
@@ -453,6 +472,7 @@ export interface FileRouteTypes {
     | '/app/client/get/$id'
     | '/app/co-worker/get/$id'
     | '/app/notes/note/$id'
+    | '/app/template/edit/$id'
     | '/app/template/get/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -476,6 +496,7 @@ export interface FileRouteTypes {
     | '/app/client/get/$id'
     | '/app/co-worker/get/$id'
     | '/app/notes/note/$id'
+    | '/app/template/edit/$id'
     | '/app/template/get/$id'
   id:
     | '__root__'
@@ -499,6 +520,7 @@ export interface FileRouteTypes {
     | '/app/client/get/$id'
     | '/app/co-worker/get/$id'
     | '/app/notes/note/$id'
+    | '/app/template/edit/$id'
     | '/app/template/get/$id'
   fileRoutesById: FileRoutesById
 }
@@ -559,6 +581,7 @@ export const routeTree = rootRoute
         "/app/client/get/$id",
         "/app/co-worker/get/$id",
         "/app/notes/note/$id",
+        "/app/template/edit/$id",
         "/app/template/get/$id"
       ]
     },
@@ -628,6 +651,10 @@ export const routeTree = rootRoute
     },
     "/app/notes/note/$id": {
       "filePath": "app/notes/note/$id.tsx",
+      "parent": "/app"
+    },
+    "/app/template/edit/$id": {
+      "filePath": "app/template/edit/$id.tsx",
       "parent": "/app"
     },
     "/app/template/get/$id": {

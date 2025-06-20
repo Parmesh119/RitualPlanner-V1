@@ -22,10 +22,20 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Checkbox } from "@/components/ui/checkbox"
-import { listTemplateAction } from '@/lib/actions'
-import { useQuery } from '@tanstack/react-query'
+import { listTemplateAction, deleteTemplateByIdAction } from '@/lib/actions'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from "sonner"
 import { format } from "date-fns"
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog"
 
 export const Route = createFileRoute('/app/template/')({
   component: RouteComponent,
@@ -38,6 +48,8 @@ function RouteComponent() {
   const [selectedTemplates, setSelectedTemplates] = useState<string[]>([])
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list')
   const DEFAULT_PAGE_SIZE = 10
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const queryClient = useQueryClient()
 
   const { data: templatesData, isLoading } = useQuery({
     queryKey: ['templates', currentPage, searchQuery],
@@ -61,6 +73,28 @@ function RouteComponent() {
       setSelectedTemplates(prev => [...prev, templateId])
     } else {
       setSelectedTemplates(prev => prev.filter(id => id !== templateId))
+    }
+  }
+
+  const handleDeleteSelected = async () => {
+    try {
+      await Promise.all(selectedTemplates.map(id => deleteTemplateByIdAction(id)))
+      toast.success("Templates deleted successfully", {
+        description: `${selectedTemplates.length} template${selectedTemplates.length > 1 ? 's' : ''} have been permanently deleted.`,
+        style: {
+          background: "linear-gradient(90deg, #38A169, #2F855A)",
+          color: "white",
+          fontWeight: "bolder",
+          fontSize: "13px",
+          letterSpacing: "1px",
+        }
+      })
+      setSelectedTemplates([])
+      queryClient.invalidateQueries({ queryKey: ['templates'] })
+    } catch (error) {
+      toast.error("Failed to delete templates", {
+        description: "There was an error deleting the templates. Please try again."
+      })
     }
   }
 
@@ -108,6 +142,15 @@ function RouteComponent() {
                   <Grid className="h-4 w-4" />
                 </Button>
               </div>
+              {selectedTemplates.length > 0 && (
+                <Button
+                  variant="destructive"
+                  onClick={() => setIsDeleteDialogOpen(true)}
+                  className="flex items-center gap-2"
+                >
+                  Delete Selected ({selectedTemplates.length})
+                </Button>
+              )}
               <Button onClick={() => navigate({ to: "/app/template/create" })} className='cursor-pointer'>
                 <abbr title="Add Template" className="sm:hidden">
                   <Plus className="h-4 w-4" />
@@ -240,5 +283,25 @@ function RouteComponent() {
         </div>
       </div>
     </SidebarInset>
+
+    <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This action cannot be undone. This will permanently delete {selectedTemplates.length} selected template{selectedTemplates.length > 1 ? 's' : ''} from the database.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={handleDeleteSelected}
+            className="bg-destructive text-white hover:bg-destructive/90"
+          >
+            Delete
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   </>
 }

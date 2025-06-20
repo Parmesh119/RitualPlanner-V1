@@ -13,7 +13,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-import { Clock, Pencil } from "lucide-react"
+import { Clock, Pencil, Send } from "lucide-react"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { CreateCoWorkerDialog } from "@/components/co-worker/create-dialog"
@@ -83,15 +83,20 @@ function RouteComponent() {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h1 className="text-3xl font-bold tracking-tight">{coWorker.name}</h1>
+              <span className='flex flex-row justify-end gap-4'>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setIsEditDialogOpen(true)}
-                className="gap-2"
+                className="gap-2 cursor-pointer"
               >
                 <Pencil className="h-4 w-4" />
                 Edit Co-Worker
               </Button>
+              <Button variant={'outline'} className='cursor-pointer' size={"sm"} >
+                <Send className='h-4 w-4' />Invite Co-Worker on this platform?
+              </Button>
+              </span>
             </div>
             <div className="flex items-center gap-4 text-sm text-muted-foreground justify-between">
               <div className="flex items-center gap-1">
