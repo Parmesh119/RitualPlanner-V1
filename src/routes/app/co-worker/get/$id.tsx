@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { getCoWorkerById } from '@/lib/actions'
+import { getCoWorkerById, sendInviteAction } from '@/lib/actions'
 import { type TCoWorker } from '@/schemas/CoWorker'
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { format } from 'date-fns'
 import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 import { Separator } from "@/components/ui/separator"
@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button"
 import { CreateCoWorkerDialog } from "@/components/co-worker/create-dialog"
 import { useState } from "react"
 import { Link } from '@tanstack/react-router'
+import { toast } from 'sonner'
 
 export const Route = createFileRoute('/app/co-worker/get/$id')({
   component: RouteComponent,
@@ -36,6 +37,40 @@ function RouteComponent() {
   const { data: coWorker, isLoading } = useQuery<TCoWorker>({
     queryKey: ['co-worker', coWorkerId],
     queryFn: () => getCoWorkerById(coWorkerId)
+  })
+
+  const sendInvite = useMutation({
+    mutationFn: () => {
+      if (!coWorker) {
+        // Optionally, you could throw an error or return a rejected promise
+        throw new Error("Co-worker data is not loaded");
+      }
+      return sendInviteAction(coWorker);
+    },
+    onSuccess: async (data) => {
+      if (data) {
+        toast.success("Invitation sent successfully", {
+          style: {
+            background: "linear-gradient(90deg, #38A169, #2F855A)",
+            color: "white",
+            fontWeight: "bolder",
+            fontSize: "13px",
+            letterSpacing: "1px",
+          }
+        })
+      }
+    },
+    onError: () => {
+      toast.error("Error while sending invitation", {
+        style: {
+          background: "linear-gradient(90deg, #E53E3E, #C53030)",
+          color: "white",
+          fontWeight: "bolder",
+          fontSize: "13px",
+          letterSpacing: "1px",
+        }
+      })
+    }
   })
 
   if (isLoading) {
@@ -93,7 +128,7 @@ function RouteComponent() {
                 <Pencil className="h-4 w-4" />
                 Edit Co-Worker
               </Button>
-              <Button variant={'outline'} className='cursor-pointer' size={"sm"} >
+                <Button onClick={() => sendInvite.mutate()} variant={'outline'} className='cursor-pointer' size={"sm"} >
                 <Send className='h-4 w-4' />Invite Co-Worker on this platform?
               </Button>
               </span>
