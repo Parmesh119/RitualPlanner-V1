@@ -395,7 +395,7 @@ function RouteComponent() {
                               <TableCell className="font-medium">{item.itemname}</TableCell>
                               <TableCell>{item.quantity}</TableCell>
                               <TableCell>{item.unit}</TableCell>
-                              <TableCell>{item.note ?? undefined}</TableCell>
+                              <TableCell>{item.note ?? '-'}</TableCell>
                             </TableRow>
                           ))}
                         </TableBody>

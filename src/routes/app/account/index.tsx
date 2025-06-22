@@ -11,7 +11,7 @@ import {
     Mail, Phone, MapPin, Calendar, Shield, Bell, CreditCard, Settings,
     Edit3, LogOut, Activity, Users,
     Eye, EyeOff, Smartphone, Lock, Key, Crown, ChevronRight,
-    Globe, Moon, Download, User2, Upload, X, LoaderCircle
+    Globe, Moon, Download, User2, Upload, X
 } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
 import {
@@ -40,7 +40,6 @@ import { Input } from "@/components/ui/input"
 import { getAuth, deleteUser } from "firebase/auth"
 import { app } from '@/util/firebaseConfig'
 import { UpdateAccountDialog } from "@/components/account/update-account-dialog"
-import { type User } from '@/schemas/User'
 export const Route = createFileRoute('/app/account/')({
     component: RouteComponent,
 })
@@ -299,6 +298,7 @@ function RouteComponent() {
     const [showUpdateDialog, setShowUpdateDialog] = useState(false)
     const [profileImage, setProfileImage] = useState<string | null>(null)
     const fileInputRef = useRef<HTMLInputElement>(null)
+    const [language, setLanguage] = useState('en') // 'en' for English, 'gu' for Gujarati
 
     // Handle dark mode toggle
     const handleDarkModeChange = (checked: boolean) => {
@@ -883,6 +883,35 @@ function RouteComponent() {
                                                         checked={darkMode}
                                                         onCheckedChange={handleDarkModeChange}
                                                     />
+                                                </div>
+                                                <h4 className="font-medium text-sm text-muted-foreground uppercase tracking-wider">Language</h4>
+                                                <div className="flex items-center justify-between p-4 rounded-xl border bg-gradient-to-r from-background to-muted/20">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="p-2 rounded-lg bg-primary/10">
+                                                            <span role="img" aria-label="language">🌐</span>
+                                                        </div>
+                                                        <div>
+                                                            <Label htmlFor="language" className="font-medium">App Language</Label>
+                                                            <p className="text-sm text-muted-foreground">Change the app language</p>
+                                                        </div>
+                                                    </div>
+                                                    <div className="relative w-40">
+                                                        <select
+                                                            id="language"
+                                                            aria-label="App Language"
+                                                            value={language}
+                                                            onChange={e => setLanguage(e.target.value)}
+                                                            className="rounded-md text-center border px-6 py-2 text-sm bg-background text-foreground dark:bg-[#222] dark:text-white appearance-none w-full"
+                                                        >
+                                                            <option value="en">English</option>
+                                                            <option value="gu">Gujarati</option>
+                                                        </select>
+                                                        <span className="pointer-events-none absolute inset-y-0 right-2 flex items-center">
+                                                            <svg className="h-4 w-4 text-gray-500 dark:text-gray-300" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                                                            </svg>
+                                                        </span>
+                                                    </div>
                                                 </div>
                                             </div>
 

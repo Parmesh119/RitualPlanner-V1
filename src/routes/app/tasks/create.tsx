@@ -1,3 +1,4 @@
+import * as React from "react"
 import { createFileRoute } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
@@ -26,7 +27,7 @@ import {
 } from "@/components/ui/popover"
 import { cn } from "@/lib/utils"
 import { TaskSchema, type TTask } from "@/schemas/Task"
-import { listCoWorkerAction, listNoteAction, getNoteByIdAction, getUserDetails, listClientAction } from "@/lib/actions"
+import { listCoWorkerAction, listNoteAction, getNoteByIdAction, getUserDetails, listClientAction, listTemplateAction } from "@/lib/actions"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -147,6 +148,10 @@ function RouteComponent() {
   const [selectedClientIds, setSelectedClientIds] = useState<string[]>([])
   const [clientSearchTerm, setClientSearchTerm] = useState("")
 
+  // Step 6 States
+  const [selectedTemplateIds, setSelectedTemplateIds] = useState<string[]>([])
+  const [templateSearchTerm, setTemplateSearchTerm] = useState("")
+
   // Fetch co-workers for task owner dropdown
   const { data: coWorkers = [] } = useQuery({
     queryKey: ['co-workers'],
@@ -178,6 +183,12 @@ function RouteComponent() {
     queryFn: () => listClientAction({ page: 1, size: 1000 })
   })
 
+  // Fetch templates query
+  const { data: templates = [] } = useQuery({
+    queryKey: ['templates'],
+    queryFn: () => listTemplateAction({ page: 1, size: 1000 })
+  })
+
   // Calculate payment status
   const paymentStatus = totalAmount > 0 && totalAmount === paidAmount ? 'COMPLETED' : 'PENDING'
 
@@ -196,6 +207,12 @@ function RouteComponent() {
     return client?.name.toLowerCase().includes(clientSearchTerm.toLowerCase())
   })
 
+  // Filter selected templates based on search term
+  const filteredTemplates = selectedTemplateIds.filter(id => {
+    const template = templates.find(t => t.id === id)
+    return template?.name.toLowerCase().includes(templateSearchTerm.toLowerCase())
+  })
+
   const validateStep1 = () => {
     try {
       const taskData = {
@@ -211,6 +228,12 @@ function RouteComponent() {
       // Custom validation for taskOwner_id if self is false
       if (!self && !taskOwner) {
         setErrors(prev => ({ ...prev, taskOwner: "Task owner is required when 'Self' is off" }))
+        return false
+      }
+
+      // Custom validation for date - always required
+      if (!date) {
+        setErrors(prev => ({ ...prev, date: "Date is required" }))
         return false
       }
 
@@ -286,6 +309,80 @@ function RouteComponent() {
     return true
   }
 
+  // Add validation for step 4
+  const validateStep4 = () => {
+    if (self && status !== 'CANCELED') {
+      // If self is true and task is not canceled, payment date is required
+      if (!step4PaymentDate) {
+        toast.error("Payment date is required", {
+          description: "Please select a payment date for your task",
+          style: {
+            background: "linear-gradient(90deg, #E53E3E, #C53030)",
+            color: "white",
+            fontWeight: "bolder",
+            fontSize: "13px",
+            letterSpacing: "1px",
+          }
+        })
+        return false
+      }
+
+      // Check if total amount is greater than 0
+      if (step4TotalAmount <= 0) {
+        toast.error("Total amount is required", {
+          description: "Please enter a total amount greater than 0",
+          style: {
+            background: "linear-gradient(90deg, #E53E3E, #C53030)",
+            color: "white",
+            fontWeight: "bolder",
+            fontSize: "13px",
+            letterSpacing: "1px",
+          }
+        })
+        return false
+      }
+
+      // Amount paid can be 0 or greater (no validation needed)
+    }
+    return true
+  }
+
+  // Add validation for step 5
+  const validateStep5 = () => {
+    if (self && selectedClientIds.length === 0) {
+      toast.error("Client selection is required", {
+        description: "Please select at least one client for this task.",
+        style: {
+          background: "linear-gradient(90deg, #E53E3E, #C53030)",
+          color: "white",
+          fontWeight: "bolder",
+          fontSize: "13px",
+          letterSpacing: "1px",
+        }
+      })
+      return false
+    }
+    return true
+  }
+
+  // Add validation for step 6
+  const validateStep6 = () => {
+    if (self && selectedTemplateIds.length === 0) {
+      toast.error("Template selection is required", {
+        description: "Please select at least one template for this task.",
+        style: {
+          background: "linear-gradient(90deg, #E53E3E, #C53030)",
+          color: "white",
+          fontWeight: "bolder",
+          fontSize: "13px",
+          letterSpacing: "1px",
+        }
+      })
+      return false
+    }
+    return true
+  }
+
   const handleNext = () => {
     if (currentStep === 1) {
       if (validateStep1()) {
@@ -298,14 +395,21 @@ function RouteComponent() {
         setCurrentStep(4)
       }
     } else if (currentStep === 4) {
-      setCurrentStep(5)
+      if (validateStep4()) {
+        setCurrentStep(5)
+      }
     } else if (currentStep === 5) {
+      if (!validateStep5()) return
+      setCurrentStep(6)
+    } else if (currentStep === 6) {
+      if (!validateStep6()) return
       // Final submission
       console.log("Final form submission", {
         selectedNoteIds,
         selectedAssistantIds,
         assistantPayments,
         selectedClientIds,
+        selectedTemplateIds,
         totalAmount,
         paidAmount,
         paymentDate,
@@ -316,7 +420,9 @@ function RouteComponent() {
   }
 
   const handlePrevious = () => {
-    if (currentStep === 5) {
+    if (currentStep === 6) {
+      setCurrentStep(5)
+    } else if (currentStep === 5) {
       setCurrentStep(4)
     } else if (currentStep === 4) {
       setCurrentStep(3)
@@ -390,6 +496,37 @@ function RouteComponent() {
   // Add this function to handle payment submission
   const handlePaymentSubmit = () => {
     if (currentAssistantId) {
+      // Validate required fields when self is true and status is not canceled
+      if (self && status !== 'CANCELED') {
+        if (currentPayment.totalAmount <= 0) {
+          toast.error("Total amount is required", {
+            description: "Please enter a total amount greater than 0",
+            style: {
+              background: "linear-gradient(90deg, #E53E3E, #C53030)",
+              color: "white",
+              fontWeight: "bolder",
+              fontSize: "13px",
+              letterSpacing: "1px",
+            }
+          })
+          return
+        }
+
+        if (!currentPayment.paymentDate) {
+          toast.error("Payment date is required", {
+            description: "Please select a payment date",
+            style: {
+              background: "linear-gradient(90deg, #E53E3E, #C53030)",
+              color: "white",
+              fontWeight: "bolder",
+              fontSize: "13px",
+              letterSpacing: "1px",
+            }
+          })
+          return
+        }
+      }
+
       setAssistantPayments(prev => {
         const existingIndex = prev.findIndex(p => p.assistantId === currentAssistantId)
         if (existingIndex >= 0) {
@@ -447,6 +584,51 @@ function RouteComponent() {
     }
   }
 
+  // Add this function to reset steps 3, 4, and 5 data
+  const resetStepsData = () => {
+    // Reset step 3 data
+    setSelectedAssistantIds([])
+    setAssistantPayments([])
+    setTotalAmount(0)
+    setPaidAmount(0)
+    setPaymentDate(undefined)
+    setPaymentMode('CASH')
+    setOnlinePaymentMode(null)
+    setShowPaymentDialog(false)
+    setCurrentAssistantId(null)
+    setCurrentPayment({
+      assistantId: '',
+      totalAmount: 0,
+      paidAmount: 0,
+      paymentMode: 'CASH',
+      status: 'PENDING'
+    })
+
+    // Reset step 4 data
+    setStep4TotalAmount(0)
+    setStep4PaidAmount(0)
+    setStep4PaymentDate(undefined)
+    setStep4PaymentMode('CASH')
+    setStep4OnlinePaymentMode(null)
+
+    // Reset step 5 data
+    setSelectedClientIds([])
+    setClientSearchTerm("")
+    // Reset step 6 data
+    setSelectedTemplateIds([])
+    setTemplateSearchTerm("")
+  }
+
+  // Add this function after handleClientSelection
+  const handleTemplateSelection = (templateId: string, checked: boolean) => {
+    if (!self) return // Disabled if not self
+    if (checked) {
+      setSelectedTemplateIds(prev => [...prev, templateId])
+    } else {
+      setSelectedTemplateIds(prev => prev.filter(id => id !== templateId))
+    }
+  }
+
   return (
     <>
       <SidebarInset className='w-full'>
@@ -457,11 +639,11 @@ function RouteComponent() {
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem>
-                  <BreadcrumbLink href="#">Tasks</BreadcrumbLink>
+                  <Link to="/app/tasks"><BreadcrumbLink href="#">Tasks</BreadcrumbLink></Link>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
-                  <BreadcrumbPage>Create Task (Step {currentStep} of 5)</BreadcrumbPage>
+                  <BreadcrumbPage>Create Task (Step {currentStep} of 6)</BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
@@ -471,14 +653,14 @@ function RouteComponent() {
 
         <div className="flex flex-col gap-4 px-4 md:px-8 py-2">
           <div className="flex flex-col gap-4">
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-4">
                 <h1 className="text-2xl font-bold">Create Task</h1>
-                <p className="text-sm text-muted-foreground">Fill in the details to create a new task</p>
+                <span className="text-sm font-medium bg-muted/50 px-3 py-1.5 rounded-full border">Step {currentStep} of 6</span>
               </div>
-              <div className="flex items-center gap-2 bg-muted/50 px-3 py-1.5 rounded-full border">
-                <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
-                <span className="text-sm font-medium">Step {currentStep} of 5</span>
+              <div className="flex gap-4">
+                <Button variant="outline" onClick={handlePrevious} disabled={currentStep === 1}>Previous</Button>
+                <Button onClick={handleNext}>{currentStep === 6 ? "Submit" : "Next"}</Button>
               </div>
             </div>
 
@@ -498,7 +680,7 @@ function RouteComponent() {
                     <CardContent className="space-y-4">
                       {/* Task Name */}
                       <div>
-                        <Label htmlFor="taskName" className="mb-1.5 block">Task Name</Label>
+                        <Label htmlFor="taskName" className="mb-1.5 block">Task Name <span className="text-red-500">*</span></Label>
                         <Input
                           id="taskName"
                           value={taskName}
@@ -533,7 +715,7 @@ function RouteComponent() {
 
                       {/* Location */}
                       <div>
-                        <Label htmlFor="location" className="mb-1.5 block">Location</Label>
+                        <Label htmlFor="location" className="mb-1.5 block">Location <span className="text-red-500">*</span></Label>
                         <Input
                           id="location"
                           value={location}
@@ -548,7 +730,7 @@ function RouteComponent() {
 
                       {/* Date */}
                       <div>
-                        <Label className="mb-1.5 block">Date</Label>
+                        <Label className="mb-1.5 block">Date <span className="text-red-500">*</span></Label>
                         <Popover>
                           <PopoverTrigger asChild>
                             <Button
@@ -661,13 +843,10 @@ function RouteComponent() {
                                     setSelf(checked)
                                     if (checked) {
                                       setTaskOwner("") // Reset taskOwner when switching to self
+                                      resetStepsData() // Reset steps data for clean state
                                     } else {
                                       // Reset payment values when switching to non-self
-                                      setTotalAmount(0)
-                                      setPaidAmount(0)
-                                      setPaymentDate(undefined)
-                                      setPaymentMode('CASH')
-                                      setOnlinePaymentMode(null)
+                                      resetStepsData()
                                     }
                                   }}
                                 />
@@ -683,7 +862,7 @@ function RouteComponent() {
 
                           {/* Task Owner (Conditional) */}
                           <div>
-                            <Label htmlFor="taskOwner" className="mb-1.5 block">Task Owner</Label>
+                            <Label htmlFor="taskOwner" className="mb-1.5 block">Task Owner <span className="text-red-500">*</span></Label>
                             {self ? (
                               <div className="flex items-center gap-2 p-2 border rounded-md bg-muted/30">
                                 <Avatar className="h-8 w-8">
@@ -1159,7 +1338,7 @@ function RouteComponent() {
                       <div className="space-y-4 py-4">
                         <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-2">
-                            <Label htmlFor="dialogTotalAmount">Total Amount</Label>
+                            <Label htmlFor="dialogTotalAmount">Total Amount {self && status !== 'CANCELED' && <span className="text-red-500">*</span>}</Label>
                             <div className="relative">
                               <IndianRupee className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                               <Input
@@ -1204,15 +1383,17 @@ function RouteComponent() {
                         </div>
 
                         <div className="space-y-2">
-                          <Label>Payment Date</Label>
+                          <Label>Payment Date {self && status !== 'CANCELED' && <span className="text-red-500">*</span>}</Label>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <Button
                                 variant="outline"
                                 className={cn(
                                   "w-full justify-between text-left font-normal",
-                                  !currentPayment.paymentDate && "text-muted-foreground"
+                                  !currentPayment.paymentDate && "text-muted-foreground",
+                                  status === 'CANCELED' && "opacity-50"
                                 )}
+                                disabled={status === 'CANCELED'}
                               >
                                 <div className="flex items-center gap-2">
                                   <CalendarIcon className="h-4 w-4" />
@@ -1317,7 +1498,7 @@ function RouteComponent() {
                       <div className="space-y-6">
                         <div className="flex flex-row gap-4">
                           <div className="space-y-2 w-[50%]">
-                            <Label htmlFor="step4TotalAmount">Total Amount</Label>
+                            <Label htmlFor="step4TotalAmount">Total Amount {self && status !== 'CANCELED' && <span className="text-red-500">*</span>}</Label>
                             <div className="relative">
                               <IndianRupee className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                               <Input
@@ -1365,7 +1546,7 @@ function RouteComponent() {
                         </div>
 
                         <div className="space-y-2">
-                          <Label>Payment Date</Label>
+                          <Label>Payment Date {self && status !== 'CANCELED' && <span className="text-red-500">*</span>}</Label>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <Button
@@ -1473,7 +1654,7 @@ function RouteComponent() {
                         <div className="space-y-2">
                           <Label className="text-sm font-medium flex items-center gap-2">
                             <Search className="h-4 w-4" />
-                            Select Clients
+                            Select Clients {self && <span className="text-red-500">*</span>}
                           </Label>
                           <Popover>
                             <PopoverTrigger asChild>
@@ -1620,11 +1801,165 @@ function RouteComponent() {
                 </div>
               )}
 
-              {/* Buttons for Navigation */}
-              <div className="flex justify-end gap-4 pt-4">
-                <Button variant="outline" onClick={handlePrevious} disabled={currentStep === 1}>Previous</Button>
-                <Button onClick={handleNext}>Next</Button>
-              </div>
+              {/* Step 6: Template Selection */}
+              {currentStep === 6 && (
+                <div className="grid grid-cols-1 lg:grid-2 gap-6">
+                  <Card className="border-0">
+                    <CardHeader className="pb-2 space-y-1">
+                      <div className="flex items-center gap-2">
+                        <FileText className="h-5 w-5 text-muted-foreground" />
+                        <h2 className="text-lg font-semibold">Task Templates</h2>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        {self
+                          ? "Select templates for this task"
+                          : "Enable self mode to select templates"}
+                      </p>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      {self ? (
+                        <div className="space-y-2">
+                          <Label className="text-sm font-medium flex items-center gap-2">
+                            <Search className="h-4 w-4" />
+                            Select Templates <span className="text-red-500">*</span>
+                          </Label>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <Button
+                                variant="outline"
+                                className="w-full justify-between h-11 px-3 border-2 hover:border-primary/20 focus:border-primary transition-colors"
+                              >
+                                <div className="flex items-center gap-2">
+                                  <FileText className="h-4 w-4 text-muted-foreground" />
+                                  <span className="text-sm">
+                                    Select Templates ({selectedTemplateIds.length} selected)
+                                  </span>
+                                </div>
+                                <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-60 lg:w-130 p-0" align="center">
+                              <Command className="rounded-lg border-0">
+                                <CommandInput
+                                  placeholder="Search templates..."
+                                  className="h-9"
+                                  value={templateSearchTerm}
+                                  onValueChange={setTemplateSearchTerm}
+                                />
+                                <CommandEmpty className="py-6 text-center text-sm text-muted-foreground">
+                                  <div className="flex flex-col items-center gap-2">
+                                    <FileText className="h-8 w-8 opacity-20" />
+                                    <span>No templates found</span>
+                                  </div>
+                                </CommandEmpty>
+                                <CommandGroup>
+                                  <ScrollArea className="h-[200px]">
+                                    <CommandList>
+                                      {templates.map((template) => (
+                                        <CommandItem
+                                          key={template.id}
+                                          className="flex items-center justify-between p-3 cursor-pointer hover:bg-accent/50"
+                                        >
+                                          <Label
+                                            htmlFor={`template-${template.id}`}
+                                            className="text-sm font-medium leading-none cursor-pointer flex-1 min-w-0 mr-3"
+                                          >
+                                            <div className="flex items-center gap-2">
+                                              <FileText className="h-6 w-6" />
+                                              {template.name}
+                                            </div>
+                                          </Label>
+                                          <Checkbox
+                                            id={`template-${template.id}`}
+                                            checked={selectedTemplateIds.includes(template.id)}
+                                            onCheckedChange={(checked) => handleTemplateSelection(template.id, checked === true)}
+                                            className="shrink-0"
+                                            disabled={!self}
+                                          />
+                                        </CommandItem>
+                                      ))}
+                                    </CommandList>
+                                  </ScrollArea>
+                                </CommandGroup>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-center h-32">
+                          <p className="text-sm text-muted-foreground">Enable self mode to select templates</p>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+
+                  <Card className="border-0">
+                    <CardHeader className="pb-2 space-y-1">
+                      <div className="flex items-center gap-2">
+                        <FileText className="h-5 w-5 text-muted-foreground" />
+                        <h2 className="text-lg font-semibold">Selected Templates</h2>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        View and manage selected templates
+                      </p>
+                    </CardHeader>
+                    <CardContent>
+                      {selectedTemplateIds.length > 0 ? (
+                        <div className="space-y-4">
+                          <div className="relative">
+                            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                            <input
+                              type="text"
+                              placeholder="Search selected templates..."
+                              className="pl-9 border rounded-md h-9 w-full bg-transparent text-sm"
+                              value={templateSearchTerm}
+                              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTemplateSearchTerm(e.target.value)}
+                            />
+                          </div>
+                          <div>
+                            <div className="space-y-3 max-h-64 overflow-y-auto">
+                              {filteredTemplates.map(id => {
+                                const template = templates.find(t => t.id === id)
+                                return template ? (
+                                  <div key={id} className="group flex items-center justify-between p-3 rounded-md bg-accent/30 hover:bg-accent/50 transition-colors">
+                                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                                      <FileText className="h-8 w-8" />
+                                      <div className="flex flex-col min-w-0">
+                                        <Link
+                                          to="/app/template/get/$id"
+                                          params={{ id: template.id }}
+                                          className="truncate text-sm font-medium hover:text-primary transition-colors"
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                        >
+                                          {template.name}
+                                        </Link>
+                                      </div>
+                                    </div>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="h-8 w-8 p-0 opacity-60 hover:opacity-100"
+                                      onClick={() => handleTemplateSelection(template.id, false)}
+                                      disabled={!self}
+                                    >
+                                      <XCircle className="h-4 w-4 hover:text-destructive transition-colors" />
+                                    </Button>
+                                  </div>
+                                ) : null
+                              })}
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-center h-32">
+                          <p className="text-sm text-muted-foreground">No templates selected</p>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
             </div>
           </div>
         </div>
