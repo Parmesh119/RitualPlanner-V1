@@ -1,5 +1,6 @@
 package ritualplanner.controller
 
+import org.apache.coyote.Response
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import ritualplanner.config.JwtUtil
+import ritualplanner.model.CoWorker
 import ritualplanner.model.ResetPasswordRequest
 import ritualplanner.model.User
 import ritualplanner.model.VerifyOTP
@@ -61,5 +63,10 @@ class UserController (
     @PutMapping("/account/update")
     fun updateAccount(@RequestHeader("Authorization") authorization: String, @RequestBody user: User): ResponseEntity<User> {
         return ResponseEntity.ok(userService.updateAccount(authorization, user))
+    }
+
+    @PostMapping("/send/invite")
+    fun sendInvite(@RequestHeader("Authorization") authorization: String, @RequestBody coWorker: CoWorker): ResponseEntity<Boolean> {
+        return ResponseEntity.ok(userService.sendInvite(coWorker, authorization))
     }
 }

@@ -3,6 +3,7 @@ package ritualplanner.service
 import org.springframework.stereotype.Service
 import org.springframework.web.bind.annotation.RequestHeader
 import ritualplanner.config.JwtUtil
+import ritualplanner.model.CoWorker
 import ritualplanner.model.OtpData
 import ritualplanner.model.User
 import ritualplanner.repository.AuthRepository
@@ -85,5 +86,22 @@ class UserService(
             throw Exception("User does not exist")
         }
         return userRepository.updateAccount(user)
+    }
+
+    fun sendInvite(coWorker: CoWorker, authorization: String): Boolean {
+        return try {
+            val token = authorization.substringAfter("Bearer")
+            val user_id = jwtUtil.getUserIdFromToken(token)
+            val user = authRepository.findUserById(user_id)
+
+            if(coWorker.email === null) {
+                throw Exception("Email is required to send an invite")
+            } else {
+                emailService.sendInviteMail(coWorker.email, "You're invited to join RitualPlanner", coWorker.name, user.name, user.phone, user.email)
+                true
+            }
+        } catch (e: Exception) {
+            throw Exception("Failed to send invite", e)
+        }
     }
 }
