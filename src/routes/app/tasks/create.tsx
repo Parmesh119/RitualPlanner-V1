@@ -117,18 +117,9 @@ function RouteComponent() {
   const [paymentDate, setPaymentDate] = useState<Date>()
   const [paymentMode, setPaymentMode] = useState<'CASH' | 'ONLINE'>('CASH')
   const [onlinePaymentMode, setOnlinePaymentMode] = useState<'NET-BANKING' | 'UPI' | 'CHECK' | 'CARD' | null>(null)
-
-  // Step 4 States
-  const [step4TotalAmount, setStep4TotalAmount] = useState<number>(0)
-  const [step4PaidAmount, setStep4PaidAmount] = useState<number>(0)
-  const [step4PaymentDate, setStep4PaymentDate] = useState<Date>()
-  const [step4PaymentMode, setStep4PaymentMode] = useState<'CASH' | 'ONLINE'>('CASH')
-  const [step4OnlinePaymentMode, setStep4OnlinePaymentMode] = useState<'NET-BANKING' | 'UPI' | 'CHECK' | 'CARD' | null>(null)
-
-  // Add these new states
+  const [assistantPayments, setAssistantPayments] = useState<AssistantPaymentDetails[]>([])
   const [showPaymentDialog, setShowPaymentDialog] = useState(false)
   const [currentAssistantId, setCurrentAssistantId] = useState<string | null>(null)
-  const [assistantPayments, setAssistantPayments] = useState<AssistantPaymentDetails[]>([])
   const [currentPayment, setCurrentPayment] = useState<AssistantPaymentDetails>({
     assistantId: '',
     totalAmount: 0,
@@ -136,25 +127,37 @@ function RouteComponent() {
     paymentMode: 'CASH',
     status: 'PENDING'
   })
-
-  // Add search term state
   const [searchTerm, setSearchTerm] = useState("")
 
-  // Add new state for cancel confirmation
-  const [showCancelConfirm, setShowCancelConfirm] = useState(false)
-  const [pendingStatus, setPendingStatus] = useState<string | null>(null)
-
-  // Add this after the existing state declarations
+  // Step 4 States (Formerly Step 5)
   const [selectedClientIds, setSelectedClientIds] = useState<string[]>([])
   const [clientSearchTerm, setClientSearchTerm] = useState("")
 
-  // Step 6 States
+  // Step 5 States (Formerly Step 6)
   const [selectedTemplateIds, setSelectedTemplateIds] = useState<string[]>([])
   const [templateSearchTerm, setTemplateSearchTerm] = useState("")
 
-  // Step 7 States
+  // Step 6 States (Formerly Step 7)
   const [selectedBillIds, setSelectedBillIds] = useState<string[]>([])
   const [billSearchTerm, setBillSearchTerm] = useState("")
+
+  // Step 7 States (Formerly Step 4)
+  const [step7TotalAmount, setStep7TotalAmount] = useState<number>(0)
+  const [step7PaidAmount, setStep7PaidAmount] = useState<number>(0)
+  const [step7PaymentDate, setStep7PaymentDate] = useState<Date>()
+  const [step7PaymentMode, setStep7PaymentMode] = useState<'CASH' | 'ONLINE'>('CASH')
+  const [step7OnlinePaymentMode, setStep7OnlinePaymentMode] = useState<'NET-BANKING' | 'UPI' | 'CHECK' | 'CARD' | null>(null)
+
+  // Other States
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false)
+  const [pendingStatus, setPendingStatus] = useState<string | null>(null)
+
+  // Error States for each step
+  const [step3Errors, setStep3Errors] = useState<{ [key: string]: string }>({});
+  const [step4Errors, setStep4Errors] = useState<{ [key: string]: string }>({}); // For Clients
+  const [step5Errors, setStep5Errors] = useState<{ [key: string]: string }>({}); // For Templates
+  const [step6Errors, setStep6Errors] = useState<{ [key: string]: string }>({}); // For Bills
+  const [step7Errors, setStep7Errors] = useState<{ [key: string]: string }>({}); // For Your Payment
 
   // Fetch co-workers for task owner dropdown
   const { data: coWorkers = [] } = useQuery({
@@ -199,11 +202,11 @@ function RouteComponent() {
     queryFn: () => listBillAction({ page: 1, size: 1000, search: billSearchTerm }),
   })
 
-  // Calculate payment status
+  // Calculate payment status for assistants
   const paymentStatus = totalAmount > 0 && totalAmount === paidAmount ? 'COMPLETED' : 'PENDING'
 
-  // Calculate payment status for step 4
-  const step4PaymentStatus = step4TotalAmount > 0 && step4TotalAmount === step4PaidAmount ? 'COMPLETED' : 'PENDING'
+  // Calculate payment status for step 7
+  const step7PaymentStatus = step7TotalAmount > 0 && step7TotalAmount === step7PaidAmount ? 'COMPLETED' : 'PENDING'
 
   // Filter selected assistants based on search term
   const filteredAssistants = selectedAssistantIds.filter(id => {
@@ -211,7 +214,7 @@ function RouteComponent() {
     return assistant?.name.toLowerCase().includes(searchTerm.toLowerCase())
   })
 
-  // Add this after the existing filtered assistants
+  // Filter selected clients based on search term
   const filteredClients = selectedClientIds.filter(id => {
     const client = clients.find(c => c.id === id)
     return client?.name.toLowerCase().includes(clientSearchTerm.toLowerCase())
@@ -241,13 +244,11 @@ function RouteComponent() {
         description: description || null
       }
 
-      // Custom validation for taskOwner_id if self is false
       if (!self && !taskOwner) {
         setErrors(prev => ({ ...prev, taskOwner: "Task owner is required when 'Self' is off" }))
         return false
       }
 
-      // Custom validation for date - always required
       if (!date) {
         setErrors(prev => ({ ...prev, date: "Date is required" }))
         return false
@@ -273,20 +274,16 @@ function RouteComponent() {
 
   const validateStep3 = () => {
     setStep3Errors({});
+    if (!self) return true; // Skip validation if not self
     try {
-      // Validate at least one assistant
       z.array(z.string()).min(1, "At least one assistant is required.").parse(selectedAssistantIds);
-      // Validate each assistant and payment
       for (const id of selectedAssistantIds) {
-        // Validate assistant (minimal fields for now)
         TaskAssistantSchema.pick({ assistant_id: true }).parse({ assistant_id: id });
-        // Validate payment details for each assistant
         const payment = assistantPayments.find(p => p.assistantId === id);
         if (!payment) {
           setStep3Errors({ assistantPayments: `Please provide payment details for: ${coWorkers.find(a => a.id === id)?.name || id}` });
           return false;
         }
-        // Use PaymentSchema for validation (simulate required fields)
         try {
           PaymentSchema.pick({ totalAmount: true, paymentMode: true, onlinePaymentMode: true }).parse({
             totalAmount: payment.totalAmount,
@@ -313,42 +310,25 @@ function RouteComponent() {
     }
   };
 
-  const validateStep4 = () => {
+  const validateStep4 = () => { // Formerly validateStep5
     setStep4Errors({});
-    let errors: { [key: string]: string } = {};
-    // Zod validation for totalAmount and paidAmount
-    try {
-      PaymentSchema.pick({ totalAmount: true, paidAmount: true }).parse({
-        totalAmount: step4TotalAmount,
-        paidAmount: step4PaidAmount,
-      });
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        const fieldErrors = error.flatten().fieldErrors;
-        if (fieldErrors.totalAmount?.[0]) errors.totalAmount = fieldErrors.totalAmount[0];
-        if (fieldErrors.paidAmount?.[0]) errors.paidAmount = fieldErrors.paidAmount[0];
-      }
-    }
-    // Custom: paid amount is 0
-    if (step4PaidAmount === 0) {
-      errors.paidAmount = "Paid amount is required and must be greater than 0";
-    }
-    // Custom: paid amount > total amount
-    if (step4PaidAmount > step4TotalAmount) {
-      errors.paidAmount = "Paid amount cannot be greater than total amount";
-    }
-    // Custom: if total or paid amount > 0 and no date
-    if ((step4TotalAmount > 0 || step4PaidAmount > 0) && !step4PaymentDate) {
-      errors.paymentDate = "Payment date is required when there is a payment amount";
-    }
-    setStep4Errors(errors);
-    return Object.keys(errors).length === 0;
-  };
-
-  const validateStep5 = () => {
-    setStep5Errors({});
+    if (!self) return true; // Skip validation if not self
     try {
       z.array(z.string()).length(1, "Exactly one client is required.").parse(selectedClientIds);
+      return true;
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        setStep4Errors(error.flatten().fieldErrors as any);
+      }
+      return false;
+    }
+  };
+
+  const validateStep5 = () => { // Formerly validateStep6
+    setStep5Errors({});
+    if (!self) return true; // Skip validation if not self
+    try {
+      z.array(z.string()).length(1, "Exactly one template is required.").parse(selectedTemplateIds);
       return true;
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -358,10 +338,11 @@ function RouteComponent() {
     }
   };
 
-  const validateStep6 = () => {
+  const validateStep6 = () => { // Formerly validateStep7
     setStep6Errors({});
+    if (!self) return true; // Skip validation if not self
     try {
-      z.array(z.string()).length(1, "Exactly one template is required.").parse(selectedTemplateIds);
+      z.array(z.string()).length(1, "Exactly one bill is required.").parse(selectedBillIds);
       return true;
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -369,74 +350,81 @@ function RouteComponent() {
       }
       return false;
     }
-  };
+  }
 
-  const validateStep7 = () => {
+  const validateStep7 = () => { // Formerly validateStep4
     setStep7Errors({});
+    let errors: { [key: string]: string } = {};
     try {
-      z.array(z.string()).length(1, "Exactly one bill is required.").parse(selectedBillIds);
-      return true;
+      PaymentSchema.pick({ totalAmount: true, paidAmount: true }).parse({
+        totalAmount: step7TotalAmount,
+        paidAmount: step7PaidAmount,
+      });
     } catch (error) {
       if (error instanceof z.ZodError) {
-        setStep7Errors(error.flatten().fieldErrors as any);
+        const fieldErrors = error.flatten().fieldErrors;
+        if (fieldErrors.totalAmount?.[0]) errors.totalAmount = fieldErrors.totalAmount[0];
+        if (fieldErrors.paidAmount?.[0]) errors.paidAmount = fieldErrors.paidAmount[0];
       }
-      return false;
     }
-  }
+    if (step7PaidAmount === 0) {
+      errors.paidAmount = "Paid amount is required and must be greater than 0";
+    }
+    if (step7PaidAmount > step7TotalAmount) {
+      errors.paidAmount = "Paid amount cannot be greater than total amount";
+    }
+    if ((step7TotalAmount > 0 || step7PaidAmount > 0) && !step7PaymentDate) {
+      errors.paymentDate = "Payment date is required when there is a payment amount";
+    }
+    setStep7Errors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
   const handleNext = () => {
     if (currentStep === 1) {
-      if (validateStep1()) {
-        setCurrentStep(2)
-      }
+      if (validateStep1()) setCurrentStep(2)
     } else if (currentStep === 2) {
       setCurrentStep(3)
     } else if (currentStep === 3) {
-      if (validateStep3()) {
-        setCurrentStep(4)
+      if (validateStep3()) setCurrentStep(4)
+    } else if (currentStep === 4) { // Clients
+      if (validateStep4()) setCurrentStep(5)
+    } else if (currentStep === 5) { // Templates
+      if (validateStep5()) setCurrentStep(6)
+    } else if (currentStep === 6) { // Bills
+      if (validateStep6()) setCurrentStep(7)
+    } else if (currentStep === 7) { // Your Payment
+      if (validateStep7()) {
+        // Final submission
+        console.log("Final form submission", {
+          selectedNoteIds,
+          selectedAssistantIds,
+          assistantPayments,
+          selectedClientIds,
+          selectedTemplateIds,
+          selectedBillIds,
+          totalAmount,
+          paidAmount,
+          paymentDate,
+          paymentMode,
+          onlinePaymentMode,
+          // Your payment details
+          yourPayment: {
+            totalAmount: step7TotalAmount,
+            paidAmount: step7PaidAmount,
+            paymentDate: step7PaymentDate,
+            paymentMode: step7PaymentMode,
+            onlinePaymentMode: step7OnlinePaymentMode
+          }
+        })
+        toast.success("Task submitted successfully!")
       }
-    } else if (currentStep === 4) {
-      if (validateStep4()) {
-        setCurrentStep(5)
-      }
-    } else if (currentStep === 5) {
-      if (!validateStep5()) return
-      setCurrentStep(6)
-    } else if (currentStep === 6) {
-      if (!validateStep6()) return
-      setCurrentStep(7)
-    } else if (currentStep === 7) {
-      if (!validateStep7()) return
-      // Final submission
-      console.log("Final form submission", {
-        selectedNoteIds,
-        selectedAssistantIds,
-        assistantPayments,
-        selectedClientIds,
-        selectedTemplateIds,
-        selectedBillIds,
-        totalAmount,
-        paidAmount,
-        paymentDate,
-        paymentMode,
-        onlinePaymentMode
-      })
     }
   }
 
   const handlePrevious = () => {
-    if (currentStep === 7) {
-      setCurrentStep(6)
-    } else if (currentStep === 6) {
-      setCurrentStep(5)
-    } else if (currentStep === 5) {
-      setCurrentStep(4)
-    } else if (currentStep === 4) {
-      setCurrentStep(3)
-    } else if (currentStep === 3) {
-      setCurrentStep(2)
-    } else if (currentStep === 2) {
-      setCurrentStep(1)
+    if (currentStep > 1) {
+      setCurrentStep(prev => prev - 1)
     }
   }
 
@@ -448,23 +436,18 @@ function RouteComponent() {
         return prev.filter(id => id !== noteId)
       }
     })
-    // Optionally display the content of the last selected note or the one clicked
     if (checked) {
       setDisplayNoteId(noteId)
     } else if (selectedNoteIds.length === 1 && selectedNoteIds[0] === noteId) {
-      // If the last selected note is unchecked, clear display
       setDisplayNoteId(null)
     } else if (selectedNoteIds.length > 1) {
-      // If other notes are still selected, display the first one remaining
       setDisplayNoteId(selectedNoteIds.filter(id => id !== noteId)[0] || null)
     }
   }
 
-  // Add this function to handle assistant selection
   const handleAssistantSelection = (assistantId: string, checked: boolean) => {
     if (checked) {
       if (status === 'CANCELED' && self) {
-        // For canceled tasks, directly add the assistant with CANCELED status
         setSelectedAssistantIds(prev => [...prev, assistantId])
         setAssistantPayments(prev => [...prev, {
           assistantId,
@@ -490,73 +473,31 @@ function RouteComponent() {
     }
   }
 
-  // Add this function to handle payment amount changes
   const handlePaymentAmountChange = (field: 'totalAmount' | 'paidAmount', value: number) => {
     setCurrentPayment(prev => {
       const newPayment = { ...prev, [field]: value }
-      // Update status based on amounts
       newPayment.status = newPayment.totalAmount > 0 && newPayment.totalAmount === newPayment.paidAmount ? 'COMPLETED' : 'PENDING'
       return newPayment
     })
   }
 
-  // Add this function to handle payment submission
   const handlePaymentSubmit = () => {
     if (currentAssistantId) {
-      // Validate required fields when self is true and status is not canceled
       if (self && status !== 'CANCELED') {
         if (currentPayment.totalAmount <= 0) {
-          toast.error("Total amount is required", {
-            description: "Please enter a total amount greater than 0",
-            style: {
-              background: "linear-gradient(90deg, #E53E3E, #C53030)",
-              color: "white",
-              fontWeight: "bolder",
-              fontSize: "13px",
-              letterSpacing: "1px",
-            }
-          })
+          toast.error("Total amount is required", { description: "Please enter a total amount greater than 0" })
           return
         }
-
         if (currentPayment.paidAmount <= 0) {
-          toast.error("Paid amount is required", {
-            description: "Please enter a paid amount greater than 0",
-            style: {
-              background: "linear-gradient(90deg, #E53E3E, #C53030)",
-              color: "white",
-              fontWeight: "bolder",
-              fontSize: "13px",
-              letterSpacing: "1px",
-            }
-          })
+          toast.error("Paid amount is required", { description: "Please enter a paid amount greater than 0" })
           return
         }
-
         if (currentPayment.paidAmount > currentPayment.totalAmount) {
-          toast.error("Paid amount cannot greater than total amount!", {
-            style: {
-              background: "linear-gradient(90deg, #E53E3E, #C53030)",
-              color: "white",
-              fontWeight: "bolder",
-              fontSize: "13px",
-              letterSpacing: "1px",
-            }
-          })
+          toast.error("Paid amount cannot be greater than total amount!")
           return
         }
-
         if (!currentPayment.paymentDate) {
-          toast.error("Payment date is required", {
-            description: "Please select a payment date",
-            style: {
-              background: "linear-gradient(90deg, #E53E3E, #C53030)",
-              color: "white",
-              fontWeight: "bolder",
-              fontSize: "13px",
-              letterSpacing: "1px",
-            }
-          })
+          toast.error("Payment date is required", { description: "Please select a payment date" })
           return
         }
       }
@@ -581,17 +522,16 @@ function RouteComponent() {
     }
   }
 
-  // Add this function to handle payment amount changes in step 4
-  const handleStep4PaymentAmountChange = (field: 'totalAmount' | 'paidAmount', value: number) => {
+  const handleStep7PaymentAmountChange = (field: 'totalAmount' | 'paidAmount', value: number) => {
     if (field === 'totalAmount') {
-      setStep4TotalAmount(value)
+      setStep7TotalAmount(value)
     } else {
-      setStep4PaidAmount(value)
+      setStep7PaidAmount(value)
     }
   }
 
-  // Add this function to handle status change
   const handleStatusChange = (newStatus: string) => {
+    setDate(undefined); // Reset calendar selection on status change
     if (newStatus === 'CANCELED') {
       setPendingStatus(newStatus)
       setShowCancelConfirm(true)
@@ -600,7 +540,6 @@ function RouteComponent() {
     }
   }
 
-  // Add this function to handle cancel confirmation
   const handleCancelConfirm = () => {
     if (pendingStatus) {
       setStatus(pendingStatus)
@@ -609,7 +548,6 @@ function RouteComponent() {
     setShowCancelConfirm(false)
   }
 
-  // Add this function after handleAssistantSelection
   const handleClientSelection = (clientId: string, checked: boolean) => {
     if (checked) {
       setSelectedClientIds([clientId])
@@ -618,9 +556,8 @@ function RouteComponent() {
     }
   }
 
-  // Add this function to reset steps 3, 4, and 5 data
   const resetStepsData = () => {
-    // Reset step 3 data
+    // Step 3
     setSelectedAssistantIds([])
     setAssistantPayments([])
     setTotalAmount(0)
@@ -630,32 +567,30 @@ function RouteComponent() {
     setOnlinePaymentMode(null)
     setShowPaymentDialog(false)
     setCurrentAssistantId(null)
-    setCurrentPayment({
-      assistantId: '',
-      totalAmount: 0,
-      paidAmount: 0,
-      paymentMode: 'CASH',
-      status: 'PENDING'
-    })
+    setCurrentPayment({ assistantId: '', totalAmount: 0, paidAmount: 0, paymentMode: 'CASH', status: 'PENDING' })
 
-    // Reset step 4 data
-    setStep4TotalAmount(0)
-    setStep4PaidAmount(0)
-    setStep4PaymentDate(undefined)
-    setStep4PaymentMode('CASH')
-    setStep4OnlinePaymentMode(null)
-
-    // Reset step 5 data
+    // Step 4 (Clients)
     setSelectedClientIds([])
     setClientSearchTerm("")
-    // Reset step 6 data
+
+    // Step 5 (Templates)
     setSelectedTemplateIds([])
     setTemplateSearchTerm("")
+
+    // Step 6 (Bills)
+    setSelectedBillIds([])
+    setBillSearchTerm("")
+
+    // Step 7 (Your Payment)
+    setStep7TotalAmount(0)
+    setStep7PaidAmount(0)
+    setStep7PaymentDate(undefined)
+    setStep7PaymentMode('CASH')
+    setStep7OnlinePaymentMode(null)
   }
 
-  // Add this function after handleClientSelection
   const handleTemplateSelection = (templateId: string, checked: boolean) => {
-    if (!self) return // Disabled if not self
+    if (!self) return
     if (checked) {
       setSelectedTemplateIds([templateId])
     } else {
@@ -663,9 +598,8 @@ function RouteComponent() {
     }
   }
 
-  // Add this function to handle bill selection
   const handleBillSelection = (billId: string, checked: boolean) => {
-    if (!self) return // Disabled if not self
+    if (!self) return
     if (checked) {
       setSelectedBillIds([billId])
     } else {
@@ -673,11 +607,6 @@ function RouteComponent() {
     }
   }
 
-  const [step3Errors, setStep3Errors] = useState<{ [key: string]: string }>({});
-  const [step4Errors, setStep4Errors] = useState<{ [key: string]: string }>({});
-  const [step5Errors, setStep5Errors] = useState<{ [key: string]: string }>({});
-  const [step6Errors, setStep6Errors] = useState<{ [key: string]: string }>({});
-  const [step7Errors, setStep7Errors] = useState<{ [key: string]: string }>({});
 
   return (
     <>
@@ -713,9 +642,9 @@ function RouteComponent() {
                   onClick={handleNext}
                   disabled={
                     (currentStep === 3 && self && selectedAssistantIds.length === 0) ||
-                    (currentStep === 5 && self && selectedClientIds.length === 0) ||
-                    (currentStep === 6 && self && selectedTemplateIds.length === 0) ||
-                    (currentStep === 7 && self && selectedBillIds.length === 0)
+                    (currentStep === 4 && self && selectedClientIds.length === 0) ||
+                    (currentStep === 5 && self && selectedTemplateIds.length === 0) ||
+                    (currentStep === 6 && self && selectedBillIds.length === 0)
                   }
                 >
                   {currentStep === 7 ? "Submit" : "Next"}
@@ -1547,173 +1476,6 @@ function RouteComponent() {
               {currentStep === 4 && (
                 <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
                   <Card className="border-0">
-                    <CardHeader className="pb-4 space-y-1">
-                      <div className="flex items-center gap-2">
-                        <IndianRupee className="h-5 w-5 text-muted-foreground" />
-                        <h2 className="text-lg font-semibold">Your Payment Details</h2>
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        {status === 'CANCELED' ? (
-                          <span className="text-destructive">Payment details are disabled for canceled tasks</span>
-                        ) : (
-                          "Enter payment information for the task"
-                        )}
-                      </p>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                      <div className="space-y-6">
-                        <div className="flex flex-row gap-4">
-                          <div className="space-y-2 w-[50%]">
-                            <Label htmlFor="step4TotalAmount">Total Amount {self && status !== 'CANCELED' && <span className="text-red-500">*</span>}</Label>
-                            <div className="relative">
-                              <IndianRupee className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                              <Input
-                                id="step4TotalAmount"
-                                type="number"
-                                value={step4TotalAmount}
-                                onChange={(e) => handleStep4PaymentAmountChange('totalAmount', Number(e.target.value))}
-                                className="pl-8"
-                                placeholder="Enter total amount"
-                                disabled={status === 'CANCELED'}
-                              />
-                            </div>
-                            {step4Errors.totalAmount && (
-                              <p className="text-sm text-red-500 mt-1">{step4Errors.totalAmount}</p>
-                            )}
-                          </div>
-                          <div className="space-y-2 w-[50%]">
-                            <Label htmlFor="step4PaidAmount">Amount Paid</Label>
-                            <div className="relative">
-                              <IndianRupee className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                              <Input
-                                id="step4PaidAmount"
-                                type="number"
-                                value={step4PaidAmount}
-                                onChange={(e) => handleStep4PaymentAmountChange('paidAmount', Number(e.target.value))}
-                                className="pl-8"
-                                placeholder="Enter paid amount"
-                                disabled={status === 'CANCELED'}
-                              />
-                            </div>
-                            {step4Errors.paidAmount && (
-                              <p className="text-sm text-red-500 mt-1">{step4Errors.paidAmount}</p>
-                            )}
-                          </div>
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label>Payment Status</Label>
-                          <div className={cn(
-                            "flex text-black items-center gap-2 p-2 border rounded-md",
-                            step4PaymentStatus === 'COMPLETED' ? "bg-green-50" : "bg-yellow-50",
-                            status === 'CANCELED' && "opacity-50"
-                          )}>
-                            {step4PaymentStatus === 'COMPLETED' ? (
-                              <CheckCircle className="h-4 w-4 text-green-500" />
-                            ) : (
-                              <Clock className="h-4 w-4 text-yellow-500" />
-                            )}
-                            <span className="font-medium capitalize">{step4PaymentStatus.toLowerCase()}</span>
-                          </div>
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label>Payment Date {self && status !== 'CANCELED' && <span className="text-red-500">*</span>}</Label>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button
-                                variant="outline"
-                                className={cn(
-                                  "w-full justify-between text-left font-normal",
-                                  !step4PaymentDate && "text-muted-foreground",
-                                  status === 'CANCELED' && "opacity-50",
-                                  step4PaidAmount === 0 && "opacity-50"
-                                )}
-                                disabled={status === 'CANCELED' || step4PaidAmount === 0}
-                              >
-                                <div className="flex items-center gap-2">
-                                  <CalendarIcon className="h-4 w-4" />
-                                  <span>{step4PaymentDate ? format(step4PaymentDate, "PPP") : "Select a date"}</span>
-                                </div>
-                                <ChevronDown className="h-4 w-4 opacity-50" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent className="w-auto p-0" align="center">
-                              <Calendar
-                                mode="single"
-                                selected={step4PaymentDate}
-                                onSelect={setStep4PaymentDate}
-                                disabled={d => step4PaidAmount === 0 || (function (d) {
-                                  if (!d) return false
-                                  const taskDate = new Date(d)
-                                  taskDate.setHours(0, 0, 0, 0)
-                                  return date ? taskDate < date : false
-                                })(d)}
-                                initialFocus
-                              />
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                          {step4Errors.paymentDate && (
-                            <p className="text-sm text-red-500 mt-1">{step4Errors.paymentDate}</p>
-                          )}
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label>Payment Mode</Label>
-                          <Select
-                            value={step4PaymentMode}
-                            onValueChange={(value: 'CASH' | 'ONLINE') => setStep4PaymentMode(value)}
-                            disabled={status === 'CANCELED'}
-                          >
-                            <SelectTrigger className={cn(status === 'CANCELED' && "opacity-50")}>
-                              <SelectValue placeholder="Select payment mode" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="CASH">
-                                <div className="flex items-center gap-2">
-                                  <Wallet className="h-4 w-4" />
-                                  Cash
-                                </div>
-                              </SelectItem>
-                              <SelectItem value="ONLINE">
-                                <div className="flex items-center gap-2">
-                                  <CreditCard className="h-4 w-4" />
-                                  Online
-                                </div>
-                              </SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-
-                        {step4PaymentMode === 'ONLINE' && (
-                          <div className="space-y-2">
-                            <Label>Online Payment Mode</Label>
-                            <Select
-                              value={step4OnlinePaymentMode || ''}
-                              onValueChange={(value: 'NET-BANKING' | 'UPI' | 'CHECK' | 'CARD') => setStep4OnlinePaymentMode(value)}
-                              disabled={status === 'CANCELED'}
-                            >
-                              <SelectTrigger className={cn(status === 'CANCELED' && "opacity-50")}>
-                                <SelectValue placeholder="Select online payment mode" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="UPI">UPI</SelectItem>
-                                <SelectItem value="CARD">Card</SelectItem>
-                                <SelectItem value="NET-BANKING">Net Banking</SelectItem>
-                                <SelectItem value="CHECK">Check</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              )}
-
-              {currentStep === 5 && (
-                <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
-                  <Card className="border-0">
                     <CardHeader className="pb-2 space-y-1">
                       <div className="flex items-center gap-2">
                         <User className="h-5 w-5 text-muted-foreground" />
@@ -1726,8 +1488,8 @@ function RouteComponent() {
                       </p>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                      {step5Errors[0] && (
-                        <p className="text-sm text-red-500 mt-1">{step5Errors[0]}</p>
+                      {step4Errors[0] && (
+                        <p className="text-sm text-red-500 mt-1">{step4Errors[0]}</p>
                       )}
                       {self ? (
                         <div className="space-y-2">
@@ -1880,8 +1642,7 @@ function RouteComponent() {
                 </div>
               )}
 
-              {/* Step 6: Template Selection */}
-              {currentStep === 6 && (
+              {currentStep === 5 && (
                 <div className="grid grid-cols-1 lg:grid-2 gap-6">
                   <Card className="border-0">
                     <CardHeader className="pb-2 space-y-1">
@@ -1896,8 +1657,8 @@ function RouteComponent() {
                       </p>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                      {step6Errors[0] && (
-                        <p className="text-sm text-red-500 mt-1">{step6Errors[0]}</p>
+                      {step5Errors[0] && (
+                        <p className="text-sm text-red-500 mt-1">{step5Errors[0]}</p>
                       )}
                       {self ? (
                         <div className="space-y-2">
@@ -2043,7 +1804,7 @@ function RouteComponent() {
                 </div>
               )}
 
-              {currentStep === 7 && (
+              {currentStep === 6 && (
                 <div className="grid grid-cols-1 lg:grid-2 gap-6">
                   <Card className="border-0">
                     <CardHeader className="pb-2 space-y-1">
@@ -2058,8 +1819,8 @@ function RouteComponent() {
                       </p>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                      {step7Errors[0] && (
-                        <p className="text-sm text-red-500 mt-1">{step7Errors[0]}</p>
+                      {step6Errors[0] && (
+                        <p className="text-sm text-red-500 mt-1">{step6Errors[0]}</p>
                       )}
                       {self ? (
                         <div className="space-y-2">
@@ -2204,6 +1965,174 @@ function RouteComponent() {
                   </Card>
                 </div>
               )}
+
+              {currentStep === 7 && (
+                <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
+                  <Card className="border-0">
+                    <CardHeader className="pb-4 space-y-1">
+                      <div className="flex items-center gap-2">
+                        <IndianRupee className="h-5 w-5 text-muted-foreground" />
+                        <h2 className="text-lg font-semibold">Your Payment Details</h2>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        {status === 'CANCELED' ? (
+                          <span className="text-destructive">Payment details are disabled for canceled tasks</span>
+                        ) : (
+                          "Enter payment information for the task"
+                        )}
+                      </p>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                      <div className="space-y-6">
+                        <div className="flex flex-row gap-4">
+                          <div className="space-y-2 w-[50%]">
+                            <Label htmlFor="step7TotalAmount">Total Amount {self && status !== 'CANCELED' && <span className="text-red-500">*</span>}</Label>
+                            <div className="relative">
+                              <IndianRupee className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                              <Input
+                                id="step7TotalAmount"
+                                type="number"
+                                value={step7TotalAmount}
+                                onChange={(e) => handleStep7PaymentAmountChange('totalAmount', Number(e.target.value))}
+                                className="pl-8"
+                                placeholder="Enter total amount"
+                                disabled={status === 'CANCELED'}
+                              />
+                            </div>
+                            {step7Errors.totalAmount && (
+                              <p className="text-sm text-red-500 mt-1">{step7Errors.totalAmount}</p>
+                            )}
+                          </div>
+                          <div className="space-y-2 w-[50%]">
+                            <Label htmlFor="step7PaidAmount">Amount Paid</Label>
+                            <div className="relative">
+                              <IndianRupee className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                              <Input
+                                id="step7PaidAmount"
+                                type="number"
+                                value={step7PaidAmount}
+                                onChange={(e) => handleStep7PaymentAmountChange('paidAmount', Number(e.target.value))}
+                                className="pl-8"
+                                placeholder="Enter paid amount"
+                                disabled={status === 'CANCELED'}
+                              />
+                            </div>
+                            {step7Errors.paidAmount && (
+                              <p className="text-sm text-red-500 mt-1">{step7Errors.paidAmount}</p>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label>Payment Status</Label>
+                          <div className={cn(
+                            "flex text-black items-center gap-2 p-2 border rounded-md",
+                            step7PaymentStatus === 'COMPLETED' ? "bg-green-50" : "bg-yellow-50",
+                            status === 'CANCELED' && "opacity-50"
+                          )}>
+                            {step7PaymentStatus === 'COMPLETED' ? (
+                              <CheckCircle className="h-4 w-4 text-green-500" />
+                            ) : (
+                              <Clock className="h-4 w-4 text-yellow-500" />
+                            )}
+                            <span className="font-medium capitalize">{step7PaymentStatus.toLowerCase()}</span>
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label>Payment Date {self && status !== 'CANCELED' && <span className="text-red-500">*</span>}</Label>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="outline"
+                                className={cn(
+                                  "w-full justify-between text-left font-normal",
+                                  !step7PaymentDate && "text-muted-foreground",
+                                  status === 'CANCELED' && "opacity-50",
+                                  step7PaidAmount === 0 && "opacity-50"
+                                )}
+                                disabled={status === 'CANCELED' || step7PaidAmount === 0}
+                              >
+                                <div className="flex items-center gap-2">
+                                  <CalendarIcon className="h-4 w-4" />
+                                  <span>{step7PaymentDate ? format(step7PaymentDate, "PPP") : "Select a date"}</span>
+                                </div>
+                                <ChevronDown className="h-4 w-4 opacity-50" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="w-auto p-0" align="center">
+                              <Calendar
+                                mode="single"
+                                selected={step7PaymentDate}
+                                onSelect={setStep7PaymentDate}
+                                disabled={d => step7PaidAmount === 0 || (function (d) {
+                                  if (!d) return false
+                                  const taskDate = new Date(d)
+                                  taskDate.setHours(0, 0, 0, 0)
+                                  return date ? taskDate < date : false
+                                })(d)}
+                                initialFocus
+                              />
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                          {step7Errors.paymentDate && (
+                            <p className="text-sm text-red-500 mt-1">{step7Errors.paymentDate}</p>
+                          )}
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label>Payment Mode</Label>
+                          <Select
+                            value={step7PaymentMode}
+                            onValueChange={(value: 'CASH' | 'ONLINE') => setStep7PaymentMode(value)}
+                            disabled={status === 'CANCELED'}
+                          >
+                            <SelectTrigger className={cn(status === 'CANCELED' && "opacity-50")}>
+                              <SelectValue placeholder="Select payment mode" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="CASH">
+                                <div className="flex items-center gap-2">
+                                  <Wallet className="h-4 w-4" />
+                                  Cash
+                                </div>
+                              </SelectItem>
+                              <SelectItem value="ONLINE">
+                                <div className="flex items-center gap-2">
+                                  <CreditCard className="h-4 w-4" />
+                                  Online
+                                </div>
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        {step7PaymentMode === 'ONLINE' && (
+                          <div className="space-y-2">
+                            <Label>Online Payment Mode</Label>
+                            <Select
+                              value={step7OnlinePaymentMode || ''}
+                              onValueChange={(value: 'NET-BANKING' | 'UPI' | 'CHECK' | 'CARD') => setStep7OnlinePaymentMode(value)}
+                              disabled={status === 'CANCELED'}
+                            >
+                              <SelectTrigger className={cn(status === 'CANCELED' && "opacity-50")}>
+                                <SelectValue placeholder="Select online payment mode" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="UPI">UPI</SelectItem>
+                                <SelectItem value="CARD">Card</SelectItem>
+                                <SelectItem value="NET-BANKING">Net Banking</SelectItem>
+                                <SelectItem value="CHECK">Check</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
+
             </div>
           </div>
         </div>

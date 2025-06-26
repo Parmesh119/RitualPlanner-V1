@@ -48,6 +48,3 @@
 | Deployment      | Render / Vercel / Railway / Heroku         |
 
 ---
-
-## 📁 Directory Structure (Client + Server)
-
