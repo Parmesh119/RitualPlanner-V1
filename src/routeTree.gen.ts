@@ -24,15 +24,19 @@ import { Route as AppHelpIndexImport } from './routes/app/help/index'
 import { Route as AppDashboardIndexImport } from './routes/app/dashboard/index'
 import { Route as AppCoWorkerIndexImport } from './routes/app/co-worker/index'
 import { Route as AppClientIndexImport } from './routes/app/client/index'
+import { Route as AppBillsPaymentIndexImport } from './routes/app/bills-payment/index'
 import { Route as AppAccountIndexImport } from './routes/app/account/index'
 import { Route as AppTemplateCreateImport } from './routes/app/template/create'
 import { Route as AppTasksCreateImport } from './routes/app/tasks/create'
+import { Route as AppBillsPaymentCreateImport } from './routes/app/bills-payment/create'
 import { Route as AppTemplateGetIdImport } from './routes/app/template/get/$id'
 import { Route as AppTemplateEditIdImport } from './routes/app/template/edit/$id'
 import { Route as AppNotesNoteIdImport } from './routes/app/notes/note/$id'
 import { Route as AppCoWorkerGetIdImport } from './routes/app/co-worker/get/$id'
 import { Route as AppClientGetIdImport } from './routes/app/client/get/$id'
 import { Route as AppClientEditIdImport } from './routes/app/client/edit/$id'
+import { Route as AppBillsPaymentGetIdImport } from './routes/app/bills-payment/get/$id'
+import { Route as AppBillsPaymentEditIdImport } from './routes/app/bills-payment/edit/$id'
 
 // Create/Update Routes
 
@@ -114,6 +118,12 @@ const AppClientIndexRoute = AppClientIndexImport.update({
   getParentRoute: () => AppRouteRoute,
 } as any)
 
+const AppBillsPaymentIndexRoute = AppBillsPaymentIndexImport.update({
+  id: '/bills-payment/',
+  path: '/bills-payment/',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+
 const AppAccountIndexRoute = AppAccountIndexImport.update({
   id: '/account/',
   path: '/account/',
@@ -129,6 +139,12 @@ const AppTemplateCreateRoute = AppTemplateCreateImport.update({
 const AppTasksCreateRoute = AppTasksCreateImport.update({
   id: '/tasks/create',
   path: '/tasks/create',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+
+const AppBillsPaymentCreateRoute = AppBillsPaymentCreateImport.update({
+  id: '/bills-payment/create',
+  path: '/bills-payment/create',
   getParentRoute: () => AppRouteRoute,
 } as any)
 
@@ -165,6 +181,18 @@ const AppClientGetIdRoute = AppClientGetIdImport.update({
 const AppClientEditIdRoute = AppClientEditIdImport.update({
   id: '/client/edit/$id',
   path: '/client/edit/$id',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+
+const AppBillsPaymentGetIdRoute = AppBillsPaymentGetIdImport.update({
+  id: '/bills-payment/get/$id',
+  path: '/bills-payment/get/$id',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+
+const AppBillsPaymentEditIdRoute = AppBillsPaymentEditIdImport.update({
+  id: '/bills-payment/edit/$id',
+  path: '/bills-payment/edit/$id',
   getParentRoute: () => AppRouteRoute,
 } as any)
 
@@ -214,6 +242,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthResetPasswordImport
       parentRoute: typeof rootRoute
     }
+    '/app/bills-payment/create': {
+      id: '/app/bills-payment/create'
+      path: '/bills-payment/create'
+      fullPath: '/app/bills-payment/create'
+      preLoaderRoute: typeof AppBillsPaymentCreateImport
+      parentRoute: typeof AppRouteImport
+    }
     '/app/tasks/create': {
       id: '/app/tasks/create'
       path: '/tasks/create'
@@ -233,6 +268,13 @@ declare module '@tanstack/react-router' {
       path: '/account'
       fullPath: '/app/account'
       preLoaderRoute: typeof AppAccountIndexImport
+      parentRoute: typeof AppRouteImport
+    }
+    '/app/bills-payment/': {
+      id: '/app/bills-payment/'
+      path: '/bills-payment'
+      fullPath: '/app/bills-payment'
+      preLoaderRoute: typeof AppBillsPaymentIndexImport
       parentRoute: typeof AppRouteImport
     }
     '/app/client/': {
@@ -284,6 +326,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppTemplateIndexImport
       parentRoute: typeof AppRouteImport
     }
+    '/app/bills-payment/edit/$id': {
+      id: '/app/bills-payment/edit/$id'
+      path: '/bills-payment/edit/$id'
+      fullPath: '/app/bills-payment/edit/$id'
+      preLoaderRoute: typeof AppBillsPaymentEditIdImport
+      parentRoute: typeof AppRouteImport
+    }
+    '/app/bills-payment/get/$id': {
+      id: '/app/bills-payment/get/$id'
+      path: '/bills-payment/get/$id'
+      fullPath: '/app/bills-payment/get/$id'
+      preLoaderRoute: typeof AppBillsPaymentGetIdImport
+      parentRoute: typeof AppRouteImport
+    }
     '/app/client/edit/$id': {
       id: '/app/client/edit/$id'
       path: '/client/edit/$id'
@@ -332,9 +388,11 @@ declare module '@tanstack/react-router' {
 // Create and export the route tree
 
 interface AppRouteRouteChildren {
+  AppBillsPaymentCreateRoute: typeof AppBillsPaymentCreateRoute
   AppTasksCreateRoute: typeof AppTasksCreateRoute
   AppTemplateCreateRoute: typeof AppTemplateCreateRoute
   AppAccountIndexRoute: typeof AppAccountIndexRoute
+  AppBillsPaymentIndexRoute: typeof AppBillsPaymentIndexRoute
   AppClientIndexRoute: typeof AppClientIndexRoute
   AppCoWorkerIndexRoute: typeof AppCoWorkerIndexRoute
   AppDashboardIndexRoute: typeof AppDashboardIndexRoute
@@ -342,6 +400,8 @@ interface AppRouteRouteChildren {
   AppNotesIndexRoute: typeof AppNotesIndexRoute
   AppTasksIndexRoute: typeof AppTasksIndexRoute
   AppTemplateIndexRoute: typeof AppTemplateIndexRoute
+  AppBillsPaymentEditIdRoute: typeof AppBillsPaymentEditIdRoute
+  AppBillsPaymentGetIdRoute: typeof AppBillsPaymentGetIdRoute
   AppClientEditIdRoute: typeof AppClientEditIdRoute
   AppClientGetIdRoute: typeof AppClientGetIdRoute
   AppCoWorkerGetIdRoute: typeof AppCoWorkerGetIdRoute
@@ -351,9 +411,11 @@ interface AppRouteRouteChildren {
 }
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
+  AppBillsPaymentCreateRoute: AppBillsPaymentCreateRoute,
   AppTasksCreateRoute: AppTasksCreateRoute,
   AppTemplateCreateRoute: AppTemplateCreateRoute,
   AppAccountIndexRoute: AppAccountIndexRoute,
+  AppBillsPaymentIndexRoute: AppBillsPaymentIndexRoute,
   AppClientIndexRoute: AppClientIndexRoute,
   AppCoWorkerIndexRoute: AppCoWorkerIndexRoute,
   AppDashboardIndexRoute: AppDashboardIndexRoute,
@@ -361,6 +423,8 @@ const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppNotesIndexRoute: AppNotesIndexRoute,
   AppTasksIndexRoute: AppTasksIndexRoute,
   AppTemplateIndexRoute: AppTemplateIndexRoute,
+  AppBillsPaymentEditIdRoute: AppBillsPaymentEditIdRoute,
+  AppBillsPaymentGetIdRoute: AppBillsPaymentGetIdRoute,
   AppClientEditIdRoute: AppClientEditIdRoute,
   AppClientGetIdRoute: AppClientGetIdRoute,
   AppCoWorkerGetIdRoute: AppCoWorkerGetIdRoute,
@@ -380,9 +444,11 @@ export interface FileRoutesByFullPath {
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
+  '/app/bills-payment/create': typeof AppBillsPaymentCreateRoute
   '/app/tasks/create': typeof AppTasksCreateRoute
   '/app/template/create': typeof AppTemplateCreateRoute
   '/app/account': typeof AppAccountIndexRoute
+  '/app/bills-payment': typeof AppBillsPaymentIndexRoute
   '/app/client': typeof AppClientIndexRoute
   '/app/co-worker': typeof AppCoWorkerIndexRoute
   '/app/dashboard': typeof AppDashboardIndexRoute
@@ -390,6 +456,8 @@ export interface FileRoutesByFullPath {
   '/app/notes': typeof AppNotesIndexRoute
   '/app/tasks': typeof AppTasksIndexRoute
   '/app/template': typeof AppTemplateIndexRoute
+  '/app/bills-payment/edit/$id': typeof AppBillsPaymentEditIdRoute
+  '/app/bills-payment/get/$id': typeof AppBillsPaymentGetIdRoute
   '/app/client/edit/$id': typeof AppClientEditIdRoute
   '/app/client/get/$id': typeof AppClientGetIdRoute
   '/app/co-worker/get/$id': typeof AppCoWorkerGetIdRoute
@@ -405,9 +473,11 @@ export interface FileRoutesByTo {
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
+  '/app/bills-payment/create': typeof AppBillsPaymentCreateRoute
   '/app/tasks/create': typeof AppTasksCreateRoute
   '/app/template/create': typeof AppTemplateCreateRoute
   '/app/account': typeof AppAccountIndexRoute
+  '/app/bills-payment': typeof AppBillsPaymentIndexRoute
   '/app/client': typeof AppClientIndexRoute
   '/app/co-worker': typeof AppCoWorkerIndexRoute
   '/app/dashboard': typeof AppDashboardIndexRoute
@@ -415,6 +485,8 @@ export interface FileRoutesByTo {
   '/app/notes': typeof AppNotesIndexRoute
   '/app/tasks': typeof AppTasksIndexRoute
   '/app/template': typeof AppTemplateIndexRoute
+  '/app/bills-payment/edit/$id': typeof AppBillsPaymentEditIdRoute
+  '/app/bills-payment/get/$id': typeof AppBillsPaymentGetIdRoute
   '/app/client/edit/$id': typeof AppClientEditIdRoute
   '/app/client/get/$id': typeof AppClientGetIdRoute
   '/app/co-worker/get/$id': typeof AppCoWorkerGetIdRoute
@@ -431,9 +503,11 @@ export interface FileRoutesById {
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
+  '/app/bills-payment/create': typeof AppBillsPaymentCreateRoute
   '/app/tasks/create': typeof AppTasksCreateRoute
   '/app/template/create': typeof AppTemplateCreateRoute
   '/app/account/': typeof AppAccountIndexRoute
+  '/app/bills-payment/': typeof AppBillsPaymentIndexRoute
   '/app/client/': typeof AppClientIndexRoute
   '/app/co-worker/': typeof AppCoWorkerIndexRoute
   '/app/dashboard/': typeof AppDashboardIndexRoute
@@ -441,6 +515,8 @@ export interface FileRoutesById {
   '/app/notes/': typeof AppNotesIndexRoute
   '/app/tasks/': typeof AppTasksIndexRoute
   '/app/template/': typeof AppTemplateIndexRoute
+  '/app/bills-payment/edit/$id': typeof AppBillsPaymentEditIdRoute
+  '/app/bills-payment/get/$id': typeof AppBillsPaymentGetIdRoute
   '/app/client/edit/$id': typeof AppClientEditIdRoute
   '/app/client/get/$id': typeof AppClientGetIdRoute
   '/app/co-worker/get/$id': typeof AppCoWorkerGetIdRoute
@@ -458,9 +534,11 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/register'
     | '/auth/reset-password'
+    | '/app/bills-payment/create'
     | '/app/tasks/create'
     | '/app/template/create'
     | '/app/account'
+    | '/app/bills-payment'
     | '/app/client'
     | '/app/co-worker'
     | '/app/dashboard'
@@ -468,6 +546,8 @@ export interface FileRouteTypes {
     | '/app/notes'
     | '/app/tasks'
     | '/app/template'
+    | '/app/bills-payment/edit/$id'
+    | '/app/bills-payment/get/$id'
     | '/app/client/edit/$id'
     | '/app/client/get/$id'
     | '/app/co-worker/get/$id'
@@ -482,9 +562,11 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/register'
     | '/auth/reset-password'
+    | '/app/bills-payment/create'
     | '/app/tasks/create'
     | '/app/template/create'
     | '/app/account'
+    | '/app/bills-payment'
     | '/app/client'
     | '/app/co-worker'
     | '/app/dashboard'
@@ -492,6 +574,8 @@ export interface FileRouteTypes {
     | '/app/notes'
     | '/app/tasks'
     | '/app/template'
+    | '/app/bills-payment/edit/$id'
+    | '/app/bills-payment/get/$id'
     | '/app/client/edit/$id'
     | '/app/client/get/$id'
     | '/app/co-worker/get/$id'
@@ -506,9 +590,11 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/register'
     | '/auth/reset-password'
+    | '/app/bills-payment/create'
     | '/app/tasks/create'
     | '/app/template/create'
     | '/app/account/'
+    | '/app/bills-payment/'
     | '/app/client/'
     | '/app/co-worker/'
     | '/app/dashboard/'
@@ -516,6 +602,8 @@ export interface FileRouteTypes {
     | '/app/notes/'
     | '/app/tasks/'
     | '/app/template/'
+    | '/app/bills-payment/edit/$id'
+    | '/app/bills-payment/get/$id'
     | '/app/client/edit/$id'
     | '/app/client/get/$id'
     | '/app/co-worker/get/$id'
@@ -567,9 +655,11 @@ export const routeTree = rootRoute
     "/app": {
       "filePath": "app/route.tsx",
       "children": [
+        "/app/bills-payment/create",
         "/app/tasks/create",
         "/app/template/create",
         "/app/account/",
+        "/app/bills-payment/",
         "/app/client/",
         "/app/co-worker/",
         "/app/dashboard/",
@@ -577,6 +667,8 @@ export const routeTree = rootRoute
         "/app/notes/",
         "/app/tasks/",
         "/app/template/",
+        "/app/bills-payment/edit/$id",
+        "/app/bills-payment/get/$id",
         "/app/client/edit/$id",
         "/app/client/get/$id",
         "/app/co-worker/get/$id",
@@ -597,6 +689,10 @@ export const routeTree = rootRoute
     "/auth/reset-password": {
       "filePath": "auth/reset-password.tsx"
     },
+    "/app/bills-payment/create": {
+      "filePath": "app/bills-payment/create.tsx",
+      "parent": "/app"
+    },
     "/app/tasks/create": {
       "filePath": "app/tasks/create.tsx",
       "parent": "/app"
@@ -607,6 +703,10 @@ export const routeTree = rootRoute
     },
     "/app/account/": {
       "filePath": "app/account/index.tsx",
+      "parent": "/app"
+    },
+    "/app/bills-payment/": {
+      "filePath": "app/bills-payment/index.tsx",
       "parent": "/app"
     },
     "/app/client/": {
@@ -635,6 +735,14 @@ export const routeTree = rootRoute
     },
     "/app/template/": {
       "filePath": "app/template/index.tsx",
+      "parent": "/app"
+    },
+    "/app/bills-payment/edit/$id": {
+      "filePath": "app/bills-payment/edit/$id.tsx",
+      "parent": "/app"
+    },
+    "/app/bills-payment/get/$id": {
+      "filePath": "app/bills-payment/get/$id.tsx",
       "parent": "/app"
     },
     "/app/client/edit/$id": {

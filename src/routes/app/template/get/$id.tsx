@@ -187,7 +187,7 @@ function RouteComponent() {
           item.itemname || '',
           item.quantity?.toString() || '',
           item.unit || '',
-          item.note || ''
+          item.note?.trim() ? item.note : '-'
         ]),
         theme: 'grid',
         headStyles: { fillColor: [44, 62, 80], textColor: [255, 255, 255], fontStyle: 'bold' },
@@ -375,7 +375,7 @@ function RouteComponent() {
                 />
               </CardHeader>
               <CardContent>
-                <div style={{ maxHeight: 300, overflowY: 'auto' }}>
+                <div>
                   {filteredItems.length > 0 ? (
                     <div className="rounded-lg border border-border/50 overflow-hidden">
                       <Table>
@@ -395,7 +395,7 @@ function RouteComponent() {
                               <TableCell className="font-medium">{item.itemname}</TableCell>
                               <TableCell>{item.quantity}</TableCell>
                               <TableCell>{item.unit}</TableCell>
-                              <TableCell>{item.note ?? '-'}</TableCell>
+                              <TableCell>{item.note?.trim() ? item.note : '-'}</TableCell>
                             </TableRow>
                           ))}
                         </TableBody>

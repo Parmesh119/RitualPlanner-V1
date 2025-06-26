@@ -9,6 +9,7 @@ import type { ListClient, TClient } from '@/schemas/Client'
 import type { THelp } from '@/schemas/Help'
 import type { TRitualTemplateRequest } from '@/schemas/Template'
 import type { ListTemplate, TTemplate } from '@/schemas/Template'
+import type { ListBill, TBill, TRequestBill } from '@/schemas/Bills'
 
 export function getBackendUrl() {
     const backendUrl = 'http://localhost:8080'
@@ -849,8 +850,158 @@ export async function sendInviteAction(data: TCoWorker): Promise<boolean> {
     const response = await axios.post(
         `${getBackendUrl()}/api/v2/user/send/invite`,
         data,
-        {headers: {Authorization: bearerToken}}
+        { headers: { Authorization: bearerToken } }
     )
 
     return response.data
+}
+
+export async function listBillAction(data: ListBill): Promise<TBill[]> {
+    const token = await authService.getAccessToken()
+
+    if (!token) {
+        toast.error("User is not authenticated", {
+            style: {
+                background: "linear-gradient(90deg, #E53E3E, #C53030)",
+                color: "white",
+                fontWeight: "bolder",
+                fontSize: "13px",
+                letterSpacing: "1px"
+            }
+        })
+        localStorage.clear()
+        throw new Error("User is not authenticated")
+    }
+    const bearerToken = `Bearer ${token}`
+
+    const response = await axios.post(
+        `${getBackendUrl()}/api/v2/bills-payment`,
+        data,
+        { headers: { Authorization: bearerToken } }
+    )
+
+    return response.data
+}
+
+export async function createBillAction(data: TRequestBill): Promise<TRequestBill> {
+    const token = await authService.getAccessToken()
+
+    if (!token) {
+        toast.error("User is not authenticated", {
+            style: {
+                background: "linear-gradient(90deg, #E53E3E, #C53030)",
+                color: "white",
+                fontWeight: "bolder",
+                fontSize: "13px",
+                letterSpacing: "1px"
+            }
+        })
+        localStorage.clear()
+        throw new Error("User is not authenticated")
+    }
+    const bearerToken = `Bearer ${token}`
+
+    const response = await axios.post(
+        `${getBackendUrl()}/api/v2/bills-payment/create`,
+        data,
+        { headers: { Authorization: bearerToken } }
+    )
+
+    return response.data
+}
+
+
+export async function updateBillAction(data: TRequestBill): Promise<TRequestBill> {
+    const token = await authService.getAccessToken()
+
+    if (!token) {
+        toast.error("User is not authenticated", {
+            style: {
+                background: "linear-gradient(90deg, #E53E3E, #C53030)",
+                color: "white",
+                fontWeight: "bolder",
+                fontSize: "13px",
+                letterSpacing: "1px"
+            }
+        })
+        localStorage.clear()
+        throw new Error("User is not authenticated")
+    }
+    const bearerToken = `Bearer ${token}`
+
+    const response = await axios.post(
+        `${getBackendUrl()}/api/v2/bills-payment/update`,
+        data,
+        { headers: { Authorization: bearerToken } }
+    )
+
+    return response.data
+}
+
+
+export async function getBilByIdlAction(id: string): Promise<TRequestBill> {
+    const token = await authService.getAccessToken()
+
+    if (!token) {
+        toast.error("User is not authenticated", {
+            style: {
+                background: "linear-gradient(90deg, #E53E3E, #C53030)",
+                color: "white",
+                fontWeight: "bolder",
+                fontSize: "13px",
+                letterSpacing: "1px"
+            }
+        })
+        localStorage.clear()
+        throw new Error("User is not authenticated")
+    }
+    const bearerToken = `Bearer ${token}`
+
+    const response = await axios.get(
+        `${getBackendUrl()}/api/v2/bills-payment/get/${id}`,
+        { headers: { Authorization: bearerToken } }
+    )
+
+    return response.data
+}
+
+export async function deleteBilByIdlAction(id: string): Promise<boolean> {
+    const token = await authService.getAccessToken()
+
+    if (!token) {
+        toast.error("User is not authenticated", {
+            style: {
+                background: "linear-gradient(90deg, #E53E3E, #C53030)",
+                color: "white",
+                fontWeight: "bolder",
+                fontSize: "13px",
+                letterSpacing: "1px"
+            }
+        })
+        localStorage.clear()
+        throw new Error("User is not authenticated")
+    }
+    const bearerToken = `Bearer ${token}`
+
+    try {
+        const response = await axios.delete(
+            `${getBackendUrl()}/api/v2/bills-payment/delete/${id}`,
+            { headers: { Authorization: bearerToken } }
+        )
+        toast.success("Bill deleted successfully", {
+            style: {
+                background: "linear-gradient(90deg, #38A169, #2F855A)",
+                color: "white",
+                fontWeight: "bolder",
+                fontSize: "13px",
+                letterSpacing: "1px",
+            }
+        })
+        return response.data
+    } catch (error) {
+        toast.error("Failed to delete bill", {
+            description: "There was an error deleting the bill. Please try again."
+        })
+        throw error
+    }
 }

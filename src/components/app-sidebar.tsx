@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect } from "react"
 import { ChevronUp, User2, CircleHelp, ReceiptIndianRupee, LayoutDashboard, UsersRound, Flame, BadgeCheck, ListTodo, LogOut, Moon, Sun, NotebookText, IndianRupee, Bell, NotebookPen, BookUser, Calendar, List, ScrollText, GraduationCap } from 'lucide-react'
 import {
     Sidebar,
@@ -25,7 +25,6 @@ import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { getUserDetails } from "@/lib/actions"
 import { toast } from "sonner"
 import { Helmet } from "react-helmet"
-import { type User } from "@/schemas/User"
 
 const items = [
     {
@@ -141,7 +140,6 @@ export function AppSidebar() {
     const [email, setEmail] = useState("")
     const [name, setName] = useState("")
 
-    const initialized = useRef(false);
 
     const { setTheme, theme } = useTheme()
 

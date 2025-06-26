@@ -26,7 +26,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { cn } from "@/lib/utils"
-import { TaskSchema, type TTask } from "@/schemas/Task"
+import { TaskSchema, TaskAssistantSchema, PaymentSchema } from "@/schemas/Task"
 import { listCoWorkerAction, listNoteAction, getNoteByIdAction, getUserDetails, listClientAction, listTemplateAction } from "@/lib/actions"
 import {
   Breadcrumb,
@@ -256,132 +256,104 @@ function RouteComponent() {
   }
 
   const validateStep3 = () => {
-    if (self) {
-      // If self is true, we need at least one assistant with payment details
-      if (selectedAssistantIds.length === 0) {
-        toast.error("Select an assistant because this is your task", {
-          description: "And If it is not your make toggle as false in step 1",
-          style: {
-            background: "linear-gradient(90deg, #E53E3E, #C53030)",
-            color: "white",
-            fontWeight: "bolder",
-            fontSize: "13px",
-            letterSpacing: "1px",
-          }
-        })
-        return false
-      }
-
-      // Check if all selected assistants have payment details
-      const assistantsWithoutPayment = selectedAssistantIds.filter(id =>
-        !assistantPayments.find(payment => payment.assistantId === id)
-      )
-
-      if (assistantsWithoutPayment.length > 0) {
-        const assistantNames = assistantsWithoutPayment
-          .map(id => coWorkers.find(a => a.id === id)?.name)
-          .filter(Boolean)
-          .join(", ")
-
-        toast.error("Incomplete payment details", {
-          description: `Please provide payment details for: ${assistantNames}`
-        })
-        return false
-      }
-
-      // Validate payment details for each assistant
-      for (const payment of assistantPayments) {
-        if (payment.totalAmount <= 0 && status !== "CANCELED") {
-          toast.error("Invalid payment amount", {
-            description: `Total amount must be greater than 0 for ${coWorkers.find(a => a.id === payment.assistantId)?.name}`
-          })
-          return false
+    setStep3Errors({});
+    try {
+      // Validate at least one assistant
+      z.array(z.string()).min(1, "At least one assistant is required.").parse(selectedAssistantIds);
+      // Validate each assistant and payment
+      for (const id of selectedAssistantIds) {
+        // Validate assistant (minimal fields for now)
+        TaskAssistantSchema.pick({ assistant_id: true }).parse({ assistant_id: id });
+        // Validate payment details for each assistant
+        const payment = assistantPayments.find(p => p.assistantId === id);
+        if (!payment) {
+          setStep3Errors({ assistantPayments: `Please provide payment details for: ${coWorkers.find(a => a.id === id)?.name || id}` });
+          return false;
         }
-
+        // Use PaymentSchema for validation (simulate required fields)
+        try {
+          PaymentSchema.pick({ totalAmount: true, paymentMode: true, onlinePaymentMode: true }).parse({
+            totalAmount: payment.totalAmount,
+            paymentMode: payment.paymentMode,
+            onlinePaymentMode: payment.paymentMode === 'ONLINE' ? payment.onlinePaymentMode : null,
+          });
+        } catch (err) {
+          if (err instanceof z.ZodError) {
+            setStep3Errors({ assistantPayments: err.errors[0]?.message || "Invalid payment details" });
+            return false;
+          }
+        }
         if (payment.paymentMode === 'ONLINE' && !payment.onlinePaymentMode) {
-          toast.error("Missing payment mode", {
-            description: `Please select an online payment mode for ${coWorkers.find(a => a.id === payment.assistantId)?.name}`
-          })
-          return false
+          setStep3Errors({ assistantPayments: `Please select an online payment mode for ${coWorkers.find(a => a.id === id)?.name || id}` });
+          return false;
         }
       }
+      return true;
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        setStep3Errors(error.flatten().fieldErrors as any);
+      }
+      return false;
     }
-    return true
-  }
+  };
 
-  // Add validation for step 4
   const validateStep4 = () => {
-    if (self && status !== 'CANCELED') {
-      // If self is true and task is not canceled, payment date is required
-      if (!step4PaymentDate) {
-        toast.error("Payment date is required", {
-          description: "Please select a payment date for your task",
-          style: {
-            background: "linear-gradient(90deg, #E53E3E, #C53030)",
-            color: "white",
-            fontWeight: "bolder",
-            fontSize: "13px",
-            letterSpacing: "1px",
-          }
-        })
-        return false
+    setStep4Errors({});
+    let errors: { [key: string]: string } = {};
+    // Zod validation for totalAmount and paidAmount
+    try {
+      PaymentSchema.pick({ totalAmount: true, paidAmount: true }).parse({
+        totalAmount: step4TotalAmount,
+        paidAmount: step4PaidAmount,
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const fieldErrors = error.flatten().fieldErrors;
+        if (fieldErrors.totalAmount?.[0]) errors.totalAmount = fieldErrors.totalAmount[0];
+        if (fieldErrors.paidAmount?.[0]) errors.paidAmount = fieldErrors.paidAmount[0];
       }
-
-      // Check if total amount is greater than 0
-      if (step4TotalAmount <= 0) {
-        toast.error("Total amount is required", {
-          description: "Please enter a total amount greater than 0",
-          style: {
-            background: "linear-gradient(90deg, #E53E3E, #C53030)",
-            color: "white",
-            fontWeight: "bolder",
-            fontSize: "13px",
-            letterSpacing: "1px",
-          }
-        })
-        return false
-      }
-
-      // Amount paid can be 0 or greater (no validation needed)
     }
-    return true
-  }
+    // Custom: paid amount is 0
+    if (step4PaidAmount === 0) {
+      errors.paidAmount = "Paid amount is required and must be greater than 0";
+    }
+    // Custom: paid amount > total amount
+    if (step4PaidAmount > step4TotalAmount) {
+      errors.paidAmount = "Paid amount cannot be greater than total amount";
+    }
+    // Custom: if total or paid amount > 0 and no date
+    if ((step4TotalAmount > 0 || step4PaidAmount > 0) && !step4PaymentDate) {
+      errors.paymentDate = "Payment date is required when there is a payment amount";
+    }
+    setStep4Errors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
-  // Add validation for step 5
   const validateStep5 = () => {
-    if (self && selectedClientIds.length === 0) {
-      toast.error("Client selection is required", {
-        description: "Please select at least one client for this task.",
-        style: {
-          background: "linear-gradient(90deg, #E53E3E, #C53030)",
-          color: "white",
-          fontWeight: "bolder",
-          fontSize: "13px",
-          letterSpacing: "1px",
-        }
-      })
-      return false
+    setStep5Errors({});
+    try {
+      z.array(z.string()).min(1, "At least one client is required.").parse(selectedClientIds);
+      return true;
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        setStep5Errors(error.flatten().fieldErrors as any);
+      }
+      return false;
     }
-    return true
-  }
+  };
 
-  // Add validation for step 6
   const validateStep6 = () => {
-    if (self && selectedTemplateIds.length === 0) {
-      toast.error("Template selection is required", {
-        description: "Please select at least one template for this task.",
-        style: {
-          background: "linear-gradient(90deg, #E53E3E, #C53030)",
-          color: "white",
-          fontWeight: "bolder",
-          fontSize: "13px",
-          letterSpacing: "1px",
-        }
-      })
-      return false
+    setStep6Errors({});
+    try {
+      z.array(z.string()).min(1, "At least one template is required.").parse(selectedTemplateIds);
+      return true;
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        setStep6Errors(error.flatten().fieldErrors as any);
+      }
+      return false;
     }
-    return true
-  }
+  };
 
   const handleNext = () => {
     if (currentStep === 1) {
@@ -512,6 +484,33 @@ function RouteComponent() {
           return
         }
 
+        if (currentPayment.paidAmount <= 0) {
+          toast.error("Paid amount is required", {
+            description: "Please enter a paid amount greater than 0",
+            style: {
+              background: "linear-gradient(90deg, #E53E3E, #C53030)",
+              color: "white",
+              fontWeight: "bolder",
+              fontSize: "13px",
+              letterSpacing: "1px",
+            }
+          })
+          return
+        }
+
+        if (currentPayment.paidAmount > currentPayment.totalAmount) {
+          toast.error("Paid amount cannot greater than total amount!", {
+            style: {
+              background: "linear-gradient(90deg, #E53E3E, #C53030)",
+              color: "white",
+              fontWeight: "bolder",
+              fontSize: "13px",
+              letterSpacing: "1px",
+            }
+          })
+          return
+        }
+
         if (!currentPayment.paymentDate) {
           toast.error("Payment date is required", {
             description: "Please select a payment date",
@@ -629,6 +628,11 @@ function RouteComponent() {
     }
   }
 
+  const [step3Errors, setStep3Errors] = useState<{ [key: string]: string }>({});
+  const [step4Errors, setStep4Errors] = useState<{ [key: string]: string }>({});
+  const [step5Errors, setStep5Errors] = useState<{ [key: string]: string }>({});
+  const [step6Errors, setStep6Errors] = useState<{ [key: string]: string }>({});
+
   return (
     <>
       <SidebarInset className='w-full'>
@@ -660,7 +664,16 @@ function RouteComponent() {
               </div>
               <div className="flex gap-4">
                 <Button variant="outline" onClick={handlePrevious} disabled={currentStep === 1}>Previous</Button>
-                <Button onClick={handleNext}>{currentStep === 6 ? "Submit" : "Next"}</Button>
+                <Button
+                  onClick={handleNext}
+                  disabled={
+                    (currentStep === 3 && self && selectedAssistantIds.length === 0) ||
+                    (currentStep === 5 && self && selectedClientIds.length === 0) ||
+                    (currentStep === 6 && self && selectedTemplateIds.length === 0)
+                  }
+                >
+                  {currentStep === 6 ? "Submit" : "Next"}
+                </Button>
               </div>
             </div>
 
@@ -1147,6 +1160,12 @@ function RouteComponent() {
                       </p>
                     </CardHeader>
                     <CardContent className="space-y-4">
+                      {step3Errors.selectedAssistantIds && (
+                        <p className="text-sm text-red-500 mt-1">{step3Errors.selectedAssistantIds}</p>
+                      )}
+                      {step3Errors.assistantPayments && (
+                        <p className="text-sm text-red-500 mt-1">{step3Errors.assistantPayments}</p>
+                      )}
                       {self ? (
                         <div className="space-y-2">
                           <Label className="text-sm font-medium flex items-center gap-2">
@@ -1391,9 +1410,10 @@ function RouteComponent() {
                                 className={cn(
                                   "w-full justify-between text-left font-normal",
                                   !currentPayment.paymentDate && "text-muted-foreground",
-                                  status === 'CANCELED' && "opacity-50"
+                                  status === 'CANCELED' && "opacity-50",
+                                  currentPayment.paidAmount === 0 && "opacity-50"
                                 )}
-                                disabled={status === 'CANCELED'}
+                                disabled={status === 'CANCELED' || currentPayment.paidAmount === 0}
                               >
                                 <div className="flex items-center gap-2">
                                   <CalendarIcon className="h-4 w-4" />
@@ -1407,12 +1427,12 @@ function RouteComponent() {
                                 mode="single"
                                 selected={currentPayment.paymentDate}
                                 onSelect={(date) => setCurrentPayment(prev => ({ ...prev, paymentDate: date }))}
-                                disabled={(d) => {
+                                disabled={d => currentPayment.paidAmount === 0 || (function (d) {
                                   if (!d) return false
                                   const taskDate = new Date(d)
                                   taskDate.setHours(0, 0, 0, 0)
                                   return date ? taskDate < date : false
-                                }}
+                                })(d)}
                                 initialFocus
                               />
                             </DropdownMenuContent>
@@ -1511,6 +1531,9 @@ function RouteComponent() {
                                 disabled={status === 'CANCELED'}
                               />
                             </div>
+                            {step4Errors.totalAmount && (
+                              <p className="text-sm text-red-500 mt-1">{step4Errors.totalAmount}</p>
+                            )}
                           </div>
                           <div className="space-y-2 w-[50%]">
                             <Label htmlFor="step4PaidAmount">Amount Paid</Label>
@@ -1526,6 +1549,9 @@ function RouteComponent() {
                                 disabled={status === 'CANCELED'}
                               />
                             </div>
+                            {step4Errors.paidAmount && (
+                              <p className="text-sm text-red-500 mt-1">{step4Errors.paidAmount}</p>
+                            )}
                           </div>
                         </div>
 
@@ -1554,9 +1580,10 @@ function RouteComponent() {
                                 className={cn(
                                   "w-full justify-between text-left font-normal",
                                   !step4PaymentDate && "text-muted-foreground",
-                                  status === 'CANCELED' && "opacity-50"
+                                  status === 'CANCELED' && "opacity-50",
+                                  step4PaidAmount === 0 && "opacity-50"
                                 )}
-                                disabled={status === 'CANCELED'}
+                                disabled={status === 'CANCELED' || step4PaidAmount === 0}
                               >
                                 <div className="flex items-center gap-2">
                                   <CalendarIcon className="h-4 w-4" />
@@ -1570,16 +1597,19 @@ function RouteComponent() {
                                 mode="single"
                                 selected={step4PaymentDate}
                                 onSelect={setStep4PaymentDate}
-                                disabled={(d) => {
+                                disabled={d => step4PaidAmount === 0 || (function (d) {
                                   if (!d) return false
                                   const taskDate = new Date(d)
                                   taskDate.setHours(0, 0, 0, 0)
                                   return date ? taskDate < date : false
-                                }}
+                                })(d)}
                                 initialFocus
                               />
                             </DropdownMenuContent>
                           </DropdownMenu>
+                          {step4Errors.paymentDate && (
+                            <p className="text-sm text-red-500 mt-1">{step4Errors.paymentDate}</p>
+                          )}
                         </div>
 
                         <div className="space-y-2">
@@ -1636,7 +1666,7 @@ function RouteComponent() {
               )}
 
               {currentStep === 5 && (
-                <div className="grid grid-cols-1 lg:grid-2 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
                   <Card className="border-0">
                     <CardHeader className="pb-2 space-y-1">
                       <div className="flex items-center gap-2">
@@ -1650,6 +1680,9 @@ function RouteComponent() {
                       </p>
                     </CardHeader>
                     <CardContent className="space-y-4">
+                      {step5Errors[0] && (
+                        <p className="text-sm text-red-500 mt-1">{step5Errors[0]}</p>
+                      )}
                       {self ? (
                         <div className="space-y-2">
                           <Label className="text-sm font-medium flex items-center gap-2">
@@ -1817,6 +1850,9 @@ function RouteComponent() {
                       </p>
                     </CardHeader>
                     <CardContent className="space-y-4">
+                      {step6Errors[0] && (
+                        <p className="text-sm text-red-500 mt-1">{step6Errors[0]}</p>
+                      )}
                       {self ? (
                         <div className="space-y-2">
                           <Label className="text-sm font-medium flex items-center gap-2">
