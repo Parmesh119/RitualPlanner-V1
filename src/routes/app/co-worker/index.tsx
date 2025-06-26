@@ -217,7 +217,7 @@ function RouteComponent() {
                   <TableHead>Name</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Phone</TableHead>
-                  <TableHead>Created At</TableHead>
+                  <TableHead>Created Date</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -285,7 +285,7 @@ function RouteComponent() {
                   <div className="space-y-1 text-sm text-muted-foreground">
                     <p>Email: {coWorker.email || '-'}</p>
                     <p>Phone: {coWorker.phone}</p>
-                    <p>Created: {format(new Date(coWorker.createdAt * 1000), "PPP")}</p>
+                    <p>Created Date: {format(new Date(coWorker.createdAt * 1000), "PPP")}</p>
                   </div>
                 </div>
               ))

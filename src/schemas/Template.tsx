@@ -27,7 +27,9 @@ const RitualTemplateRequest = z.object({
 export type ListTemplate = {
     search?: string | null,
     page: number,
-    size: number
+    size: number,
+    startDate?: number | null
+    endDate?: number | null
 }
 
 export type TTemplate = z.infer<typeof TemplateSchema>

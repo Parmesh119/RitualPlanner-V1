@@ -27,6 +27,9 @@ import { Pencil, Share2, Download } from 'lucide-react'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Input } from '@/components/ui/input'
 import { useState } from 'react'
+import jsPDF from 'jspdf'
+import autoTable from 'jspdf-autotable'
+import { gujaratiFont } from '@/lib/gujaratiFont'
 
 export const Route = createFileRoute('/app/bills-payment/get/$id')({
   component: RouteComponent,
@@ -90,6 +93,142 @@ function RouteComponent() {
       .some(val => val.includes(search.toLowerCase()))
   ) || []
 
+  function handleShare() {
+    if (!bill || !userData) return;
+    const message =
+      `|| શ્રી ગણેશાય નમઃ ||\n\n` +
+      `*Bill Information*\n` +
+      `Title: ${bill.name || 'No title provided'}\n` +
+      `Created Date: ${bill.createdAt ? format(new Date(bill.createdAt * 1000), 'PPP') : 'Not available'}\n` +
+      `Status: ${bill.paymentstatus}\n` +
+      `Total Amount: ${bill.totalamount ?? 0}\n\n` +
+      `*Bill Items:*\n` +
+      (items.length > 0
+        ? items.map((item, idx) =>
+          `${idx + 1}. ${item.itemname || ''} (${item.quantity || ''} ${item.unit || ''}) - ₹${item.marketrate}${item.extracharges ? ` + ₹${item.extracharges}` : ''}${item.note ? ' - ' + item.note : ''}`
+        ).join('\n')
+        : 'No items found for this bill.') +
+      `\n\nFor any kind of query regarding this bill please contact ${userData?.name || 'N/A'} (${userData?.phone || 'N/A'}).`;
+
+    const encodedMessage = encodeURIComponent(message);
+    const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
+    window.open(whatsappUrl, '_blank');
+  }
+
+  function handleDownload() {
+    if (!bill || !userData) return;
+    const doc = new jsPDF();
+
+    // Register and use Gujarati font for the heading
+    doc.addFileToVFS('Gujarati.ttf', gujaratiFont);
+    doc.addFont('Gujarati.ttf', 'Gujarati', 'normal');
+    doc.setFont('Gujarati');
+    doc.setFontSize(22);
+    doc.setTextColor(44, 62, 80); // dark blue
+    const gujaratiText = '|| શ્રી ગણેશાય નમઃ ||';
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const textWidth = doc.getTextWidth(gujaratiText);
+    doc.text(gujaratiText, (pageWidth - textWidth) / 2, 22);
+
+    let y = 35;
+
+    // Switch back to helvetica for the rest
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(0, 0, 0);
+
+    // User Information Section Header
+    doc.setFillColor(230, 240, 255);
+    doc.roundedRect(10, y - 7, pageWidth - 20, 14, 3, 3, 'F');
+    doc.setFontSize(15);
+    doc.setFont('helvetica', 'bold');
+    doc.text('User Information', 14, y + 3);
+    y += 14;
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Name: ${userData.name || ''}`, 16, y);
+    y += 7;
+    doc.text(`Phone: ${userData.phone || ''}`, 16, y);
+    y += 12;
+
+    // Bill Information Section Header
+    doc.setFillColor(230, 240, 255);
+    doc.roundedRect(10, y - 7, pageWidth - 20, 14, 3, 3, 'F');
+    doc.setFontSize(15);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Bill Information', 14, y + 3);
+    y += 14;
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Title: ${bill.name || 'No title provided'}`, 16, y);
+    y += 7;
+    doc.text(`Created Date: ${bill.createdAt ? format(new Date(bill.createdAt * 1000), 'PPP') : 'Not available'}`, 16, y);
+    y += 7;
+    doc.text(`Status: ${bill.paymentstatus}`, 16, y);
+    y += 7;
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(13);
+    doc.setTextColor(44, 62, 80);
+    doc.text(`Total Amount: ${bill.totalamount ?? 0}`, 16, y);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0);
+    y += 12;
+
+    // Bill Items Section Header
+    doc.setFontSize(15);
+    doc.setFont('helvetica', 'bold');
+    doc.setFillColor(230, 240, 255);
+    doc.roundedRect(10, y - 7, pageWidth - 20, 14, 3, 3, 'F');
+    doc.text('Bill Items', 14, y + 3);
+    y += 10;
+
+    // Table
+    if (items.length > 0) {
+      autoTable(doc, {
+        startY: y + 4,
+        head: [['Sr No', 'Item Name', 'Quantity', 'Unit', 'Market Rate', 'Extra Charges', 'Total', 'Note']],
+        body: items.map((item, idx) => {
+          const qty = Number(item.quantity) || 0;
+          const rate = Number(item.marketrate) || 0;
+          const extra = Number(item.extracharges) || 0;
+          const total = qty * rate + extra;
+          return [
+            (idx + 1).toString(),
+            item.itemname || '',
+            item.quantity?.toString() || '',
+            item.unit || '',
+            item.marketrate ? `${item.marketrate}` : '-',
+            item.extracharges ? `${item.extracharges}` : '-',
+            total.toString(),
+            item.note?.trim() ? item.note : '-'
+          ];
+        }),
+        theme: 'grid',
+        headStyles: { fillColor: [44, 62, 80], textColor: [255, 255, 255], fontStyle: 'bold' },
+        styles: { fontSize: 11 },
+        margin: { left: 14, right: 14 },
+      });
+      // Add note below the table
+      const finalY = (doc as any).lastAutoTable?.finalY || (y + 30);
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(120, 120, 120);
+      doc.text('Note: Market Rate, Extra Charges, and Total Amount are in rupees.', 56, finalY + 8, { align: 'justify' });
+    } else {
+      doc.setFontSize(12);
+      doc.text('No items found for this bill.', 14, y + 10);
+    }
+
+    // Footer
+    doc.setFontSize(10);
+    doc.setTextColor(150, 150, 150);
+    const queryText = `For any kind of query regarding this bill please contact ${userData?.name || 'N/A'} (${userData?.phone || 'N/A'}).`;
+    doc.text(queryText, pageWidth / 2, 285, { align: 'center', baseline: 'middle' });
+    doc.text('Generated by Ritual Planner', pageWidth / 2, 292, { align: 'center' });
+
+    doc.save(`${bill.name || 'bill'}.pdf`);
+  }
+
   return (
     <SidebarInset className='w-full'>
       <header className="flex h-16 shrink-0 items-center gap-2 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -119,7 +258,6 @@ function RouteComponent() {
             </span>
             <span className='flex flex-row gap-4'>
               <Button
-                size="sm"
                 variant="outline"
                 className="ml-2"
                 onClick={() => navigate({ to: `/app/bills-payment/edit/$id`, params: { id: bill.id } })}
@@ -127,10 +265,10 @@ function RouteComponent() {
                 <Pencil className="h-4 w-4 mr-1" />
                 Edit Bill
               </Button>
-              <Button className="flex items-center gap-2">
+              <Button className="flex items-center gap-2" onClick={handleDownload}>
                 <Download className="h-4 w-4" /> Download Bill
               </Button>
-              <Button  className="flex items-center gap-2">
+              <Button className="flex items-center gap-2" onClick={handleShare}>
                 <Share2 className="h-4 w-4" /> Share Bill
               </Button>
             </span>
@@ -209,20 +347,28 @@ function RouteComponent() {
                             <TableHead className="font-semibold">Unit</TableHead>
                             <TableHead className="font-semibold">Market Rate</TableHead>
                             <TableHead className="font-semibold">Extra Charges</TableHead>
+                            <TableHead className="font-semibold">Total</TableHead>
                             <TableHead className="font-semibold">Note</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {filteredItems.map((item, idx) => (
-                            <TableRow key={item.id || idx} className="hover:bg-muted/20 transition-colors">
-                              <TableCell className="font-medium">{item.itemname}</TableCell>
-                              <TableCell>{item.quantity}</TableCell>
-                              <TableCell>{item.unit}</TableCell>
-                              <TableCell>₹{item.marketrate}</TableCell>
-                              <TableCell>{item.extracharges ? `₹${item.extracharges}` : '-'}</TableCell>
-                              <TableCell>{item.note?.trim() ? item.note : '-'}</TableCell>
-                            </TableRow>
-                          ))}
+                          {filteredItems.map((item, idx) => {
+                            const qty = Number(item.quantity) || 0;
+                            const rate = Number(item.marketrate) || 0;
+                            const extra = Number(item.extracharges) || 0;
+                            const total = qty * rate + extra;
+                            return (
+                              <TableRow key={item.id || idx} className="hover:bg-muted/20 transition-colors">
+                                <TableCell className="font-medium">{item.itemname}</TableCell>
+                                <TableCell>{item.quantity}</TableCell>
+                                <TableCell>{item.unit}</TableCell>
+                                <TableCell>{item.marketrate}</TableCell>
+                                <TableCell>{item.extracharges ? item.extracharges : '-'}</TableCell>
+                                <TableCell>{total}</TableCell>
+                                <TableCell>{item.note?.trim() ? item.note : '-'}</TableCell>
+                              </TableRow>
+                            );
+                          })}
                         </TableBody>
                       </Table>
                     </div>

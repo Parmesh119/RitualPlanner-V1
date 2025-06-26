@@ -203,14 +203,20 @@ function RouteComponent() {
     }
     setIsSubmitting(true)
     const templateValues = templateForm.getValues()
+    const now = Date.now()
+    const itemsWithTimestamps = items.map(item => ({
+      ...item,
+      createdAt: now,
+      updatedAt: now,
+    }))
     updateTemplateMutation.mutate({
       ritualTemplate: {
         ...templateValues,
         id: id,
-        createdAt: data?.ritualTemplate?.createdAt ?? Date.now(),
-        updatedAt: Date.now(),
+        createdAt: data?.ritualTemplate?.createdAt ?? now,
+        updatedAt: now,
       },
-      requiredItems: items,
+      requiredItems: itemsWithTimestamps,
     })
   }
 

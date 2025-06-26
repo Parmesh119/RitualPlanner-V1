@@ -36,6 +36,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { ClientDialog } from "@/components/client/create-dialog"
+import { format } from "date-fns"
 
 export const Route = createFileRoute('/app/client/')({
   component: RouteComponent,
@@ -208,6 +209,7 @@ function RouteComponent() {
                   <TableHead>Name</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Phone</TableHead>
+                  <TableHead>Created Date</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -238,6 +240,8 @@ function RouteComponent() {
                       <TableCell>{client.name || "-"}</TableCell>
                       <TableCell>{client.email || "-"}</TableCell>
                       <TableCell>{client.phone || "-"}</TableCell>
+                      <TableCell>{format(new Date(client.createdAt * 1000), "PPP")}</TableCell>
+
                     </TableRow>
                   ))
                 )}
@@ -272,6 +276,7 @@ function RouteComponent() {
                   <div className="space-y-1 text-sm text-muted-foreground">
                     <p>Email: {client.email || "-"}</p>
                     <p>Phone: {client.phone || "-"}</p>
+                    <p>Created Date: {format(new Date(client.createdAt * 1000), "PPP") || "-"}</p>
                   </div>
                 </div>
               ))

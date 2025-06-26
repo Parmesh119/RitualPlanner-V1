@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
-import { Plus, Save, ArrowLeft } from 'lucide-react'
+import { Save, ArrowLeft } from 'lucide-react'
 
 export const Route = createFileRoute('/app/bills-payment/edit/$id')({
   component: RouteComponent,
@@ -132,10 +132,25 @@ function RouteComponent() {
     setIsSubmitting(true)
     try {
       if (!bill) throw new Error('Bill not loaded')
-      // Validate items
-      const validatedItems = items.map(item => ItemBIllSchema.parse({ ...item, quantity: Number(item.quantity), marketrate: Number(item.marketrate), extracharges: Number(item.extracharges) }))
-      // Validate bill
-      const validatedBill = BillSchema.parse({ ...bill, totalamount: globalTotal, updatedAt: Date.now() })
+      // Ensure createdAt and updatedAt for items
+      const now = Date.now()
+      const validatedItems = items.map(item =>
+        ItemBIllSchema.parse({
+          ...item,
+          quantity: Number(item.quantity),
+          marketrate: Number(item.marketrate),
+          extracharges: Number(item.extracharges),
+          createdAt: now,
+          updatedAt: now,
+        })
+      )
+      // Ensure createdAt and updatedAt for bill
+      const validatedBill = BillSchema.parse({
+        ...bill,
+        totalamount: globalTotal,
+        createdAt: bill.createdAt || now,
+        updatedAt: now,
+      })
       // Compose request
       const requestBill = RequestBill.parse({ bill: validatedBill, items: validatedItems })
       updateBill.mutate(requestBill)

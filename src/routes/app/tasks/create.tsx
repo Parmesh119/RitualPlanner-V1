@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/popover"
 import { cn } from "@/lib/utils"
 import { TaskSchema, TaskAssistantSchema, PaymentSchema } from "@/schemas/Task"
-import { listCoWorkerAction, listNoteAction, getNoteByIdAction, getUserDetails, listClientAction, listTemplateAction } from "@/lib/actions"
+import { listCoWorkerAction, listNoteAction, getNoteByIdAction, getUserDetails, listClientAction, listTemplateAction, listBillAction } from "@/lib/actions"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -152,6 +152,10 @@ function RouteComponent() {
   const [selectedTemplateIds, setSelectedTemplateIds] = useState<string[]>([])
   const [templateSearchTerm, setTemplateSearchTerm] = useState("")
 
+  // Step 7 States
+  const [selectedBillIds, setSelectedBillIds] = useState<string[]>([])
+  const [billSearchTerm, setBillSearchTerm] = useState("")
+
   // Fetch co-workers for task owner dropdown
   const { data: coWorkers = [] } = useQuery({
     queryKey: ['co-workers'],
@@ -189,6 +193,12 @@ function RouteComponent() {
     queryFn: () => listTemplateAction({ page: 1, size: 1000 })
   })
 
+  // Fetch bills query
+  const { data: bills = [] } = useQuery({
+    queryKey: ['bills', billSearchTerm],
+    queryFn: () => listBillAction({ page: 1, size: 1000, search: billSearchTerm }),
+  })
+
   // Calculate payment status
   const paymentStatus = totalAmount > 0 && totalAmount === paidAmount ? 'COMPLETED' : 'PENDING'
 
@@ -211,6 +221,12 @@ function RouteComponent() {
   const filteredTemplates = selectedTemplateIds.filter(id => {
     const template = templates.find(t => t.id === id)
     return template?.name.toLowerCase().includes(templateSearchTerm.toLowerCase())
+  })
+
+  // Filter selected bills based on search term
+  const filteredBills = selectedBillIds.filter(id => {
+    const bill = bills.find(b => b.id === id)
+    return bill?.name.toLowerCase().includes(billSearchTerm.toLowerCase())
   })
 
   const validateStep1 = () => {
@@ -332,7 +348,7 @@ function RouteComponent() {
   const validateStep5 = () => {
     setStep5Errors({});
     try {
-      z.array(z.string()).min(1, "At least one client is required.").parse(selectedClientIds);
+      z.array(z.string()).length(1, "Exactly one client is required.").parse(selectedClientIds);
       return true;
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -345,7 +361,7 @@ function RouteComponent() {
   const validateStep6 = () => {
     setStep6Errors({});
     try {
-      z.array(z.string()).min(1, "At least one template is required.").parse(selectedTemplateIds);
+      z.array(z.string()).length(1, "Exactly one template is required.").parse(selectedTemplateIds);
       return true;
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -354,6 +370,19 @@ function RouteComponent() {
       return false;
     }
   };
+
+  const validateStep7 = () => {
+    setStep7Errors({});
+    try {
+      z.array(z.string()).length(1, "Exactly one bill is required.").parse(selectedBillIds);
+      return true;
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        setStep7Errors(error.flatten().fieldErrors as any);
+      }
+      return false;
+    }
+  }
 
   const handleNext = () => {
     if (currentStep === 1) {
@@ -375,6 +404,9 @@ function RouteComponent() {
       setCurrentStep(6)
     } else if (currentStep === 6) {
       if (!validateStep6()) return
+      setCurrentStep(7)
+    } else if (currentStep === 7) {
+      if (!validateStep7()) return
       // Final submission
       console.log("Final form submission", {
         selectedNoteIds,
@@ -382,6 +414,7 @@ function RouteComponent() {
         assistantPayments,
         selectedClientIds,
         selectedTemplateIds,
+        selectedBillIds,
         totalAmount,
         paidAmount,
         paymentDate,
@@ -392,7 +425,9 @@ function RouteComponent() {
   }
 
   const handlePrevious = () => {
-    if (currentStep === 6) {
+    if (currentStep === 7) {
+      setCurrentStep(6)
+    } else if (currentStep === 6) {
       setCurrentStep(5)
     } else if (currentStep === 5) {
       setCurrentStep(4)
@@ -577,9 +612,9 @@ function RouteComponent() {
   // Add this function after handleAssistantSelection
   const handleClientSelection = (clientId: string, checked: boolean) => {
     if (checked) {
-      setSelectedClientIds(prev => [...prev, clientId])
+      setSelectedClientIds([clientId])
     } else {
-      setSelectedClientIds(prev => prev.filter(id => id !== clientId))
+      setSelectedClientIds([])
     }
   }
 
@@ -622,9 +657,19 @@ function RouteComponent() {
   const handleTemplateSelection = (templateId: string, checked: boolean) => {
     if (!self) return // Disabled if not self
     if (checked) {
-      setSelectedTemplateIds(prev => [...prev, templateId])
+      setSelectedTemplateIds([templateId])
     } else {
-      setSelectedTemplateIds(prev => prev.filter(id => id !== templateId))
+      setSelectedTemplateIds([])
+    }
+  }
+
+  // Add this function to handle bill selection
+  const handleBillSelection = (billId: string, checked: boolean) => {
+    if (!self) return // Disabled if not self
+    if (checked) {
+      setSelectedBillIds([billId])
+    } else {
+      setSelectedBillIds([])
     }
   }
 
@@ -632,6 +677,7 @@ function RouteComponent() {
   const [step4Errors, setStep4Errors] = useState<{ [key: string]: string }>({});
   const [step5Errors, setStep5Errors] = useState<{ [key: string]: string }>({});
   const [step6Errors, setStep6Errors] = useState<{ [key: string]: string }>({});
+  const [step7Errors, setStep7Errors] = useState<{ [key: string]: string }>({});
 
   return (
     <>
@@ -647,7 +693,7 @@ function RouteComponent() {
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
-                  <BreadcrumbPage>Create Task (Step {currentStep} of 6)</BreadcrumbPage>
+                  <BreadcrumbPage>Create Task (Step {currentStep} of 7)</BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
@@ -660,7 +706,6 @@ function RouteComponent() {
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-4">
                 <h1 className="text-2xl font-bold">Create Task</h1>
-                <span className="text-sm font-medium bg-muted/50 px-3 py-1.5 rounded-full border">Step {currentStep} of 6</span>
               </div>
               <div className="flex gap-4">
                 <Button variant="outline" onClick={handlePrevious} disabled={currentStep === 1}>Previous</Button>
@@ -669,10 +714,11 @@ function RouteComponent() {
                   disabled={
                     (currentStep === 3 && self && selectedAssistantIds.length === 0) ||
                     (currentStep === 5 && self && selectedClientIds.length === 0) ||
-                    (currentStep === 6 && self && selectedTemplateIds.length === 0)
+                    (currentStep === 6 && self && selectedTemplateIds.length === 0) ||
+                    (currentStep === 7 && self && selectedBillIds.length === 0)
                   }
                 >
-                  {currentStep === 6 ? "Submit" : "Next"}
+                  {currentStep === 7 ? "Submit" : "Next"}
                 </Button>
               </div>
             </div>
@@ -1737,7 +1783,7 @@ function RouteComponent() {
                                           </Label>
                                           <Checkbox
                                             id={`client-${client.id}`}
-                                            checked={selectedClientIds.includes(client.id)}
+                                            checked={selectedClientIds[0] === client.id}
                                             onCheckedChange={(checked) => handleClientSelection(client.id, checked === true)}
                                             className="shrink-0"
                                           />
@@ -1907,7 +1953,7 @@ function RouteComponent() {
                                           </Label>
                                           <Checkbox
                                             id={`template-${template.id}`}
-                                            checked={selectedTemplateIds.includes(template.id)}
+                                            checked={selectedTemplateIds[0] === template.id}
                                             onCheckedChange={(checked) => handleTemplateSelection(template.id, checked === true)}
                                             className="shrink-0"
                                             disabled={!self}
@@ -1990,6 +2036,168 @@ function RouteComponent() {
                       ) : (
                         <div className="flex items-center justify-center h-32">
                           <p className="text-sm text-muted-foreground">No templates selected</p>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
+
+              {currentStep === 7 && (
+                <div className="grid grid-cols-1 lg:grid-2 gap-6">
+                  <Card className="border-0">
+                    <CardHeader className="pb-2 space-y-1">
+                      <div className="flex items-center gap-2">
+                        <FileText className="h-5 w-5 text-muted-foreground" />
+                        <h2 className="text-lg font-semibold">Task Bills</h2>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        {self
+                          ? "Select bills for this task"
+                          : "Enable self mode to select bills"}
+                      </p>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      {step7Errors[0] && (
+                        <p className="text-sm text-red-500 mt-1">{step7Errors[0]}</p>
+                      )}
+                      {self ? (
+                        <div className="space-y-2">
+                          <Label className="text-sm font-medium flex items-center gap-2">
+                            <Search className="h-4 w-4" />
+                            Select Bills <span className="text-red-500">*</span>
+                          </Label>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <Button
+                                variant="outline"
+                                className="w-full justify-between h-11 px-3 border-2 hover:border-primary/20 focus:border-primary transition-colors"
+                              >
+                                <div className="flex items-center gap-2">
+                                  <FileText className="h-4 w-4 text-muted-foreground" />
+                                  <span className="text-sm">
+                                    Select Bills ({selectedBillIds.length} selected)
+                                  </span>
+                                </div>
+                                <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-60 lg:w-130 p-0" align="center">
+                              <Command className="rounded-lg border-0">
+                                <CommandInput
+                                  placeholder="Search bills..."
+                                  className="h-9"
+                                  value={billSearchTerm}
+                                  onValueChange={setBillSearchTerm}
+                                />
+                                <CommandEmpty className="py-6 text-center text-sm text-muted-foreground">
+                                  <div className="flex flex-col items-center gap-2">
+                                    <FileText className="h-8 w-8 opacity-20" />
+                                    <span>No bills found</span>
+                                  </div>
+                                </CommandEmpty>
+                                <CommandGroup>
+                                  <ScrollArea className="h-[200px]">
+                                    <CommandList>
+                                      {bills.map((bill) => (
+                                        <CommandItem
+                                          key={bill.id}
+                                          className="flex items-center justify-between p-3 cursor-pointer hover:bg-accent/50"
+                                        >
+                                          <Label
+                                            htmlFor={`bill-${bill.id}`}
+                                            className="text-sm font-medium leading-none cursor-pointer flex-1 min-w-0 mr-3"
+                                          >
+                                            <div className="flex items-center gap-2">
+                                              <FileText className="h-6 w-6" />
+                                              {bill.name}
+                                            </div>
+                                          </Label>
+                                          <Checkbox
+                                            id={`bill-${bill.id}`}
+                                            checked={selectedBillIds[0] === bill.id}
+                                            onCheckedChange={(checked) => handleBillSelection(bill.id, checked === true)}
+                                            className="shrink-0"
+                                            disabled={!self}
+                                          />
+                                        </CommandItem>
+                                      ))}
+                                    </CommandList>
+                                  </ScrollArea>
+                                </CommandGroup>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-center h-32">
+                          <p className="text-sm text-muted-foreground">Enable self mode to select bills</p>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+
+                  <Card className="border-0">
+                    <CardHeader className="pb-2 space-y-1">
+                      <div className="flex items-center gap-2">
+                        <FileText className="h-5 w-5 text-muted-foreground" />
+                        <h2 className="text-lg font-semibold">Selected Bills</h2>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        View and manage selected bills
+                      </p>
+                    </CardHeader>
+                    <CardContent>
+                      {selectedBillIds.length > 0 ? (
+                        <div className="space-y-4">
+                          <div className="relative">
+                            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                            <input
+                              type="text"
+                              placeholder="Search selected bills..."
+                              className="pl-9 border rounded-md h-9 w-full bg-transparent text-sm"
+                              value={billSearchTerm}
+                              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setBillSearchTerm(e.target.value)}
+                            />
+                          </div>
+                          <div>
+                            <div className="space-y-3 max-h-64 overflow-y-auto">
+                              {filteredBills.map(id => {
+                                const bill = bills.find(b => b.id === id)
+                                return bill ? (
+                                  <div key={id} className="group flex items-center justify-between p-3 rounded-md bg-accent/30 hover:bg-accent/50 transition-colors">
+                                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                                      <FileText className="h-8 w-8" />
+                                      <div className="flex flex-col min-w-0">
+                                        <Link
+                                          to="/app/bills-payment/get/$id"
+                                          params={{ id: bill.id }}
+                                          className="truncate text-sm font-medium hover:text-primary transition-colors"
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                        >
+                                          {bill.name}
+                                        </Link>
+                                      </div>
+                                    </div>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="h-8 w-8 p-0 opacity-60 hover:opacity-100"
+                                      onClick={() => handleBillSelection(bill.id, false)}
+                                      disabled={!self}
+                                    >
+                                      <XCircle className="h-4 w-4 hover:text-destructive transition-colors" />
+                                    </Button>
+                                  </div>
+                                ) : null
+                              })}
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-center h-32">
+                          <p className="text-sm text-muted-foreground">No bills selected</p>
                         </div>
                       )}
                     </CardContent>

@@ -20,6 +20,7 @@ import { CreateCoWorkerDialog } from "@/components/co-worker/create-dialog"
 import { useState } from "react"
 import { Link } from '@tanstack/react-router'
 import { toast } from 'sonner'
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
 
 export const Route = createFileRoute('/app/co-worker/get/$id')({
   component: RouteComponent,
@@ -33,6 +34,7 @@ export const Route = createFileRoute('/app/co-worker/get/$id')({
 function RouteComponent() {
   const { coWorkerId } = Route.useLoaderData()
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
+  const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false)
 
   const { data: coWorker, isLoading } = useQuery<TCoWorker>({
     queryKey: ['co-worker', coWorkerId],
@@ -119,24 +121,28 @@ function RouteComponent() {
             <div className="flex items-center justify-between">
               <h1 className="text-3xl font-bold tracking-tight">{coWorker.name}</h1>
               <span className='flex flex-row justify-end gap-4'>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsEditDialogOpen(true)}
-                className="gap-2 cursor-pointer"
-              >
-                <Pencil className="h-4 w-4" />
-                Edit Co-Worker
-              </Button>
-                <Button onClick={() => sendInvite.mutate()} variant={'outline'} className='cursor-pointer' size={"sm"} >
-                <Send className='h-4 w-4' />Invite Co-Worker on this platform?
-              </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsEditDialogOpen(true)}
+                  className="gap-2 cursor-pointer"
+                >
+                  <Pencil className="h-4 w-4" />
+                  Edit Co-Worker
+                </Button>
+                <Button onClick={() => setIsInviteDialogOpen(true)} variant={'outline'} className='cursor-pointer' size={"sm"} >
+                  <Send className='h-4 w-4' />Invite Co-Worker on this platform?
+                </Button>
               </span>
             </div>
             <div className="flex items-center gap-4 text-sm text-muted-foreground justify-between">
               <div className="flex items-center gap-1">
                 <Clock className="h-4 w-4" />
-                <span>Created: {format(new Date(coWorker.createdAt * 1000), "PPP")}</span>
+                <span>Created Date: {format(new Date(coWorker.createdAt * 1000), "PPP")}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Clock className="h-4 w-4" />
+                <span>Updated Date: {format(new Date(coWorker.updatedAt * 1000), "PPP")}</span>
               </div>
             </div>
           </div>
@@ -162,6 +168,29 @@ function RouteComponent() {
           </Card>
         </div>
       </div>
+
+      {/* Invite Confirmation Dialog */}
+      <AlertDialog open={isInviteDialogOpen} onOpenChange={(open) => {
+        // Prevent closing on outside click
+        if (!open) return;
+        setIsInviteDialogOpen(open);
+      }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Invite Co-Worker</AlertDialogTitle>
+            <AlertDialogDescription>
+              Do you want to invite <b>{coWorker.name}</b> - {coWorker.email || 'No email'} - {coWorker.phone || 'No phone'} on this platform?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setIsInviteDialogOpen(false)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => {
+              setIsInviteDialogOpen(false);
+              sendInvite.mutate();
+            }}>Yes</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <CreateCoWorkerDialog
         open={isEditDialogOpen}

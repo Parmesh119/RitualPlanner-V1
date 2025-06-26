@@ -16,7 +16,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { Separator } from "@/components/ui/separator"
-import { Calendar, Package, FileText, AlertCircle, Pencil, ExternalLink, Download } from 'lucide-react'
+import { Calendar, Package, FileText, AlertCircle, Pencil, Download, Share2 } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
@@ -288,7 +288,7 @@ function RouteComponent() {
               </Button>
               <Button className='cursor-pointer' onClick={handleShare}>
                 {/* WhatsApp SVG icon */}
-                <ExternalLink />
+                <Share2 />
                 Share Template
               </Button>
             </span>
@@ -335,6 +335,15 @@ function RouteComponent() {
                     </label>
                     <p className="text-base">
                       {template?.createdAt ? format(new Date(template.createdAt * 1000), 'PPP') : 'Not available'}
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-muted-foreground flex items-center gap-1">
+                      <Calendar className="h-3 w-3" />
+                      Updated Date
+                    </label>
+                    <p className="text-base">
+                      {template?.updatedAt ? format(new Date(template.updatedAt * 1000), 'PPP') : 'Not available'}
                     </p>
                   </div>
                 </div>

@@ -245,8 +245,8 @@ function RouteComponent() {
                   </TableHead>
                   <TableHead className="px-6 text-center">Sr No.</TableHead>
                   <TableHead className="px-6 text-center">Name</TableHead>
-                  <TableHead className="px-6 text-center">Status</TableHead>
-                  <TableHead className="px-6 text-center">Created At</TableHead>
+                  <TableHead className="px-6 text-center">Payment Status</TableHead>
+                  <TableHead className="px-6 text-center">Created Date</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -313,8 +313,8 @@ function RouteComponent() {
                   </div>
                   <h3 className="font-semibold text-lg mb-2 pr-8">{bill.name}</h3>
                   <div className="space-y-1 text-sm text-muted-foreground">
-                    <p>Created: {bill.createdAt ? format(new Date(bill.createdAt * 1000), "PPP") : '-'}</p>
-                    <p>Updated: {bill.updatedAt ? format(new Date(bill.updatedAt * 1000), "PPP") : '-'}</p>
+                    <p>Created Date: {bill.createdAt ? format(new Date(bill.createdAt * 1000), "PPP") : '-'}</p>
+                    <p>Updated Date: {bill.updatedAt ? format(new Date(bill.updatedAt * 1000), "PPP") : '-'}</p>
                   </div>
                 </div> 
               ))

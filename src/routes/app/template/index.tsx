@@ -36,6 +36,13 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from "@/components/ui/alert-dialog"
+import { Calendar } from "@/components/ui/calendar"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import { Calendar as CalendarIcon } from "lucide-react"
 
 export const Route = createFileRoute('/app/template/')({
   component: RouteComponent,
@@ -50,13 +57,17 @@ function RouteComponent() {
   const DEFAULT_PAGE_SIZE = 10
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const queryClient = useQueryClient()
+  const [startDate, setStartDate] = useState<Date>()
+  const [endDate, setEndDate] = useState<Date>()
 
   const { data: templatesData, isLoading } = useQuery({
-    queryKey: ['templates', currentPage, searchQuery],
+    queryKey: ['templates', currentPage, searchQuery, startDate, endDate],
     queryFn: () => listTemplateAction({
       page: currentPage,
       size: DEFAULT_PAGE_SIZE,
       search: searchQuery || undefined,
+      startDate: startDate ? startDate.getTime() : undefined,
+      endDate: endDate ? endDate.getTime() : undefined,
     }),
   })
 
@@ -171,6 +182,38 @@ function RouteComponent() {
                 className="pl-8 w-full"
               />
             </div>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="min-w-[140px] justify-start text-left font-normal">
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {startDate ? format(startDate, "PPP") : "Start Date"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="center">
+                <Calendar
+                  mode="single"
+                  selected={startDate}
+                  onSelect={setStartDate}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="min-w-[140px] justify-start text-left font-normal">
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {endDate ? format(endDate, "PPP") : "End Date"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="center">
+                <Calendar
+                  mode="single"
+                  selected={endDate}
+                  onSelect={setEndDate}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
           </div>
         </div>
 
@@ -190,7 +233,7 @@ function RouteComponent() {
                   <TableHead className="w-[240px]">Sr No.</TableHead>
                   <TableHead>Name</TableHead>
                   <TableHead>Description</TableHead>
-                  <TableHead>Created At</TableHead>
+                  <TableHead>Created Date</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -219,7 +262,7 @@ function RouteComponent() {
                       </TableCell>
                       <TableCell>{(currentPage - 1) * DEFAULT_PAGE_SIZE + index + 1}</TableCell>
                       <TableCell>{template.name}</TableCell>
-                      <TableCell>{template.description || "No description"}</TableCell>
+                      <TableCell>{template.description || "-"}</TableCell>
                       <TableCell>{format(new Date(template.createdAt * 1000), "PPP")}</TableCell>
                     </TableRow>
                   ))
@@ -254,7 +297,7 @@ function RouteComponent() {
                   <h3 className="font-semibold text-lg mb-2 pr-8">{template.name}</h3>
                   <div className="space-y-1 text-sm text-muted-foreground">
                     <p>{template.description || "No description"}</p>
-                    <p>Created: {format(new Date(template.createdAt * 1000), "PPP")}</p>
+                    <p>Created Date: {format(new Date(template.createdAt * 1000), "PPP")}</p>
                   </div>
                 </div>
               ))

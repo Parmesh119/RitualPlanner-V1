@@ -244,7 +244,7 @@ function RouteComponent() {
                   <TableHead className="w-[240px]">Sr No.</TableHead>
                   <TableHead>Title</TableHead>
                   <TableHead>Reminder Date</TableHead>
-                  <TableHead>Created At</TableHead>
+                  <TableHead>Created Date</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

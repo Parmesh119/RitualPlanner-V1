@@ -96,12 +96,12 @@ function RouteComponent() {
               {note.reminder_date && (
                 <div className="flex items-center gap-1">
                   <Calendar className="h-4 w-4" />
-                  <span>Reminder: {format(new Date(note.reminder_date * 1000), "PPP")}</span>
+                  <span>Reminder Date: {format(new Date(note.reminder_date * 1000), "PPP")}</span>
                 </div>
               )}
               <div className="flex items-center gap-1">
                 <Clock className="h-4 w-4" />
-                <span>Created: {format(new Date(note.createdAt * 1000), "PPP")}</span>
+                <span>Created Date: {format(new Date(note.createdAt * 1000), "PPP")}</span>
               </div>
             </div>
           </div>

@@ -137,11 +137,11 @@ function RouteComponent() {
                                 <p className="text-lg">{client.description || "-"}</p>
                             </div>
                             <div>
-                                <h3 className="text-sm font-medium text-muted-foreground">Created At</h3>
+                                <h3 className="text-sm font-medium text-muted-foreground">Created Date</h3>
                                 <p className="text-lg">{client.createdAt ? new Date(client.createdAt * 1000).toLocaleDateString() : "-"}</p>
                             </div>
                             <div>
-                                <h3 className="text-sm font-medium text-muted-foreground">Updated At</h3>
+                                <h3 className="text-sm font-medium text-muted-foreground">Updated Date</h3>
                                 <p className="text-lg">{client.updatedAt ? new Date(client.updatedAt * 1000).toLocaleDateString() : "-"}</p>
                             </div>
                         </CardContent>
