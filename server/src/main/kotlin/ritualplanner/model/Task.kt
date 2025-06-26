@@ -58,6 +58,24 @@ data class TaskClient (
     val updatedAt: Long = Instant.now().toEpochMilli()
 )
 
+data class TaskTemplate (
+    val id: String? = UUID.randomUUID().toString(),
+    val task_id: String,
+    val taskOwner_id: String,
+    val template_id: String,
+    val createdAt: Long = Instant.now().toEpochMilli(),
+    val updatedAt: Long = Instant.now().toEpochMilli()
+)
+
+data class TaskBill (
+    val id: String? = UUID.randomUUID().toString(),
+    val task_id: String,
+    val taskOwner_id: String,
+    val bill_id: String,
+    val createdAt: Long = Instant.now().toEpochMilli(),
+    val updatedAt: Long = Instant.now().toEpochMilli()
+)
+
 data class ListTask (
     val search: String? = null,
     val pages: Int? = 1,

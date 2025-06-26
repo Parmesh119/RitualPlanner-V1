@@ -16,30 +16,6 @@ import java.util.UUID
 class TemplateRepository(
     private val jdbcTemplate: JdbcTemplate
 ) {
-    private val rowMapper = RowMapper { rs, _ ->
-        RitualTemplateRequest(
-            ritualTemplate = Template(
-                id = rs.getString("id"),
-                name = rs.getString("name"),
-                description = rs.getString("description"),
-                createdAt = rs.getTimestamp("created_at").toInstant().epochSecond,
-                updatedAt = rs.getTimestamp("updated_at").toInstant().epochSecond
-            ),
-            requiredItems = listOf(
-                ItemTemplate(
-                    id = rs.getString("id"),
-                    template_id = rs.getString("template_id"),
-                    itemname = rs.getString("itemname"),
-                    quantity = rs.getInt("quantity"),
-                    unit = rs.getString("unit"),
-                    note = rs.getString("note"),
-                    createdAt = rs.getTimestamp("created_at").toInstant().epochSecond,
-                    updatedAt = rs.getTimestamp("updated_at").toInstant().epochSecond
-                )
-            )
-        )
-    }
-
     private val templateRowMapper = RowMapper { rs, _ ->
         Template(
             id = rs.getString("id"),
