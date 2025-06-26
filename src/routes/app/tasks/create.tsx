@@ -274,40 +274,7 @@ function RouteComponent() {
 
   const validateStep3 = () => {
     setStep3Errors({});
-    if (!self) return true; // Skip validation if not self
-    try {
-      z.array(z.string()).min(1, "At least one assistant is required.").parse(selectedAssistantIds);
-      for (const id of selectedAssistantIds) {
-        TaskAssistantSchema.pick({ assistant_id: true }).parse({ assistant_id: id });
-        const payment = assistantPayments.find(p => p.assistantId === id);
-        if (!payment) {
-          setStep3Errors({ assistantPayments: `Please provide payment details for: ${coWorkers.find(a => a.id === id)?.name || id}` });
-          return false;
-        }
-        try {
-          PaymentSchema.pick({ totalAmount: true, paymentMode: true, onlinePaymentMode: true }).parse({
-            totalAmount: payment.totalAmount,
-            paymentMode: payment.paymentMode,
-            onlinePaymentMode: payment.paymentMode === 'ONLINE' ? payment.onlinePaymentMode : null,
-          });
-        } catch (err) {
-          if (err instanceof z.ZodError) {
-            setStep3Errors({ assistantPayments: err.errors[0]?.message || "Invalid payment details" });
-            return false;
-          }
-        }
-        if (payment.paymentMode === 'ONLINE' && !payment.onlinePaymentMode) {
-          setStep3Errors({ assistantPayments: `Please select an online payment mode for ${coWorkers.find(a => a.id === id)?.name || id}` });
-          return false;
-        }
-      }
-      return true;
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        setStep3Errors(error.flatten().fieldErrors as any);
-      }
-      return false;
-    }
+    return true;
   };
 
   const validateStep4 = () => { // Formerly validateStep5
@@ -607,6 +574,19 @@ function RouteComponent() {
     }
   }
 
+  // Automatically set step7TotalAmount to the selected bill's totalamount if self is true and a bill is selected
+  React.useEffect(() => {
+    if (self && selectedBillIds.length === 1) {
+      const selectedBill = bills.find(b => b.id === selectedBillIds[0]);
+      if (selectedBill && typeof selectedBill.totalamount === 'number') {
+        setStep7TotalAmount(selectedBill.totalamount);
+      }
+    }
+    // Optionally, clear the amount if no bill is selected
+    if (self && selectedBillIds.length === 0) {
+      setStep7TotalAmount(0);
+    }
+  }, [self, selectedBillIds, bills]);
 
   return (
     <>
@@ -641,7 +621,6 @@ function RouteComponent() {
                 <Button
                   onClick={handleNext}
                   disabled={
-                    (currentStep === 3 && self && selectedAssistantIds.length === 0) ||
                     (currentStep === 4 && self && selectedClientIds.length === 0) ||
                     (currentStep === 5 && self && selectedTemplateIds.length === 0) ||
                     (currentStep === 6 && self && selectedBillIds.length === 0)
@@ -1996,7 +1975,7 @@ function RouteComponent() {
                                 onChange={(e) => handleStep7PaymentAmountChange('totalAmount', Number(e.target.value))}
                                 className="pl-8"
                                 placeholder="Enter total amount"
-                                disabled={status === 'CANCELED'}
+                                disabled={self}
                               />
                             </div>
                             {step7Errors.totalAmount && (
