@@ -124,7 +124,7 @@ function RouteComponent() {
               <BreadcrumbItem>
                 <BreadcrumbLink href="#">Client</BreadcrumbLink>
               </BreadcrumbItem>
-              <BreadcrumbSeparator />
+              <BreadcrumbSeparator className='mt-1' />
               <BreadcrumbItem>
                 <BreadcrumbPage>List</BreadcrumbPage>
               </BreadcrumbItem>
@@ -218,8 +218,8 @@ function RouteComponent() {
                     <TableCell colSpan={5} className="text-center">Loading...</TableCell>
                   </TableRow>
                 ) : clientsData?.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={5} className="text-center">No clients found</TableCell>
+                  <TableRow >
+                    <TableCell colSpan={5} className="text-center mx-auto">No clients found</TableCell>
                   </TableRow>
                 ) : (
                   clientsData?.map((client, index) => (

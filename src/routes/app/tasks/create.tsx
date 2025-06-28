@@ -1,6 +1,6 @@
 import * as React from "react"
-import { createFileRoute } from '@tanstack/react-router'
-import { useQuery } from '@tanstack/react-query'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { format } from 'date-fns'
 import { Calendar as CalendarIcon, ChevronDown, Eye, BookOpen, Search, FileText, Paperclip, MoveRight, MoveLeft, Clock, User, CheckCircle, XCircle, ExternalLink, IndianRupee, CreditCard, Wallet, Edit } from 'lucide-react'
@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Calendar } from "@/components/ui/calendar"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Link } from "@tanstack/react-router"
 import {
   Select,
@@ -26,8 +26,10 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { cn } from "@/lib/utils"
-import { TaskSchema, TaskAssistantSchema, PaymentSchema } from "@/schemas/Task"
-import { listCoWorkerAction, listNoteAction, getNoteByIdAction, getUserDetails, listClientAction, listTemplateAction, listBillAction } from "@/lib/actions"
+import { TaskSchema, TaskAssistantSchema, TaskRequestSchema } from "@/schemas/Task"
+import type { TRequestTaskSchema, TTask, TTaskAssistant, TTaskNote, TTaskPayment, ListTask, TCreateTaskRequestSchema, TTaskRequest } from '@/schemas/Task'
+import { PaymentSchema, AssistantPaymentSchema } from "@/schemas/Payment"
+import { listCoWorkerAction, listNoteAction, getNoteByIdAction, getUserDetails, listClientAction, listTemplateAction, listBillAction, createTaskAction } from "@/lib/actions"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -93,6 +95,8 @@ function RouteComponent() {
   const [taskName, setTaskName] = useState("")
   const [location, setLocation] = useState("")
   const [date, setDate] = useState<Date>()
+  const [startTime, setStartTime] = useState("")
+  const [endTime, setEndTime] = useState("")
   const [self, setSelf] = useState(true)
   const [status, setStatus] = useState("PENDING")
   const [taskOwner, setTaskOwner] = useState("")
@@ -102,6 +106,8 @@ function RouteComponent() {
     taskName?: string
     location?: string
     date?: string
+    startTime?: string
+    endTime?: string
     taskOwner?: string
     description?: string
   }>({})
@@ -159,6 +165,25 @@ function RouteComponent() {
   const [step6Errors, setStep6Errors] = useState<{ [key: string]: string }>({}); // For Bills
   const [step7Errors, setStep7Errors] = useState<{ [key: string]: string }>({}); // For Your Payment
 
+  // Navigation and mutation setup
+  const navigate = useNavigate()
+  const queryClient = useQueryClient()
+
+  const createTaskMutation = useMutation({
+    mutationFn: createTaskAction,
+    onSuccess: (data) => {
+      toast.success("Task created successfully!")
+      queryClient.invalidateQueries({ queryKey: ['tasks'] })
+      navigate({ to: '/app/tasks' })
+    },
+    onError: (error) => {
+      toast.error("Failed to create task", {
+        description: "There was an error creating the task. Please try again."
+      })
+      console.error('Create task error:', error)
+    }
+  })
+
   // Fetch co-workers for task owner dropdown
   const { data: coWorkers = [] } = useQuery({
     queryKey: ['co-workers'],
@@ -202,9 +227,6 @@ function RouteComponent() {
     queryFn: () => listBillAction({ page: 1, size: 1000, search: billSearchTerm }),
   })
 
-  // Calculate payment status for assistants
-  const paymentStatus = totalAmount > 0 && totalAmount === paidAmount ? 'COMPLETED' : 'PENDING'
-
   // Calculate payment status for step 7
   const step7PaymentStatus = step7TotalAmount > 0 && step7TotalAmount === step7PaidAmount ? 'COMPLETED' : 'PENDING'
 
@@ -234,13 +256,16 @@ function RouteComponent() {
 
   const validateStep1 = () => {
     try {
-      const taskData = {
+      // Only validate the basic fields that are filled in Step 1
+      const basicValidation = {
         name: taskName,
         location,
-        date: date ? Math.floor(date.getTime() / 1000) : undefined,
+        date: date ? Math.floor(date.getTime() / 1000) : Date.now(),
+        starttime: startTime,
+        endtime: endTime,
         self,
         status,
-        taskOwner_id: !self ? taskOwner : undefined,
+        taskOwner_id: !self ? taskOwner : userDetails?.id || '',
         description: description || null
       }
 
@@ -249,12 +274,40 @@ function RouteComponent() {
         return false
       }
 
+      if (self && !userDetails?.id) {
+        setErrors(prev => ({ ...prev, taskOwner: "User details not available. Please refresh the page." }))
+        return false
+      }
+
       if (!date) {
         setErrors(prev => ({ ...prev, date: "Date is required" }))
         return false
       }
 
-      TaskSchema.parse(taskData)
+      if (!startTime) {
+        setErrors(prev => ({ ...prev, startTime: "Start time is required" }))
+        return false
+      }
+
+      if (!endTime) {
+        setErrors(prev => ({ ...prev, endTime: "End time is required" }))
+        return false
+      }
+
+      // Validate basic fields using a simple schema
+      const basicSchema = z.object({
+        name: z.string().min(1, { message: "Task name is required and cannot be empty" }).max(255, { message: "Task name cannot exceed 255 characters" }),
+        location: z.string().min(1, { message: "Place is required and cannot be empty" }).max(255, { message: "Place cannot exceed 255 characters" }),
+        date: z.number().int({ message: "Date must be an integer timestamp" }).positive({ message: "Date must be a positive timestamp" }),
+        starttime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, { message: "Invalid start time format" }),
+        endtime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, { message: "Invalid end time format" }),
+        self: z.boolean({ message: "Self field must be a boolean value" }),
+        status: z.enum(['PENDING', 'COMPLETED', 'CANCELED'], { message: "Status must be either 'PENDING', 'COMPLETED', or 'CANCELED'" }),
+        taskOwner_id: z.string().uuid().min(1, "Task owner is required"),
+        description: z.string().nullable().optional()
+      })
+
+      basicSchema.parse(basicValidation)
       setErrors({})
       return true
     } catch (error) {
@@ -264,6 +317,8 @@ function RouteComponent() {
           taskName: fieldErrors.name?.[0],
           location: fieldErrors.location?.[0],
           date: fieldErrors.date?.[0],
+          startTime: fieldErrors.starttime?.[0],
+          endTime: fieldErrors.endtime?.[0],
           taskOwner: fieldErrors.taskOwner_id?.[0],
           description: fieldErrors.description?.[0]
         })
@@ -279,51 +334,24 @@ function RouteComponent() {
 
   const validateStep4 = () => { // Formerly validateStep5
     setStep4Errors({});
-    if (!self) return true; // Skip validation if not self
-    try {
-      z.array(z.string()).length(1, "Exactly one client is required.").parse(selectedClientIds);
-      return true;
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        setStep4Errors(error.flatten().fieldErrors as any);
-      }
-      return false;
-    }
+    return true; // No validation required since client_id is now nullable
   };
 
   const validateStep5 = () => { // Formerly validateStep6
     setStep5Errors({});
-    if (!self) return true; // Skip validation if not self
-    try {
-      z.array(z.string()).length(1, "Exactly one template is required.").parse(selectedTemplateIds);
-      return true;
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        setStep5Errors(error.flatten().fieldErrors as any);
-      }
-      return false;
-    }
+    return true; // No validation required since template_id is now nullable
   };
 
   const validateStep6 = () => { // Formerly validateStep7
     setStep6Errors({});
-    if (!self) return true; // Skip validation if not self
-    try {
-      z.array(z.string()).length(1, "Exactly one bill is required.").parse(selectedBillIds);
-      return true;
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        setStep6Errors(error.flatten().fieldErrors as any);
-      }
-      return false;
-    }
-  }
+    return true; // No validation required since bill_id is now nullable
+  };
 
   const validateStep7 = () => { // Formerly validateStep4
     setStep7Errors({});
     let errors: { [key: string]: string } = {};
     try {
-      PaymentSchema.pick({ totalAmount: true, paidAmount: true }).parse({
+      PaymentSchema.pick({ totalamount: true, paidamount: true }).parse({
         totalAmount: step7TotalAmount,
         paidAmount: step7PaidAmount,
       });
@@ -355,43 +383,99 @@ function RouteComponent() {
     } else if (currentStep === 3) {
       if (validateStep3()) setCurrentStep(4)
     } else if (currentStep === 4) { // Clients
-      if (validateStep4()) setCurrentStep(5)
+      if (validateStep4()) {
+        if (self) {
+          setCurrentStep(5)
+        } else {
+          setCurrentStep(7) // Skip to payment step when not self
+        }
+      }
     } else if (currentStep === 5) { // Templates
-      if (validateStep5()) setCurrentStep(6)
+      if (validateStep5()) {
+        if (self) {
+          setCurrentStep(6)
+        } else {
+          setCurrentStep(7) // Skip to payment step when not self
+        }
+      }
     } else if (currentStep === 6) { // Bills
       if (validateStep6()) setCurrentStep(7)
     } else if (currentStep === 7) { // Your Payment
       if (validateStep7()) {
-        // Final submission
-        console.log("Final form submission", {
-          selectedNoteIds,
-          selectedAssistantIds,
-          assistantPayments,
-          selectedClientIds,
-          selectedTemplateIds,
-          selectedBillIds,
-          totalAmount,
-          paidAmount,
-          paymentDate,
-          paymentMode,
-          onlinePaymentMode,
-          // Your payment details
-          yourPayment: {
-            totalAmount: step7TotalAmount,
-            paidAmount: step7PaidAmount,
-            paymentDate: step7PaymentDate,
-            paymentMode: step7PaymentMode,
-            onlinePaymentMode: step7OnlinePaymentMode
-          }
-        })
-        toast.success("Task submitted successfully!")
+        // Ensure user details are available
+        if (!userDetails?.id) {
+          toast.error("User details not available", {
+            description: "Please refresh the page and try again."
+          })
+          return
+        }
+
+        // Build the task data according to TCreateTaskRequestSchema
+        const taskData = {
+          task: {
+            name: taskName,
+            description: description || null,
+            date: date ? date.getTime() : Date.now(),
+            starttime: startTime,
+            endtime: endTime,
+            self,
+            location,
+            status: status as 'PENDING' | 'COMPLETED' | 'CANCELED',
+            taskOwner_id: !self ? taskOwner : userDetails?.id || '',
+            client_id: selectedClientIds.length > 0 ? selectedClientIds[0] : null,
+            template_id: selectedTemplateIds.length > 0 ? selectedTemplateIds[0] : null,
+            bill_id: selectedBillIds.length > 0 ? selectedBillIds[0] : null,
+            createdAt: Date.now(),
+            updatedAt: Date.now()
+          },
+          note: selectedNoteIds.length > 0 ? selectedNoteIds.map(noteId => ({
+            note_id: noteId,
+            createdAt: Date.now(),
+            updatedAt: Date.now()
+          })) : [],
+          assistant: selectedAssistantIds.length > 0 ? selectedAssistantIds.map(assistantId => ({
+            taskOwner_id: !self ? taskOwner : userDetails?.id || '',
+            assistant_id: assistantId,
+            createdAt: Date.now(),
+            updatedAt: Date.now()
+          })) : [],
+          assistantPayment: assistantPayments.length > 0 ? assistantPayments.map(payment => ({
+            totalamount: payment.totalAmount,
+            paidamount: payment.paidAmount,
+            paymentdate: payment.paymentDate ? payment.paymentDate.getTime() : null,
+            paymentmode: payment.paymentMode,
+            onlinepaymentmode: payment.onlinePaymentMode || null,
+            paymentstatus: payment.status as 'PENDING' | 'COMPLETED',
+            assistant_id: payment.assistantId,
+            createdAt: Date.now(),
+            updatedAt: Date.now()
+          })) : [],
+          payment: step7TotalAmount > 0 || step7PaidAmount > 0 ? {
+            totalamount: step7TotalAmount,
+            paidamount: step7PaidAmount,
+            paymentdate: step7PaymentDate ? step7PaymentDate.getTime() : null,
+            paymentmode: step7PaymentMode,
+            onlinepaymentmode: step7OnlinePaymentMode || null,
+            paymentstatus: step7PaymentStatus as 'PENDING' | 'COMPLETED',
+            createdAt: Date.now(),
+            updatedAt: Date.now()
+          } : null
+        } satisfies TCreateTaskRequestSchema
+
+        // Call the mutation
+        createTaskMutation.mutate(taskData)
       }
     }
   }
 
   const handlePrevious = () => {
     if (currentStep > 1) {
-      setCurrentStep(prev => prev - 1)
+      if (currentStep === 7 && !self) {
+        // If we're on step 7 and not self, go back to step 3 (assistants)
+        setCurrentStep(3)
+      } else {
+        setCurrentStep(prev => prev - 1)
+      }
     }
   }
 
@@ -581,12 +665,29 @@ function RouteComponent() {
       if (selectedBill && typeof selectedBill.totalamount === 'number') {
         setStep7TotalAmount(selectedBill.totalamount);
       }
-    }
-    // Optionally, clear the amount if no bill is selected
-    if (self && selectedBillIds.length === 0) {
+    } else if (self && selectedBillIds.length === 0) {
+      // Clear the amount if no bill is selected
       setStep7TotalAmount(0);
     }
   }, [self, selectedBillIds, bills]);
+
+  // Helper function to get actual step number and total steps
+  const getStepInfo = () => {
+    if (self) {
+      return { current: currentStep, total: 7 }
+    } else {
+      // When not self, steps are: 1, 2, 3, 7 (payment)
+      if (currentStep <= 3) {
+        return { current: currentStep, total: 4 }
+      } else if (currentStep === 7) {
+        return { current: 4, total: 4 }
+      } else {
+        return { current: currentStep, total: 4 }
+      }
+    }
+  }
+
+  const stepInfo = getStepInfo()
 
   return (
     <>
@@ -602,7 +703,7 @@ function RouteComponent() {
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
-                  <BreadcrumbPage>Create Task (Step {currentStep} of 7)</BreadcrumbPage>
+                  <BreadcrumbPage>Create Task (Step {stepInfo.current} of {stepInfo.total})</BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
@@ -617,16 +718,21 @@ function RouteComponent() {
                 <h1 className="text-2xl font-bold">Create Task</h1>
               </div>
               <div className="flex gap-4">
-                <Button variant="outline" onClick={handlePrevious} disabled={currentStep === 1}>Previous</Button>
+                <Button variant="outline" onClick={handlePrevious} disabled={currentStep === 1}><MoveLeft />Previous</Button>
                 <Button
                   onClick={handleNext}
                   disabled={
                     (currentStep === 4 && self && selectedClientIds.length === 0) ||
                     (currentStep === 5 && self && selectedTemplateIds.length === 0) ||
-                    (currentStep === 6 && self && selectedBillIds.length === 0)
+                    (currentStep === 6 && self && selectedBillIds.length === 0) ||
+                    createTaskMutation.isPending
                   }
                 >
-                  {currentStep === 7 ? "Submit" : "Next"}
+                  {createTaskMutation.isPending
+                    ? "Creating..."
+                    : currentStep === 7
+                      ? "Submit"
+                      : (<><span>Next</span> <MoveRight className="ml-2" /></>)}
                 </Button>
               </div>
             </div>
@@ -743,6 +849,42 @@ function RouteComponent() {
                             <li>Canceled: All dates available</li>
                           </ul>
                         </p>
+                      </div>
+
+                      {/* Start Time */}
+                      <div>
+                        <Label htmlFor="startTime" className="mb-1.5 block">Start Time <span className="text-red-500">*</span></Label>
+                        <Input
+                          id="startTime"
+                          type="time"
+                          value={startTime}
+                          onChange={(e) => setStartTime(e.target.value)}
+                          className={cn(
+                            "w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+                            errors.startTime && "border-red-500"
+                          )}
+                        />
+                        {errors.startTime && (
+                          <p className="text-sm text-red-500 mt-1">{errors.startTime}</p>
+                        )}
+                      </div>
+
+                      {/* End Time */}
+                      <div>
+                        <Label htmlFor="endTime" className="mb-1.5 block">End Time <span className="text-red-500">*</span></Label>
+                        <Input
+                          id="endTime"
+                          type="time"
+                          value={endTime}
+                          onChange={(e) => setEndTime(e.target.value)}
+                          className={cn(
+                            "w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+                            errors.endTime && "border-red-500"
+                          )}
+                        />
+                        {errors.endTime && (
+                          <p className="text-sm text-red-500 mt-1">{errors.endTime}</p>
+                        )}
                       </div>
                     </CardContent>
                   </Card>
@@ -1018,7 +1160,7 @@ function RouteComponent() {
                                 return note ? (
                                   <div key={id} className="group flex items-center justify-between p-2 rounded-md bg-accent/30 hover:bg-accent/50 transition-colors">
                                     <Link
-                                      to="/app/notes/note/$id"
+                                      to="/app/notes/get/$id"
                                       params={{ id: note.id }}
                                       className="flex items-center gap-2 text-sm hover:text-primary transition-colors flex-1 text-left min-w-0"
                                       target="_blank"
@@ -1462,7 +1604,7 @@ function RouteComponent() {
                       </div>
                       <p className="text-sm text-muted-foreground">
                         {self
-                          ? "Select clients for this task"
+                          ? "Select clients for this task (optional)"
                           : "Enable self mode to select clients"}
                       </p>
                     </CardHeader>
@@ -1474,7 +1616,7 @@ function RouteComponent() {
                         <div className="space-y-2">
                           <Label className="text-sm font-medium flex items-center gap-2">
                             <Search className="h-4 w-4" />
-                            Select Clients {self && <span className="text-red-500">*</span>}
+                            Select Clients
                           </Label>
                           <Popover>
                             <PopoverTrigger asChild>
@@ -1631,7 +1773,7 @@ function RouteComponent() {
                       </div>
                       <p className="text-sm text-muted-foreground">
                         {self
-                          ? "Select templates for this task"
+                          ? "Select templates for this task (optional)"
                           : "Enable self mode to select templates"}
                       </p>
                     </CardHeader>
@@ -1643,7 +1785,7 @@ function RouteComponent() {
                         <div className="space-y-2">
                           <Label className="text-sm font-medium flex items-center gap-2">
                             <Search className="h-4 w-4" />
-                            Select Templates <span className="text-red-500">*</span>
+                            Select Templates
                           </Label>
                           <Popover>
                             <PopoverTrigger asChild>
@@ -1793,7 +1935,7 @@ function RouteComponent() {
                       </div>
                       <p className="text-sm text-muted-foreground">
                         {self
-                          ? "Select bills for this task"
+                          ? "Select bills for this task (optional)"
                           : "Enable self mode to select bills"}
                       </p>
                     </CardHeader>
@@ -1805,7 +1947,7 @@ function RouteComponent() {
                         <div className="space-y-2">
                           <Label className="text-sm font-medium flex items-center gap-2">
                             <Search className="h-4 w-4" />
-                            Select Bills <span className="text-red-500">*</span>
+                            Select Bills
                           </Label>
                           <Popover>
                             <PopoverTrigger asChild>

@@ -128,7 +128,7 @@ function RouteComponent() {
               <BreadcrumbItem>
                 <BreadcrumbLink href="#">Notes</BreadcrumbLink>
               </BreadcrumbItem>
-              <BreadcrumbSeparator />
+              <BreadcrumbSeparator className='mt-1' />
               <BreadcrumbItem>
                 <BreadcrumbPage>List</BreadcrumbPage>
               </BreadcrumbItem>
@@ -260,7 +260,7 @@ function RouteComponent() {
                   notesData?.map((note, index) => (
                     <TableRow
                       key={note.id}
-                      onClick={() => navigate({ to: '/app/notes/note/$id', params: { id: note.id } })}
+                      onClick={() => navigate({ to: '/app/notes/get/$id', params: { id: note.id } })}
                       className="cursor-pointer hover:bg-muted/50 transition-colors"
                     >
                       <TableCell onClick={(e) => e.stopPropagation()}>
@@ -292,7 +292,7 @@ function RouteComponent() {
                 <div
                   key={note.id}
                   className="relative border rounded-lg p-4 hover:bg-muted/50 transition-colors cursor-pointer group"
-                  onClick={() => navigate({ to: '/app/notes/note/$id', params: { id: note.id } })}
+                  onClick={() => navigate({ to: '/app/notes/get/$id', params: { id: note.id } })}
                 >
                   <div
                     className="absolute top-2 right-2"

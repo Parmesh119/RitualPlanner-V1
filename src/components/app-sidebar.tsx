@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { ChevronUp, User2, CircleHelp, ReceiptIndianRupee, LayoutDashboard, UsersRound, Flame, BadgeCheck, ListTodo, LogOut, Moon, Sun, NotebookText, IndianRupee, Bell, NotebookPen, BookUser, Calendar, List, ScrollText, GraduationCap } from 'lucide-react'
+import { ChevronUp, User2, CircleHelp, ReceiptIndianRupee, LayoutDashboard, UsersRound, Flame, BadgeCheck, ListTodo, LogOut, Moon, Sun, NotebookText, IndianRupee, NotebookPen, BookUser, Calendar, List, ScrollText, GraduationCap } from 'lucide-react'
 import {
     Sidebar,
     SidebarContent,
@@ -83,11 +83,6 @@ const items = [
         title: "Notes",
         url: "/app/notes/",
         icon: NotebookPen,
-    },
-    {
-        title: "Notifications",
-        url: "/app/notifications/",
-        icon: Bell,
     },
     {
         title: "Feedback & Help",

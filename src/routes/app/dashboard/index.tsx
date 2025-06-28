@@ -27,7 +27,7 @@ function RouteComponent() {
                 <BreadcrumbItem>
                   <BreadcrumbLink href="#">Dashboard</BreadcrumbLink>
                 </BreadcrumbItem>
-                <BreadcrumbSeparator />
+                <BreadcrumbSeparator className='mt-1' />
                 <BreadcrumbItem>
                   <BreadcrumbPage>Overview</BreadcrumbPage>
                 </BreadcrumbItem>

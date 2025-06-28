@@ -22,7 +22,7 @@ export const registerFormSchema = z
             .max(10, "Phone number must be exactly 10 digits")
             .regex(/^[6-9]\d{9}$/, "Phone number must be a valid Indian number"),
         signin: z.string(),
-        city: z.string().min(1, "Minimum one city is required").max(1, "Maximum one city is allowed"),
+        city: z.string().min(1, "Minimum one city is required"),
         state: z.string().min(1, "state is required")
             .refine((val) => indianStatesAndUTs.includes(val), {
                 message: "Please enter a valid Indian state",

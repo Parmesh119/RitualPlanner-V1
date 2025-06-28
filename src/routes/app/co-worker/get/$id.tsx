@@ -21,6 +21,7 @@ import { useState } from "react"
 import { Link } from '@tanstack/react-router'
 import { toast } from 'sonner'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 
 export const Route = createFileRoute('/app/co-worker/get/$id')({
   component: RouteComponent,
@@ -117,55 +118,75 @@ function RouteComponent() {
 
       <div className="flex flex-col gap-6 px-4 md:px-8 py-6">
         <div className="flex flex-col gap-6">
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h1 className="text-3xl font-bold tracking-tight">{coWorker.name}</h1>
-              <span className='flex flex-row justify-end gap-4'>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setIsEditDialogOpen(true)}
-                  className="gap-2 cursor-pointer"
-                >
-                  <Pencil className="h-4 w-4" />
-                  Edit Co-Worker
-                </Button>
-                <Button onClick={() => setIsInviteDialogOpen(true)} variant={'outline'} className='cursor-pointer' size={"sm"} >
-                  <Send className='h-4 w-4' />Invite Co-Worker on this platform?
-                </Button>
-              </span>
-            </div>
-            <div className="flex items-center gap-4 text-sm text-muted-foreground justify-between">
-              <div className="flex items-center gap-1">
-                <Clock className="h-4 w-4" />
-                <span>Created Date: {format(new Date(coWorker.createdAt * 1000), "PPP")}</span>
+          <Tabs defaultValue="details" className="w-full">
+            <TabsList className="w-full">
+              <TabsTrigger value="details" className="flex-1">Details</TabsTrigger>
+              <TabsTrigger value="tasks" className="flex-1">Tasks</TabsTrigger>
+              <TabsTrigger value="payments" className="flex-1">Payments</TabsTrigger>
+            </TabsList>
+            <TabsContent value="details">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h1 className="text-3xl font-bold tracking-tight">{coWorker.name}</h1>
+                  <span className='flex flex-row justify-end gap-4'>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setIsEditDialogOpen(true)}
+                      className="gap-2 cursor-pointer"
+                    >
+                      <Pencil className="h-4 w-4" />
+                      Edit Co-Worker
+                    </Button>
+                    <Button onClick={() => setIsInviteDialogOpen(true)} variant={'outline'} className='cursor-pointer' size={"sm"} >
+                      <Send className='h-4 w-4' />Invite Co-Worker on this platform?
+                    </Button>
+                  </span>
+                </div>
+                <div className="flex items-center gap-4 text-sm text-muted-foreground justify-between">
+                  <div className="flex items-center gap-1">
+                    <Clock className="h-4 w-4" />
+                    <span>Created Date: {format(new Date(coWorker.createdAt * 1000), "PPP")}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Clock className="h-4 w-4" />
+                    <span>Updated Date: {format(new Date(coWorker.updatedAt * 1000), "PPP")}</span>
+                  </div>
+                </div>
+                <Card>
+                  <CardHeader className="pb-2">
+                    <h2 className="text-lg font-semibold">Contact Information</h2>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid gap-2">
+                      <h3 className="text-sm font-medium">Email</h3>
+                      <p className="text-muted-foreground">
+                        {coWorker.email || 'No email provided'}
+                      </p>
+                    </div>
+                    <div className="grid gap-2">
+                      <h3 className="text-sm font-medium">Phone</h3>
+                      <p className="text-muted-foreground">
+                        {coWorker.phone}
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
-              <div className="flex items-center gap-1">
-                <Clock className="h-4 w-4" />
-                <span>Updated Date: {format(new Date(coWorker.updatedAt * 1000), "PPP")}</span>
+            </TabsContent>
+            <TabsContent value="tasks">
+              <div className="space-y-4">
+                <h2 className="text-lg font-semibold">Tasks</h2>
+                <p className="text-muted-foreground">Task information for this co-worker will appear here.</p>
               </div>
-            </div>
-          </div>
-
-          <Card>
-            <CardHeader className="pb-2">
-              <h2 className="text-lg font-semibold">Contact Information</h2>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid gap-2">
-                <h3 className="text-sm font-medium">Email</h3>
-                <p className="text-muted-foreground">
-                  {coWorker.email || 'No email provided'}
-                </p>
+            </TabsContent>
+            <TabsContent value="payments">
+              <div className="space-y-4">
+                <h2 className="text-lg font-semibold">Payments</h2>
+                <p className="text-muted-foreground">Payment information for this co-worker will appear here.</p>
               </div>
-              <div className="grid gap-2">
-                <h3 className="text-sm font-medium">Phone</h3>
-                <p className="text-muted-foreground">
-                  {coWorker.phone}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
 

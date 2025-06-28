@@ -31,7 +31,9 @@ import { Route as AppTasksCreateImport } from './routes/app/tasks/create'
 import { Route as AppBillsPaymentCreateImport } from './routes/app/bills-payment/create'
 import { Route as AppTemplateGetIdImport } from './routes/app/template/get/$id'
 import { Route as AppTemplateEditIdImport } from './routes/app/template/edit/$id'
-import { Route as AppNotesNoteIdImport } from './routes/app/notes/note/$id'
+import { Route as AppTasksGetIdImport } from './routes/app/tasks/get/$id'
+import { Route as AppTasksEditIdImport } from './routes/app/tasks/edit/$id'
+import { Route as AppNotesGetIdImport } from './routes/app/notes/get/$id'
 import { Route as AppCoWorkerGetIdImport } from './routes/app/co-worker/get/$id'
 import { Route as AppClientGetIdImport } from './routes/app/client/get/$id'
 import { Route as AppClientEditIdImport } from './routes/app/client/edit/$id'
@@ -160,9 +162,21 @@ const AppTemplateEditIdRoute = AppTemplateEditIdImport.update({
   getParentRoute: () => AppRouteRoute,
 } as any)
 
-const AppNotesNoteIdRoute = AppNotesNoteIdImport.update({
-  id: '/notes/note/$id',
-  path: '/notes/note/$id',
+const AppTasksGetIdRoute = AppTasksGetIdImport.update({
+  id: '/tasks/get/$id',
+  path: '/tasks/get/$id',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+
+const AppTasksEditIdRoute = AppTasksEditIdImport.update({
+  id: '/tasks/edit/$id',
+  path: '/tasks/edit/$id',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+
+const AppNotesGetIdRoute = AppNotesGetIdImport.update({
+  id: '/notes/get/$id',
+  path: '/notes/get/$id',
   getParentRoute: () => AppRouteRoute,
 } as any)
 
@@ -361,11 +375,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppCoWorkerGetIdImport
       parentRoute: typeof AppRouteImport
     }
-    '/app/notes/note/$id': {
-      id: '/app/notes/note/$id'
-      path: '/notes/note/$id'
-      fullPath: '/app/notes/note/$id'
-      preLoaderRoute: typeof AppNotesNoteIdImport
+    '/app/notes/get/$id': {
+      id: '/app/notes/get/$id'
+      path: '/notes/get/$id'
+      fullPath: '/app/notes/get/$id'
+      preLoaderRoute: typeof AppNotesGetIdImport
+      parentRoute: typeof AppRouteImport
+    }
+    '/app/tasks/edit/$id': {
+      id: '/app/tasks/edit/$id'
+      path: '/tasks/edit/$id'
+      fullPath: '/app/tasks/edit/$id'
+      preLoaderRoute: typeof AppTasksEditIdImport
+      parentRoute: typeof AppRouteImport
+    }
+    '/app/tasks/get/$id': {
+      id: '/app/tasks/get/$id'
+      path: '/tasks/get/$id'
+      fullPath: '/app/tasks/get/$id'
+      preLoaderRoute: typeof AppTasksGetIdImport
       parentRoute: typeof AppRouteImport
     }
     '/app/template/edit/$id': {
@@ -405,7 +433,9 @@ interface AppRouteRouteChildren {
   AppClientEditIdRoute: typeof AppClientEditIdRoute
   AppClientGetIdRoute: typeof AppClientGetIdRoute
   AppCoWorkerGetIdRoute: typeof AppCoWorkerGetIdRoute
-  AppNotesNoteIdRoute: typeof AppNotesNoteIdRoute
+  AppNotesGetIdRoute: typeof AppNotesGetIdRoute
+  AppTasksEditIdRoute: typeof AppTasksEditIdRoute
+  AppTasksGetIdRoute: typeof AppTasksGetIdRoute
   AppTemplateEditIdRoute: typeof AppTemplateEditIdRoute
   AppTemplateGetIdRoute: typeof AppTemplateGetIdRoute
 }
@@ -428,7 +458,9 @@ const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppClientEditIdRoute: AppClientEditIdRoute,
   AppClientGetIdRoute: AppClientGetIdRoute,
   AppCoWorkerGetIdRoute: AppCoWorkerGetIdRoute,
-  AppNotesNoteIdRoute: AppNotesNoteIdRoute,
+  AppNotesGetIdRoute: AppNotesGetIdRoute,
+  AppTasksEditIdRoute: AppTasksEditIdRoute,
+  AppTasksGetIdRoute: AppTasksGetIdRoute,
   AppTemplateEditIdRoute: AppTemplateEditIdRoute,
   AppTemplateGetIdRoute: AppTemplateGetIdRoute,
 }
@@ -461,7 +493,9 @@ export interface FileRoutesByFullPath {
   '/app/client/edit/$id': typeof AppClientEditIdRoute
   '/app/client/get/$id': typeof AppClientGetIdRoute
   '/app/co-worker/get/$id': typeof AppCoWorkerGetIdRoute
-  '/app/notes/note/$id': typeof AppNotesNoteIdRoute
+  '/app/notes/get/$id': typeof AppNotesGetIdRoute
+  '/app/tasks/edit/$id': typeof AppTasksEditIdRoute
+  '/app/tasks/get/$id': typeof AppTasksGetIdRoute
   '/app/template/edit/$id': typeof AppTemplateEditIdRoute
   '/app/template/get/$id': typeof AppTemplateGetIdRoute
 }
@@ -490,7 +524,9 @@ export interface FileRoutesByTo {
   '/app/client/edit/$id': typeof AppClientEditIdRoute
   '/app/client/get/$id': typeof AppClientGetIdRoute
   '/app/co-worker/get/$id': typeof AppCoWorkerGetIdRoute
-  '/app/notes/note/$id': typeof AppNotesNoteIdRoute
+  '/app/notes/get/$id': typeof AppNotesGetIdRoute
+  '/app/tasks/edit/$id': typeof AppTasksEditIdRoute
+  '/app/tasks/get/$id': typeof AppTasksGetIdRoute
   '/app/template/edit/$id': typeof AppTemplateEditIdRoute
   '/app/template/get/$id': typeof AppTemplateGetIdRoute
 }
@@ -520,7 +556,9 @@ export interface FileRoutesById {
   '/app/client/edit/$id': typeof AppClientEditIdRoute
   '/app/client/get/$id': typeof AppClientGetIdRoute
   '/app/co-worker/get/$id': typeof AppCoWorkerGetIdRoute
-  '/app/notes/note/$id': typeof AppNotesNoteIdRoute
+  '/app/notes/get/$id': typeof AppNotesGetIdRoute
+  '/app/tasks/edit/$id': typeof AppTasksEditIdRoute
+  '/app/tasks/get/$id': typeof AppTasksGetIdRoute
   '/app/template/edit/$id': typeof AppTemplateEditIdRoute
   '/app/template/get/$id': typeof AppTemplateGetIdRoute
 }
@@ -551,7 +589,9 @@ export interface FileRouteTypes {
     | '/app/client/edit/$id'
     | '/app/client/get/$id'
     | '/app/co-worker/get/$id'
-    | '/app/notes/note/$id'
+    | '/app/notes/get/$id'
+    | '/app/tasks/edit/$id'
+    | '/app/tasks/get/$id'
     | '/app/template/edit/$id'
     | '/app/template/get/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -579,7 +619,9 @@ export interface FileRouteTypes {
     | '/app/client/edit/$id'
     | '/app/client/get/$id'
     | '/app/co-worker/get/$id'
-    | '/app/notes/note/$id'
+    | '/app/notes/get/$id'
+    | '/app/tasks/edit/$id'
+    | '/app/tasks/get/$id'
     | '/app/template/edit/$id'
     | '/app/template/get/$id'
   id:
@@ -607,7 +649,9 @@ export interface FileRouteTypes {
     | '/app/client/edit/$id'
     | '/app/client/get/$id'
     | '/app/co-worker/get/$id'
-    | '/app/notes/note/$id'
+    | '/app/notes/get/$id'
+    | '/app/tasks/edit/$id'
+    | '/app/tasks/get/$id'
     | '/app/template/edit/$id'
     | '/app/template/get/$id'
   fileRoutesById: FileRoutesById
@@ -672,7 +716,9 @@ export const routeTree = rootRoute
         "/app/client/edit/$id",
         "/app/client/get/$id",
         "/app/co-worker/get/$id",
-        "/app/notes/note/$id",
+        "/app/notes/get/$id",
+        "/app/tasks/edit/$id",
+        "/app/tasks/get/$id",
         "/app/template/edit/$id",
         "/app/template/get/$id"
       ]
@@ -757,8 +803,16 @@ export const routeTree = rootRoute
       "filePath": "app/co-worker/get/$id.tsx",
       "parent": "/app"
     },
-    "/app/notes/note/$id": {
-      "filePath": "app/notes/note/$id.tsx",
+    "/app/notes/get/$id": {
+      "filePath": "app/notes/get/$id.tsx",
+      "parent": "/app"
+    },
+    "/app/tasks/edit/$id": {
+      "filePath": "app/tasks/edit/$id.tsx",
+      "parent": "/app"
+    },
+    "/app/tasks/get/$id": {
+      "filePath": "app/tasks/get/$id.tsx",
       "parent": "/app"
     },
     "/app/template/edit/$id": {

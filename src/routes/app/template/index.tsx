@@ -120,7 +120,7 @@ function RouteComponent() {
               <BreadcrumbItem>
                 <BreadcrumbLink href="#">Templates</BreadcrumbLink>
               </BreadcrumbItem>
-              <BreadcrumbSeparator />
+              <BreadcrumbSeparator className='mt-1' />
               <BreadcrumbItem>
                 <BreadcrumbPage>List</BreadcrumbPage>
               </BreadcrumbItem>

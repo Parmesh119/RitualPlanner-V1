@@ -112,6 +112,24 @@ function RegisterPage() {
     }
   })
 
+  const googleRegisterMutation = useMutation({
+    mutationFn: registerAction,
+    onSuccess: async () => {
+      setShowSuccessDialog(true)
+    },
+    onError: () => {
+      toast.error('Registration failed. Please try again.', {
+        style: {
+          background: "linear-gradient(90deg, #E53E3E, #C53030)",
+          color: "white",
+          fontWeight: "bolder",
+          fontSize: "13px",
+          letterSpacing: "1px",
+        }
+      })
+    }
+  })
+
   const handleCloseDialog = () => {
     setShowSuccessDialog(false)
     navigate({ to: '/auth/login' })
@@ -162,7 +180,7 @@ function RegisterPage() {
     }
     setSignupMethod("google")
     try {
-      await registerMutation.mutateAsync(registerData)
+      await googleRegisterMutation.mutateAsync(registerData)
       setShowSuccessDialog(true)
     } catch (error) {
       toast.error('Registration failed. Please try again.', {
@@ -221,7 +239,7 @@ function RegisterPage() {
               zipcode: ""
             }
             setSignupMethod("google")
-            registerMutation.mutate(registerData)
+            googleRegisterMutation.mutate(registerData)
             setShowSuccessDialog(true)
           }
         } else {
@@ -255,7 +273,7 @@ function RegisterPage() {
         <title>Register - RitualPlanner</title>
       </Helmet>
       <div className="min-h-screen flex items-center justify-center bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-        <Card className="w-full max-w-md bg-white shadow-lg text-black">
+        <Card className="w-full max-w-2xl bg-white shadow-lg text-black">
           <CardHeader className="space-y-1 flex flex-col items-center justify-center">
             <Flame className='w-14 h-14 text-black p-1 rounded-full' />
             <CardTitle className="text-2xl font-bold text-center">
@@ -268,203 +286,206 @@ function RegisterPage() {
           <CardContent>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <div className="relative">
-                        <User className="absolute left-3 top-2 h-5 w-5 text-black" />
-                        <FormControl>
-                          <Input
-                            placeholder="Full Name"
-                            className="pl-10 placeholder:text-black"
-                            {...field}
-                            autoFocus
-                          />
-                        </FormControl>
-                      </div>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <div className="relative">
+                          <User className="absolute left-3 top-2 h-5 w-5 text-black" />
+                          <FormControl>
+                            <Input
+                              placeholder="Full Name"
+                              className="pl-10 placeholder:text-black"
+                              {...field}
+                              autoFocus
+                            />
+                          </FormControl>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <div className="relative">
-                        <Mail className="absolute left-3 top-2 h-5 w-5 text-black" />
-                        <FormControl>
-                          <Input
-                            type="email"
-                            placeholder="Email"
-                            className="pl-10 placeholder:text-black"
-                            {...field}
-                          />
-                        </FormControl>
-                      </div>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <div className="relative">
+                          <Mail className="absolute left-3 top-2 h-5 w-5 text-black" />
+                          <FormControl>
+                            <Input
+                              type="email"
+                              placeholder="Email"
+                              className="pl-10 placeholder:text-black"
+                              {...field}
+                            />
+                          </FormControl>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                <FormField
-                  control={form.control}
-                  name="phone"
-                  render={({ field }) => (
-                    <FormItem>
-                      <div className="relative">
-                        <Phone className="absolute left-3 top-2 h-5 w-5 text-black" />
-                        <FormControl>
-                          <Input
-                            type="number"
-                            placeholder="Phone Number"
-                            className="pl-10 placeholder:text-black"
-                            {...field}
-                          />
-                        </FormControl>
-                      </div>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                  <FormField
+                    control={form.control}
+                    name="phone"
+                    render={({ field }) => (
+                      <FormItem>
+                        <div className="relative">
+                          <Phone className="absolute left-3 top-2 h-5 w-5 text-black" />
+                          <FormControl>
+                            <Input
+                              type="number"
+                              placeholder="Phone Number"
+                              className="pl-10 placeholder:text-black"
+                              {...field}
+                            />
+                          </FormControl>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                <FormField
-                  control={form.control}
-                  name="state"
-                  render={({ field }) => (
-                    <FormItem>
-                      <div className="relative placeholder:text-black">
-                        <MapPin className="absolute left-3 top-2 h-5 w-5 text-black" />
-                        <FormControl>
-                          <Select
-                            value={field.value}
-                            onValueChange={field.onChange}
+                  <FormField
+                    control={form.control}
+                    name="state"
+                    render={({ field }) => (
+                      <FormItem>
+                        <div className="relative placeholder:text-black">
+                          <MapPin className="absolute left-3 top-2 h-5 w-5 text-black" />
+                          <FormControl>
+                            <Select
+                              value={field.value}
+                              onValueChange={field.onChange}
+                            >
+                              <SelectTrigger className="pl-10 text-black w-full [&>span]:text-black">
+                                <SelectValue placeholder="Select your state" className="text-black" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {indianStatesAndUTs.map((state) => (
+                                  <SelectItem key={state} value={state}>
+                                    {state}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="city"
+                    render={({ field }) => (
+                      <FormItem>
+                        <div className="relative">
+                          <MapPin className="absolute left-3 top-2 h-5 w-5 text-black" />
+                          <FormControl>
+                            <Input
+                              placeholder="City"
+                              className="pl-10 placeholder:text-black"
+                              {...field}
+                            />
+                          </FormControl>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="zipcode"
+                    render={({ field }) => (
+                      <FormItem>
+                        <div className="relative">
+                          <MapPin className="absolute left-3 top-2 h-5 w-5 text-black" />
+                          <FormControl>
+                            <Input
+                              type="text"
+                              placeholder="Zipcode"
+                              className="pl-10 placeholder:text-black"
+                              {...field}
+                            />
+                          </FormControl>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <div className="relative">
+                          <Lock className="absolute left-3 top-2 h-5 w-5 text-black" />
+                          <FormControl>
+                            <Input
+                              type={showPassword ? "text" : "password"}
+                              placeholder="Password"
+                              className="pl-10 pr-10 placeholder:text-black"
+                              {...field}
+                            />
+                          </FormControl>
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3 top-2 text-black hover:text-gray-600"
                           >
-                            <SelectTrigger className="pl-10 text-black w-full [&>span]:text-black">
-                              <SelectValue placeholder="Select your state" className="text-black" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {indianStatesAndUTs.map((state) => (
-                                <SelectItem key={state} value={state}>
-                                  {state}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </FormControl>
-                      </div>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                            {showPassword ? (
+                              <EyeOff className="h-5 w-5" />
+                            ) : (
+                              <Eye className="h-5 w-5" />
+                            )}
+                          </button>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                <FormField
-                  control={form.control}
-                  name="city"
-                  render={({ field }) => (
-                    <FormItem>
-                      <div className="relative">
-                        <MapPin className="absolute left-3 top-2 h-5 w-5 text-black" />
-                        <FormControl>
-                          <Input
-                            placeholder="City"
-                            className="pl-10 placeholder:text-black"
-                            {...field}
-                          />
-                        </FormControl>
-                      </div>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                  <FormField
+                    control={form.control}
+                    name="confirmPassword"
+                    render={({ field }) => (
+                      <FormItem>
+                        <div className="relative">
+                          <Lock className="absolute left-3 top-2 h-5 w-5 text-black" />
+                          <FormControl>
+                            <Input
+                              type={showConfirmPassword ? "text" : "password"}
+                              placeholder="Confirm Password"
+                              className="pl-10 pr-10 placeholder:text-black"
+                              {...field}
+                            />
+                          </FormControl>
+                          <button
+                            type="button"
+                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                            className="absolute right-3 top-2 text-black hover:text-gray-600"
+                          >
+                            {showConfirmPassword ? (
+                              <EyeOff className="h-5 w-5" />
+                            ) : (
+                              <Eye className="h-5 w-5" />
+                            )}
+                          </button>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
-                <FormField
-                  control={form.control}
-                  name="zipcode"
-                  render={({ field }) => (
-                    <FormItem>
-                      <div className="relative">
-                        <MapPin className="absolute left-3 top-2 h-5 w-5 text-black" />
-                        <FormControl>
-                          <Input
-                            type="text"
-                            placeholder="Zipcode"
-                            className="pl-10 placeholder:text-black"
-                            {...field}
-                          />
-                        </FormControl>
-                      </div>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <div className="relative">
-                        <Lock className="absolute left-3 top-2 h-5 w-5 text-black" />
-                        <FormControl>
-                          <Input
-                            type={showPassword ? "text" : "password"}
-                            placeholder="Password"
-                            className="pl-10 pr-10 placeholder:text-black"
-                            {...field}
-                          />
-                        </FormControl>
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-2 text-black hover:text-gray-600"
-                        >
-                          {showPassword ? (
-                            <EyeOff className="h-5 w-5" />
-                          ) : (
-                            <Eye className="h-5 w-5" />
-                          )}
-                        </button>
-                      </div>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="confirmPassword"
-                  render={({ field }) => (
-                    <FormItem>
-                      <div className="relative">
-                        <Lock className="absolute left-3 top-2 h-5 w-5 text-black" />
-                        <FormControl>
-                          <Input
-                            type={showConfirmPassword ? "text" : "password"}
-                            placeholder="Confirm Password"
-                            className="pl-10 pr-10 placeholder:text-black"
-                            {...field}
-                          />
-                        </FormControl>
-                        <button
-                          type="button"
-                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                          className="absolute right-3 top-2 text-black hover:text-gray-600"
-                        >
-                          {showConfirmPassword ? (
-                            <EyeOff className="h-5 w-5" />
-                          ) : (
-                            <Eye className="h-5 w-5" />
-                          )}
-                        </button>
-                      </div>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
                 <div className="flex items-center space-x-2">
                   <input
                     type='checkbox'
@@ -497,10 +518,10 @@ function RegisterPage() {
                   <span className='text-black'>OR</span>
                   <hr className='w-40' />
                 </span>
-                <Button disabled={!terms || registerMutation.isPending} onClick={signUpWithGoogle} variant='outline' className='w-full cursor-pointer'>
-                  {registerMutation.isPending ? "Creating account..." : "Sign Up With Google"} <img src="https://img.icons8.com/win10/512/google-logo.png" className='w-6 h-6 mt-0.5' alt='Google' />
+                <Button disabled={!terms || registerMutation.isPending || googleRegisterMutation.isPending} onClick={signUpWithGoogle} variant='outline' className='w-full cursor-pointer'>
+                  {googleRegisterMutation.isPending ? "Creating account..." : "Sign Up With Google"} <img src="https://img.icons8.com/win10/512/google-logo.png" className='w-6 h-6 mt-0.5' alt='Google' />
                 </Button>
-                {registerMutation.isError && (
+                {(registerMutation.isError || googleRegisterMutation.isError) && (
                   <p className="text-sm text-red-600 text-center mt-2">
                     Registration failed. Please try again.
                   </p>
@@ -557,7 +578,7 @@ function RegisterPage() {
           }
         }}
       >
-        <DialogContent className="sm:max-w-md bg-gray-200 dark:bg-gray-200 text-black">
+        <DialogContent className="sm:max-w-2xl bg-gray-200 dark:bg-gray-200 text-black">
           <DialogHeader>
             <DialogTitle className="text-black">
               {googleFormStep === 'phone' ? 'Step 1: Phone Number' : 'Step 2: Set Password'}
@@ -572,97 +593,99 @@ function RegisterPage() {
             <form onSubmit={googleForm.handleSubmit(onSubmitGoogleForm)} className="space-y-4">
               {googleFormStep === 'phone' ? (
                 <>
-                  <FormField
-                    control={googleForm.control}
-                    name="phone"
-                    render={({ field }) => (
-                      <FormItem>
-                        <div className="relative">
-                          <Phone className="absolute left-3 top-2 h-5 w-5 text-black" />
-                          <FormControl>
-                            <Input
-                              type="number"
-                              placeholder="Phone Number"
-                              className="pl-10 placeholder:text-black"
-                              {...field}
-                            />
-                          </FormControl>
-                        </div>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                      control={googleForm.control}
+                      name="phone"
+                      render={({ field }) => (
+                        <FormItem>
+                          <div className="relative">
+                            <Phone className="absolute left-3 top-2 h-5 w-5 text-black" />
+                            <FormControl>
+                              <Input
+                                type="number"
+                                placeholder="Phone Number"
+                                className="pl-10 placeholder:text-black"
+                                {...field}
+                              />
+                            </FormControl>
+                          </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                  <FormField
-                    control={googleForm.control}
-                    name="state"
-                    render={({ field }) => (
-                      <FormItem>
-                        <div className="relative">
-                          <MapPin className="absolute left-3 top-2 h-5 w-5 text-black" />
-                          <FormControl>
-                            <Select
-                              value={field.value}
-                              onValueChange={field.onChange}
-                            >
-                              <SelectTrigger className="pl-10 text-black w-full [&>span]:text-black">
-                                <SelectValue placeholder="Select your state" className="text-black" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {indianStatesAndUTs.map((state) => (
-                                  <SelectItem key={state} value={state}>
-                                    {state}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </FormControl>
-                        </div>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                    <FormField
+                      control={googleForm.control}
+                      name="state"
+                      render={({ field }) => (
+                        <FormItem>
+                          <div className="relative">
+                            <MapPin className="absolute left-3 top-2 h-5 w-5 text-black" />
+                            <FormControl>
+                              <Select
+                                value={field.value}
+                                onValueChange={field.onChange}
+                              >
+                                <SelectTrigger className="pl-10 text-black w-full [&>span]:text-black">
+                                  <SelectValue placeholder="Select your state" className="text-black" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {indianStatesAndUTs.map((state) => (
+                                    <SelectItem key={state} value={state}>
+                                      {state}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </FormControl>
+                          </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                  <FormField
-                    control={googleForm.control}
-                    name="city"
-                    render={({ field }) => (
-                      <FormItem>
-                        <div className="relative">
-                          <MapPin className="absolute left-3 top-2 h-5 w-5 text-black" />
-                          <FormControl>
-                            <Input
-                              placeholder="City"
-                              className="pl-10 placeholder:text-black"
-                              {...field}
-                            />
-                          </FormControl>
-                        </div>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                    <FormField
+                      control={googleForm.control}
+                      name="city"
+                      render={({ field }) => (
+                        <FormItem>
+                          <div className="relative">
+                            <MapPin className="absolute left-3 top-2 h-5 w-5 text-black" />
+                            <FormControl>
+                              <Input
+                                placeholder="City"
+                                className="pl-10 placeholder:text-black"
+                                {...field}
+                              />
+                            </FormControl>
+                          </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                  <FormField
-                    control={googleForm.control}
-                    name="zipcode"
-                    render={({ field }) => (
-                      <FormItem>
-                        <div className="relative">
-                          <MapPin className="absolute left-3 top-2 h-5 w-5 text-black" />
-                          <FormControl>
-                            <Input
-                              type="text"
-                              placeholder="Zipcode"
-                              className="pl-10 placeholder:text-black"
-                              {...field}
-                            />
-                          </FormControl>
-                        </div>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                    <FormField
+                      control={googleForm.control}
+                      name="zipcode"
+                      render={({ field }) => (
+                        <FormItem>
+                          <div className="relative">
+                            <MapPin className="absolute left-3 top-2 h-5 w-5 text-black" />
+                            <FormControl>
+                              <Input
+                                type="text"
+                                placeholder="Zipcode"
+                                className="pl-10 placeholder:text-black"
+                                {...field}
+                              />
+                            </FormControl>
+                          </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
 
                   <div className="flex justify-end space-x-2">
                     <Button
@@ -684,69 +707,71 @@ function RegisterPage() {
                 </>
               ) : (
                 <>
-                  <FormField
-                    control={googleForm.control}
-                    name="password"
-                    render={({ field }) => (
-                      <FormItem>
-                        <div className="relative">
-                          <Lock className="absolute left-3 top-2 h-5 w-5 text-black" />
-                          <FormControl>
-                            <Input
-                              type={showPassword ? "text" : "password"}
-                              placeholder="Password"
-                              className="pl-10 pr-10 placeholder:text-black"
-                              {...field}
-                            />
-                          </FormControl>
-                          <button
-                            type="button"
-                            onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-3 top-2 text-black hover:text-gray-600"
-                          >
-                            {showPassword ? (
-                              <EyeOff className="h-5 w-5" />
-                            ) : (
-                              <Eye className="h-5 w-5" />
-                            )}
-                          </button>
-                        </div>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                      control={googleForm.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem>
+                          <div className="relative">
+                            <Lock className="absolute left-3 top-2 h-5 w-5 text-black" />
+                            <FormControl>
+                              <Input
+                                type={showPassword ? "text" : "password"}
+                                placeholder="Password"
+                                className="pl-10 pr-10 placeholder:text-black"
+                                {...field}
+                              />
+                            </FormControl>
+                            <button
+                              type="button"
+                              onClick={() => setShowPassword(!showPassword)}
+                              className="absolute right-3 top-2 text-black hover:text-gray-600"
+                            >
+                              {showPassword ? (
+                                <EyeOff className="h-5 w-5" />
+                              ) : (
+                                <Eye className="h-5 w-5" />
+                              )}
+                            </button>
+                          </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                  <FormField
-                    control={googleForm.control}
-                    name="confirmPassword"
-                    render={({ field }) => (
-                      <FormItem>
-                        <div className="relative">
-                          <Lock className="absolute left-3 top-2 h-5 w-5 text-black" />
-                          <FormControl>
-                            <Input
-                              type={showConfirmPassword ? "text" : "password"}
-                              placeholder="Confirm Password"
-                              className="pl-10 pr-10 placeholder:text-black"
-                              {...field}
-                            />
-                          </FormControl>
-                          <button
-                            type="button"
-                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                            className="absolute right-3 top-2 text-black hover:text-gray-600"
-                          >
-                            {showConfirmPassword ? (
-                              <EyeOff className="h-5 w-5" />
-                            ) : (
-                              <Eye className="h-5 w-5" />
-                            )}
-                          </button>
-                        </div>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                    <FormField
+                      control={googleForm.control}
+                      name="confirmPassword"
+                      render={({ field }) => (
+                        <FormItem>
+                          <div className="relative">
+                            <Lock className="absolute left-3 top-2 h-5 w-5 text-black" />
+                            <FormControl>
+                              <Input
+                                type={showConfirmPassword ? "text" : "password"}
+                                placeholder="Confirm Password"
+                                className="pl-10 pr-10 placeholder:text-black"
+                                {...field}
+                              />
+                            </FormControl>
+                            <button
+                              type="button"
+                              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                              className="absolute right-3 top-2 text-black hover:text-gray-600"
+                            >
+                              {showConfirmPassword ? (
+                                <EyeOff className="h-5 w-5" />
+                              ) : (
+                                <Eye className="h-5 w-5" />
+                              )}
+                            </button>
+                          </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
 
                   <div className="flex justify-end space-x-2">
                     <Button
@@ -759,10 +784,10 @@ function RegisterPage() {
                     </Button>
                     <Button
                       type="submit"
-                      disabled={registerMutation.isPending}
+                      disabled={googleRegisterMutation.isPending}
                       className="bg-black text-white hover:bg-gray-800"
                     >
-                      {registerMutation.isPending ? "Creating account..." : "Complete Registration"}
+                      {googleRegisterMutation.isPending ? "Creating account..." : "Complete Registration"}
                     </Button>
                   </div>
                 </>

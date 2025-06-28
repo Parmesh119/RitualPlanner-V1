@@ -118,7 +118,7 @@ function RouteComponent() {
               <BreadcrumbItem>
                 <BreadcrumbLink href="#">Bills & Payment</BreadcrumbLink>
               </BreadcrumbItem>
-              <BreadcrumbSeparator />
+              <BreadcrumbSeparator className='mt-1' />
               <BreadcrumbItem>
                 <BreadcrumbPage>List</BreadcrumbPage>
               </BreadcrumbItem>
@@ -276,7 +276,15 @@ function RouteComponent() {
                       <TableCell className="px-6 text-center">{(currentPage - 1) * DEFAULT_PAGE_SIZE + index + 1}</TableCell>
                       <TableCell className="px-6 text-center">{bill.name}</TableCell>
                       <TableCell className="px-6 text-center">
-                        <Badge className={`tracking-wider ${bill.paymentstatus === 'PENDING' ? 'bg-amber-400 text-black' : 'bg-green-500 text-white'}`}>{bill.paymentstatus}</Badge>
+                        <Badge
+                          className={`rounded-full px-4 py-1 font-bold uppercase tracking-wider
+                            ${bill.paymentstatus === 'PENDING'
+                              ? 'bg-[#7a4400] text-[#ffe600]'
+                              : 'bg-green-500 text-white'}
+                          `}
+                        >
+                          {bill.paymentstatus}
+                        </Badge>
                       </TableCell>
                       <TableCell className="px-6 text-center">
                         {bill.createdAt ? format(new Date(bill.createdAt * 1000), "PPP") : '-'}
@@ -316,7 +324,7 @@ function RouteComponent() {
                     <p>Created Date: {bill.createdAt ? format(new Date(bill.createdAt * 1000), "PPP") : '-'}</p>
                     <p>Updated Date: {bill.updatedAt ? format(new Date(bill.updatedAt * 1000), "PPP") : '-'}</p>
                   </div>
-                </div> 
+                </div>
               ))
             )}
           </div>

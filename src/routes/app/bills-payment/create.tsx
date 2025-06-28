@@ -19,6 +19,16 @@ import { Plus, Search } from 'lucide-react'
 import type { TTemplate, TRitualTemplateRequest } from '@/schemas/Template'
 import { z } from 'zod'
 import { toast } from 'sonner'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 export const Route = createFileRoute('/app/bills-payment/create')({
   component: RouteComponent,
@@ -33,6 +43,8 @@ function RouteComponent() {
   const [step, setStep] = useState(1)
   const [itemInputs, setItemInputs] = useState<any[]>([])
   const DEFAULT_PAGE_SIZE = 10
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false)
+  const [pendingBillData, setPendingBillData] = useState<any>(null)
 
   const { data: templatesData = [], isLoading } = useQuery<TTemplate[]>({
     queryKey: ['templates', 1, searchQuery],
@@ -179,7 +191,8 @@ function RouteComponent() {
 
       // Create the request object with correct structure
       const requestBill = RequestBill.parse({ bill, items })
-      createBill.mutate(requestBill)
+      setPendingBillData(requestBill)
+      setShowConfirmDialog(true)
     } catch (err: any) {
       alert(err.message)
       if (err instanceof z.ZodError) {
@@ -205,6 +218,19 @@ function RouteComponent() {
         })
       }
     }
+  }
+
+  const handleConfirmOk = () => {
+    if (pendingBillData) {
+      createBill.mutate(pendingBillData)
+      setPendingBillData(null)
+    }
+    setShowConfirmDialog(false)
+  }
+
+  const handleConfirmCancel = () => {
+    setShowConfirmDialog(false)
+    setPendingBillData(null)
   }
 
   return <>
@@ -378,5 +404,19 @@ function RouteComponent() {
         )}
       </div>
     </SidebarInset>
+    <AlertDialog open={showConfirmDialog} onOpenChange={() => { }}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Template Change Notice</AlertDialogTitle>
+          <AlertDialogDescription>
+            Any changes in the selected template will <b>not</b> reflect to this bill. You need to create a new bill after making changes to that template.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={handleConfirmCancel}>Cancel</AlertDialogCancel>
+          <AlertDialogAction onClick={handleConfirmOk}>OK</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   </>
 }

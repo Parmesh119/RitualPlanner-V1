@@ -134,7 +134,7 @@ function RouteComponent() {
               <BreadcrumbItem>
                 <BreadcrumbLink href="#">Co-Worker</BreadcrumbLink>
               </BreadcrumbItem>
-              <BreadcrumbSeparator />
+              <BreadcrumbSeparator className='mt-1' />
               <BreadcrumbItem>
                 <BreadcrumbPage>List</BreadcrumbPage>
               </BreadcrumbItem>

@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { getBilByIdlAction, getAccountDetails } from '@/lib/actions'
+import { getBilByIdlAction, getAccountDetails, getTemplateByIdAction } from '@/lib/actions'
 import { useQuery } from '@tanstack/react-query'
 import { format } from 'date-fns'
 import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
@@ -43,16 +43,27 @@ export const Route = createFileRoute('/app/bills-payment/get/$id')({
 function RouteComponent() {
   const { billId } = Route.useLoaderData()
   const navigate = useNavigate()
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError } = useQuery({
     queryKey: ['bill', billId],
     queryFn: () => getBilByIdlAction(billId),
   })
-  const { data: userData, isError } = useQuery({
+  const { data: userData } = useQuery({
     queryKey: ["accountDetails"],
     queryFn: getAccountDetails,
     staleTime: 1000 * 60 * 60,
   })
   const [search, setSearch] = useState('')
+
+  // Always define bill/items, even if data is undefined
+  const bill = data?.bill;
+  const items = data?.items || [];
+
+  // Always call the template query, but only enable it if bill?.template_id exists
+  const { data: templateData } = useQuery({
+    queryKey: ['template', bill?.template_id],
+    queryFn: () => bill?.template_id ? getTemplateByIdAction(bill.template_id) : undefined,
+    enabled: !!bill?.template_id,
+  });
 
   if (isError) {
     // Optionally handle user error (logout, etc.)
@@ -86,7 +97,6 @@ function RouteComponent() {
     )
   }
 
-  const { bill, items } = data
   const filteredItems = items?.filter(item =>
     [item.itemname, item.quantity, item.unit, item.note]
       .map(val => (val ? val.toString().toLowerCase() : ''))
@@ -132,11 +142,7 @@ function RouteComponent() {
 
     let y = 35;
 
-    // Switch back to helvetica for the rest
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(0, 0, 0);
-
-    // User Information Section Header
+    // 1. User Information Section Header
     doc.setFillColor(230, 240, 255);
     doc.roundedRect(10, y - 7, pageWidth - 20, 14, 3, 3, 'F');
     doc.setFontSize(15);
@@ -150,7 +156,26 @@ function RouteComponent() {
     doc.text(`Phone: ${userData.phone || ''}`, 16, y);
     y += 12;
 
-    // Bill Information Section Header
+    // 2. Template Information Section
+    if (typeof templateData !== 'undefined' && templateData?.ritualTemplate) {
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(15);
+      doc.setFillColor(230, 240, 255);
+      doc.roundedRect(10, y - 7, pageWidth - 20, 14, 3, 3, 'F');
+      doc.text('Template Information', 14, y + 3);
+      y += 14;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(12);
+      doc.text(`Name: ${templateData.ritualTemplate.name || ''}`, 16, y);
+      y += 7;
+      if (templateData.ritualTemplate.description) {
+        doc.text(`Description: ${templateData.ritualTemplate.description}`, 16, y);
+        y += 7;
+      }
+      y += 5;
+    }
+
+    // 3. Bill Information Section Header
     doc.setFillColor(230, 240, 255);
     doc.roundedRect(10, y - 7, pageWidth - 20, 14, 3, 3, 'F');
     doc.setFontSize(15);
@@ -174,7 +199,7 @@ function RouteComponent() {
     doc.setTextColor(0, 0, 0);
     y += 12;
 
-    // Bill Items Section Header
+    // 4. Bill Items Section Header
     doc.setFontSize(15);
     doc.setFont('helvetica', 'bold');
     doc.setFillColor(230, 240, 255);
@@ -242,7 +267,7 @@ function RouteComponent() {
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
-                <BreadcrumbPage className="font-medium">{bill.name}</BreadcrumbPage>
+                <BreadcrumbPage className="font-medium">{bill?.name}</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
@@ -253,14 +278,14 @@ function RouteComponent() {
         <div className="space-y-2">
           <div className="flex items-center gap-3 justify-between">
             <span className='flex flex-row gap-4'>
-              <h1 className="text-2xl font-bold tracking-tight">{bill.name}</h1>
+              <h1 className="text-2xl font-bold tracking-tight">{bill?.name}</h1>
               <Badge variant="secondary" className="text-xs">Bill</Badge>
             </span>
             <span className='flex flex-row gap-4'>
               <Button
                 variant="outline"
                 className="ml-2"
-                onClick={() => navigate({ to: `/app/bills-payment/edit/$id`, params: { id: bill.id } })}
+                onClick={() => bill?.id && navigate({ to: `/app/bills-payment/edit/$id`, params: { id: bill.id } })}
               >
                 <Pencil className="h-4 w-4 mr-1" />
                 Edit Bill
@@ -276,12 +301,15 @@ function RouteComponent() {
         </div>
         {/* Tabs Section */}
         <Tabs defaultValue="details" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 lg:w-auto lg:grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3 lg:w-auto lg:grid-cols-3">
             <TabsTrigger value="details" className="flex items-center gap-2">
               Details
             </TabsTrigger>
             <TabsTrigger value="items" className="flex items-center gap-2">
               Items {items.length > 0 && <Badge variant="secondary" className="ml-1 text-xs">{items.length}</Badge>}
+            </TabsTrigger>
+            <TabsTrigger value="payments" className="flex items-center gap-2">
+              Payments
             </TabsTrigger>
           </TabsList>
           <TabsContent value="details" className="mt-6">
@@ -293,26 +321,43 @@ function RouteComponent() {
                 <div className="grid gap-6 md:grid-cols-2">
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-muted-foreground">Title</label>
-                    <p className="text-base font-medium">{bill.name}</p>
+                    <p className="text-base font-medium">{bill?.name}</p>
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-muted-foreground flex items-center gap-1">Created Date</label>
-                    <p className="text-base">{bill.createdAt ? format(new Date(bill.createdAt * 1000), 'PPP') : 'Not available'}</p>
+                    <p className="text-base">{bill?.createdAt ? format(new Date(bill?.createdAt * 1000), 'PPP') : 'Not available'}</p>
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-muted-foreground flex items-center gap-1">Updated Date</label>
-                    <p className="text-base">{bill.updatedAt ? format(new Date(bill.updatedAt * 1000), 'PPP') : 'Not available'}</p>
+                    <p className="text-base">{bill?.updatedAt ? format(new Date(bill?.updatedAt * 1000), 'PPP') : 'Not available'}</p>
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-muted-foreground flex items-center gap-1">Status</label>
                     <p className="text-base">
-                      <Badge className={`tracking-wider ${bill.paymentstatus === 'PENDING' ? 'bg-amber-400 text-black' : 'bg-green-500 text-white'}`}>{bill.paymentstatus}</Badge>
+                      <Badge className={`tracking-wider ${bill?.paymentstatus === 'PENDING' ? 'bg-amber-400 text-black' : 'bg-green-500 text-white'}`}>{bill?.paymentstatus}</Badge>
                     </p>
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-muted-foreground flex items-center gap-1">Total Amount</label>
-                    <p className="text-base font-semibold">₹{bill.totalamount ?? 0}</p>
+                    <p className="text-base font-semibold">₹{bill?.totalamount ?? 0}</p>
                   </div>
+                  {templateData?.ritualTemplate && (
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-muted-foreground flex items-center gap-1">Template Used</label>
+                      <Link
+                        to="/app/template/get/$id"
+                        params={{ id: templateData.ritualTemplate.id }}
+                        className="text-base tracking-wider font-semibold underline hover:text-primary text-decoration-none"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {templateData.ritualTemplate.name}
+                      </Link>
+                      {templateData.ritualTemplate.description && (
+                        <p className="text-sm text-muted-foreground">{templateData.ritualTemplate.description}</p>
+                      )}
+                    </div>
+                  )}
                 </div>
                 <div className="mt-4 text-sm text-muted-foreground">
                   For any kind of query regarding this bill please contact <b>{userData?.name} ({userData?.phone})</b>.
@@ -378,6 +423,30 @@ function RouteComponent() {
                       <p className="text-muted-foreground">No items match your search.</p>
                     </div>
                   )}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          <TabsContent value="payments" className="mt-6">
+            <Card className="border-border/50 shadow-sm">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-lg">Payments</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid gap-6 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-muted-foreground">Payment Status</label>
+                    <p className="text-base font-medium">
+                      <Badge className={`tracking-wider ${bill?.paymentstatus === 'PENDING' ? 'bg-amber-400 text-black' : 'bg-green-500 text-white'}`}>{bill?.paymentstatus}</Badge>
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-muted-foreground">Total Amount</label>
+                    <p className="text-base font-semibold">₹{bill?.totalamount ?? 0}</p>
+                  </div>
+                </div>
+                <div className="mt-4 text-sm text-muted-foreground">
+                  Payment records will be shown here in the future.
                 </div>
               </CardContent>
             </Card>

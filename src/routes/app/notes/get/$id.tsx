@@ -19,7 +19,7 @@ import { CreateNoteDialog } from "@/components/notes/create-note-dialog";
 import { useState } from "react";
 import { Link } from '@tanstack/react-router';
 
-export const Route = createFileRoute('/app/notes/note/$id')({
+export const Route = createFileRoute('/app/notes/get/$id')({
   component: RouteComponent,
   loader: async ({ params }) => {
     return {

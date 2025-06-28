@@ -16,6 +16,7 @@ import { ArrowLeft } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Pencil } from "lucide-react"
 import { ClientDialog } from "@/components/client/create-dialog"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 
 export const Route = createFileRoute('/app/client/get/$id')({
     component: RouteComponent,
@@ -82,71 +83,72 @@ function RouteComponent() {
             <Separator className="mb-4" />
 
             <div className="flex flex-col gap-4 px-4 md:px-8 py-2">
-                <div className="flex items-center justify-between">
-                    <h1 className="text-2xl font-bold">Client Details</h1>
-                    <ClientDialog client={client} mode="edit">
-                        <Button>
-                            <Pencil className="mr-2 h-4 w-4" />
-                            Edit Client
-                        </Button>
-                    </ClientDialog>
-                </div>
+                <Tabs defaultValue="details" className="w-full">
+                    <TabsList className="w-full">
+                        <TabsTrigger value="details" className="flex-1">Details</TabsTrigger>
+                        <TabsTrigger value="tasks" className="flex-1">Tasks</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="details">
+                        <div className="grid gap-4 md:grid-cols-2">
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>Basic Information</CardTitle>
+                                    <CardDescription>Client's basic details and contact information</CardDescription>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    <div>
+                                        <h3 className="text-sm font-medium text-muted-foreground">Name</h3>
+                                        <p className="text-lg">{client.name || "-"}</p>
+                                    </div>
+                                    <div>
+                                        <h3 className="text-sm font-medium text-muted-foreground">Email</h3>
+                                        <p className="text-lg">{client.email || "-"}</p>
+                                    </div>
+                                    <div>
+                                        <h3 className="text-sm font-medium text-muted-foreground">Phone</h3>
+                                        <p className="text-lg">{client.phone || "-"}</p>
+                                    </div>
+                                    <div>
+                                        <h3 className="text-sm font-medium text-muted-foreground">City</h3>
+                                        <p className="text-lg">{client.city || "-"}</p>
+                                    </div>
+                                    <div>
+                                        <h3 className="text-sm font-medium text-muted-foreground">State</h3>
+                                        <p className="text-lg">{client.state || "-"}</p>
+                                    </div>
+                                    <div>
+                                        <h3 className="text-sm font-medium text-muted-foreground">Zipcode</h3>
+                                        <p className="text-lg">{client.zipcode || "-"}</p>
+                                    </div>
+                                </CardContent>
+                            </Card>
 
-                <div className="grid gap-4 md:grid-cols-2">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Basic Information</CardTitle>
-                            <CardDescription>Client's basic details and contact information</CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div>
-                                <h3 className="text-sm font-medium text-muted-foreground">Name</h3>
-                                <p className="text-lg">{client.name || "-"}</p>
-                            </div>
-                            <div>
-                                <h3 className="text-sm font-medium text-muted-foreground">Email</h3>
-                                <p className="text-lg">{client.email || "-"}</p>
-                            </div>
-                            <div>
-                                <h3 className="text-sm font-medium text-muted-foreground">Phone</h3>
-                                <p className="text-lg">{client.phone || "-"}</p>
-                            </div>
-                            <div>
-                                <h3 className="text-sm font-medium text-muted-foreground">City</h3>
-                                <p className="text-lg">{client.city || "-"}</p>
-                            </div>
-                            <div>
-                                <h3 className="text-sm font-medium text-muted-foreground">State</h3>
-                                <p className="text-lg">{client.state || "-"}</p>
-                            </div>
-                            <div>
-                                <h3 className="text-sm font-medium text-muted-foreground">Zipcode</h3>
-                                <p className="text-lg">{client.zipcode || "-"}</p>
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Additional Information</CardTitle>
-                            <CardDescription>Additional details about the client</CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div>
-                                <h3 className="text-sm font-medium text-muted-foreground">Description</h3>
-                                <p className="text-lg">{client.description || "-"}</p>
-                            </div>
-                            <div>
-                                <h3 className="text-sm font-medium text-muted-foreground">Created Date</h3>
-                                <p className="text-lg">{client.createdAt ? new Date(client.createdAt * 1000).toLocaleDateString() : "-"}</p>
-                            </div>
-                            <div>
-                                <h3 className="text-sm font-medium text-muted-foreground">Updated Date</h3>
-                                <p className="text-lg">{client.updatedAt ? new Date(client.updatedAt * 1000).toLocaleDateString() : "-"}</p>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </div>
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>Additional Information</CardTitle>
+                                    <CardDescription>Additional details about the client</CardDescription>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    <div>
+                                        <h3 className="text-sm font-medium text-muted-foreground">Description</h3>
+                                        <p className="text-lg">{client.description || "-"}</p>
+                                    </div>
+                                    <div>
+                                        <h3 className="text-sm font-medium text-muted-foreground">Created Date</h3>
+                                        <p className="text-lg">{client.createdAt ? new Date(client.createdAt * 1000).toLocaleDateString() : "-"}</p>
+                                    </div>
+                                    <div>
+                                        <h3 className="text-sm font-medium text-muted-foreground">Updated Date</h3>
+                                        <p className="text-lg">{client.updatedAt ? new Date(client.updatedAt * 1000).toLocaleDateString() : "-"}</p>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </div>
+                    </TabsContent>
+                    <TabsContent value="tasks">
+                        <div className="py-8 text-center text-muted-foreground">Tasks for this client will appear here.</div>
+                    </TabsContent>
+                </Tabs>
             </div>
         </SidebarInset>
     )
