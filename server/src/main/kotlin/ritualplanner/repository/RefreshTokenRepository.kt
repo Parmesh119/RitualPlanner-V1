@@ -32,8 +32,8 @@ class RefreshTokenRepository(
                         id = rs.getString("id"),
                         userId = rs.getString("user_id"),
                         token = rs.getString("token"),
-                        createdAt = rs.getLong("created_at"),
-                        updatedAt = rs.getLong("updated_at")
+                        createdAt = rs.getTimestamp("created_at").toInstant().epochSecond,
+                        updatedAt = rs.getTimestamp("updated_at").toInstant().epochSecond
                     )
                 },
                 token

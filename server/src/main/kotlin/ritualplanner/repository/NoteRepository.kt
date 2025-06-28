@@ -5,7 +5,6 @@ import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
-import ritualplanner.model.DeleteNote
 import ritualplanner.model.ListNote
 import ritualplanner.model.Note
 import java.sql.Time

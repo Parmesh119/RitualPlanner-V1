@@ -160,6 +160,7 @@ class AuthRepository(
 
             return LoginResponse(accessToken = newAccessToken, refreshToken = newRefreshToken)
         } catch (e: Exception) {
+            e.printStackTrace()
             throw Exception("Failed to refresh token")
         }
     }

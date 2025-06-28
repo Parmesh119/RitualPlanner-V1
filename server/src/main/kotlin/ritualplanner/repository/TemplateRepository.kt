@@ -161,6 +161,16 @@ class TemplateRepository(
                 params.add("%$it%")
             }
 
+            listTemplate.startDate?.let {
+                sqlBuilder.append(" AND created_at >= to_timestamp(?)")
+                params.add(it / 1000)
+            }
+
+            listTemplate.endDate?.let {
+                sqlBuilder.append(" AND created_at <= to_timestamp(?)")
+                params.add(it / 1000)
+            }
+
             val page = (listTemplate.page ?: 1).coerceAtLeast(1)
             val size = (listTemplate.size ?: 10).coerceIn(1, 100)
 

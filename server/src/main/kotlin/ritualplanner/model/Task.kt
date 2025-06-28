@@ -1,17 +1,22 @@
 package ritualplanner.model
 
 import java.time.Instant
+import java.time.LocalTime
 import java.util.UUID
 
-data class Task (
+data class Task(
     val id: String? = UUID.randomUUID().toString(),
     val taskOwner_id: String,
     val name: String,
     val description: String? = null,
     val date: Long = Instant.now().toEpochMilli(),
+    val starttime: LocalTime,
+    val endtime: LocalTime,
     val self: Boolean,
     val location: String,
-    val payment_id: String? = null,
+    val client_id: String? = null,
+    val template_id: String? = null,
+    val bill_id: String? = null,
     val status: String? = "PENDING", // PENDING menas future work and COMPLETED means done
     val createdAt: Long = Instant.now().toEpochMilli(),
     val updatedAt: Long = Instant.now().toEpochMilli()
@@ -19,17 +24,17 @@ data class Task (
 
 data class TaskNote (
     val id: String? = UUID.randomUUID().toString(),
-    val task_id: String,
-    val note_id: String,
+    val task_id: String? = null,
+    val note_id: String? = null,
     val createdAt: Long = Instant.now().toEpochMilli(),
     val updatedAt: Long = Instant.now().toEpochMilli()
 )
 
 data class TaskAssistant (
     val id: String? = UUID.randomUUID().toString(),
-    val task_id: String,
+    val task_id: String? = null,
     val taskOwner_id: String,
-    val assistant_id: String,
+    val assistant_id: String? = null,
     val payment_id: String? = null,
     val createdAt: Long = Instant.now().toEpochMilli(),
     val updatedAt: Long = Instant.now().toEpochMilli()
@@ -37,48 +42,24 @@ data class TaskAssistant (
 
 data class TaskPayment (
     val id: String? = UUID.randomUUID().toString(),
-    val task_id: String,
+    val task_id: String? = null,
     val taskOwner_id: String,
-    val paidAmount: Int? = 0,
-    val totalAmount: Int,
-    val paymentDate: Long? = Instant.now().toEpochMilli(),
-    val paymentMode: String? = "CASH",
-    val onlinePaymentMode: String? = null,
-    val paymentStatus: String? = "PENDING", // PENDING means not received and COMPLETED means received
+    val payment_id: String? = null,
     val createdAt: Long = Instant.now().toEpochMilli(),
     val updatedAt: Long = Instant.now().toEpochMilli()
 )
 
-data class TaskClient (
-    val id: String? = UUID.randomUUID().toString(),
-    val task_id: String,
-    val taskOwner_id: String,
-    val client_id: String,
-    val createdAt: Long = Instant.now().toEpochMilli(),
-    val updatedAt: Long = Instant.now().toEpochMilli()
-)
-
-data class TaskTemplate (
-    val id: String? = UUID.randomUUID().toString(),
-    val task_id: String,
-    val taskOwner_id: String,
-    val template_id: String,
-    val createdAt: Long = Instant.now().toEpochMilli(),
-    val updatedAt: Long = Instant.now().toEpochMilli()
-)
-
-data class TaskBill (
-    val id: String? = UUID.randomUUID().toString(),
-    val task_id: String,
-    val taskOwner_id: String,
-    val bill_id: String,
-    val createdAt: Long = Instant.now().toEpochMilli(),
-    val updatedAt: Long = Instant.now().toEpochMilli()
+data class RequestTask (
+    val task: Task,
+    val note: List<TaskNote>? = emptyList(),
+    val assistant: List<TaskAssistant>? = emptyList(),
+    val payment: Payment? = null,
+    val assistantPayment: List<AssistantPayment>? = emptyList()
 )
 
 data class ListTask (
     val search: String? = null,
-    val pages: Int? = 1,
+    val page: Int? = 1,
     val size: Int? = 10,
     val startDate: Long? = null,
     val endDate: Long? = null,

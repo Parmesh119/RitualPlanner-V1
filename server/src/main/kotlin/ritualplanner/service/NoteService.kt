@@ -1,9 +1,7 @@
 package ritualplanner.service
 
-import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import ritualplanner.config.JwtUtil
-import ritualplanner.model.DeleteNote
 import ritualplanner.model.ListNote
 import ritualplanner.model.Note
 import ritualplanner.repository.AuthRepository

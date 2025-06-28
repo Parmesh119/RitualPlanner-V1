@@ -13,10 +13,6 @@ data class Note (
     val updatedAt: Long = Instant.now().toEpochMilli()
 )
 
-data class DeleteNote (
-    val id: String
-)
-
 data class ListNote (
     val search: String? = null,
     val page: Int? = 1,

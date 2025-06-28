@@ -36,7 +36,7 @@ class NoteController(
         return ResponseEntity.ok(noteService.deleteNote(id, authorization))
     }
 
-    @GetMapping("/note/{id}")
+    @GetMapping("/get/{id}")
     fun getNoteById(@PathVariable id: String, @RequestHeader("Authorization") authorization: String): ResponseEntity<Note> {
         val result = noteService.getNoteById(id, authorization)
         if(result == null) {
