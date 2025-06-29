@@ -26,9 +26,8 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { cn } from "@/lib/utils"
-import { TaskSchema, TaskAssistantSchema, TaskRequestSchema } from "@/schemas/Task"
-import type { TRequestTaskSchema, TTask, TTaskAssistant, TTaskNote, TTaskPayment, ListTask, TCreateTaskRequestSchema, TTaskRequest } from '@/schemas/Task'
-import { PaymentSchema, AssistantPaymentSchema } from "@/schemas/Payment"
+import type { TCreateTaskRequestSchema } from '@/schemas/Task'
+import { PaymentSchema } from "@/schemas/Payment"
 import { listCoWorkerAction, listNoteAction, getNoteByIdAction, getUserDetails, listClientAction, listTemplateAction, listBillAction, createTaskAction } from "@/lib/actions"
 import {
   Breadcrumb,
@@ -172,13 +171,30 @@ function RouteComponent() {
   const createTaskMutation = useMutation({
     mutationFn: createTaskAction,
     onSuccess: (data) => {
-      toast.success("Task created successfully!")
-      queryClient.invalidateQueries({ queryKey: ['tasks'] })
-      navigate({ to: '/app/tasks' })
+      if (data) {
+        toast.success("Task created successfully!", {
+          style: {
+            background: "linear-gradient(90deg, #38A169, #2F855A)",
+            color: "white",
+            fontWeight: "bolder",
+            fontSize: "13px",
+            letterSpacing: "1px",
+          }
+        })
+        queryClient.invalidateQueries({ queryKey: ['tasks'] })
+        navigate({ to: '/app/tasks' })
+      }
     },
     onError: (error) => {
       toast.error("Failed to create task", {
-        description: "There was an error creating the task. Please try again."
+        description: "There was an error creating the task. Please try again.",
+        style: {
+          background: 'linear-gradient(90deg, #E53E3E, #C53030)',
+          color: 'white',
+          fontWeight: 'bolder',
+          fontSize: '13px',
+          letterSpacing: '1px',
+        },
       })
       console.error('Create task error:', error)
     }
@@ -854,16 +870,45 @@ function RouteComponent() {
                       {/* Start Time */}
                       <div>
                         <Label htmlFor="startTime" className="mb-1.5 block">Start Time <span className="text-red-500">*</span></Label>
-                        <Input
-                          id="startTime"
-                          type="time"
-                          value={startTime}
-                          onChange={(e) => setStartTime(e.target.value)}
-                          className={cn(
-                            "w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
-                            errors.startTime && "border-red-500"
-                          )}
-                        />
+                        <div className="flex gap-2">
+                          <Select
+                            value={startTime.split(':')[0] || ''}
+                            onValueChange={(hour) => {
+                              const currentMinute = startTime.split(':')[1] || '00'
+                              setStartTime(`${hour}:${currentMinute}`)
+                            }}
+                          >
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Hour" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {Array.from({ length: 24 }, (_, i) => (
+                                <SelectItem key={i} value={i.toString().padStart(2, '0')}>
+                                  {i.toString().padStart(2, '0')}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <span className="flex items-center text-lg font-medium">:</span>
+                          <Select
+                            value={startTime.split(':')[1] || ''}
+                            onValueChange={(minute) => {
+                              const currentHour = startTime.split(':')[0] || '00'
+                              setStartTime(`${currentHour}:${minute}`)
+                            }}
+                          >
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Minute" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {Array.from({ length: 60 }, (_, i) => (
+                                <SelectItem key={i} value={i.toString().padStart(2, '0')}>
+                                  {i.toString().padStart(2, '0')}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
                         {errors.startTime && (
                           <p className="text-sm text-red-500 mt-1">{errors.startTime}</p>
                         )}
@@ -872,19 +917,104 @@ function RouteComponent() {
                       {/* End Time */}
                       <div>
                         <Label htmlFor="endTime" className="mb-1.5 block">End Time <span className="text-red-500">*</span></Label>
-                        <Input
-                          id="endTime"
-                          type="time"
-                          value={endTime}
-                          onChange={(e) => setEndTime(e.target.value)}
-                          className={cn(
-                            "w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
-                            errors.endTime && "border-red-500"
-                          )}
-                        />
+                        <div className="flex gap-2">
+                          <Select
+                            value={endTime.split(':')[0] || ''}
+                            onValueChange={(hour) => {
+                              const currentMinute = endTime.split(':')[1] || '00'
+                              setEndTime(`${hour}:${currentMinute}`)
+                            }}
+                          >
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Hour" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {Array.from({ length: 24 }, (_, i) => (
+                                <SelectItem key={i} value={i.toString().padStart(2, '0')}>
+                                  {i.toString().padStart(2, '0')}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <span className="flex items-center text-lg font-medium">:</span>
+                          <Select
+                            value={endTime.split(':')[1] || ''}
+                            onValueChange={(minute) => {
+                              const currentHour = endTime.split(':')[0] || '00'
+                              setEndTime(`${currentHour}:${minute}`)
+                            }}
+                          >
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Minute" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {Array.from({ length: 60 }, (_, i) => (
+                                <SelectItem key={i} value={i.toString().padStart(2, '0')}>
+                                  {i.toString().padStart(2, '0')}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
                         {errors.endTime && (
                           <p className="text-sm text-red-500 mt-1">{errors.endTime}</p>
                         )}
+                        {startTime && endTime && startTime >= endTime && (
+                          <p className="text-sm text-orange-500 mt-1">
+                            ⚠️ End time should be after start time
+                          </p>
+                        )}
+
+                        {/* Quick Time Presets */}
+                        <div className="mt-3">
+                          <Label className="text-xs text-muted-foreground mb-2 block">Quick Presets:</Label>
+                          <div className="flex flex-wrap gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                setStartTime('09:00')
+                                setEndTime('17:00')
+                              }}
+                              className="text-xs h-7 px-2"
+                            >
+                              9 AM - 5 PM
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                setStartTime('10:00')
+                                setEndTime('18:00')
+                              }}
+                              className="text-xs h-7 px-2"
+                            >
+                              10 AM - 6 PM
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                setStartTime('08:00')
+                                setEndTime('16:00')
+                              }}
+                              className="text-xs h-7 px-2"
+                            >
+                              8 AM - 4 PM
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                setStartTime('14:00')
+                                setEndTime('22:00')
+                              }}
+                              className="text-xs h-7 px-2"
+                            >
+                              2 PM - 10 PM
+                            </Button>
+                          </div>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
@@ -2018,7 +2148,6 @@ function RouteComponent() {
                       )}
                     </CardContent>
                   </Card>
-
                   <Card className="border-0">
                     <CardHeader className="pb-2 space-y-1">
                       <div className="flex items-center gap-2">

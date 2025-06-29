@@ -161,3 +161,19 @@ code {
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
+
+/* Hide the native time input icon in Chrome, Safari, Edge, Opera */
+input[type="time"]::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  display: none;
+}
+
+/* Hide the native time input icon in Firefox */
+input[type="time"]::-moz-focus-inner {
+  border: 0;
+}
+
+/* Hide the native time input icon in Edge (old) */
+input[type="time"]::-ms-clear {
+  display: none;
+}

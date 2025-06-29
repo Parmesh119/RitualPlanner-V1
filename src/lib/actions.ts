@@ -12,6 +12,7 @@ import type { ListTemplate, TTemplate } from '@/schemas/Template'
 import type { ListBill, TBill, TRequestBill } from '@/schemas/Bills'
 import type { ListTask, TRequestTaskSchema, TTask } from '@/schemas/Task'
 import type { TCreateTaskRequestSchema } from '@/schemas/Task'
+import type { TPayment } from '@/schemas/Payment'
 
 export function getBackendUrl() {
     const backendUrl = 'http://localhost:8080'
@@ -1111,6 +1112,32 @@ export async function listTaskAction(data: ListTask): Promise<TTask[]> {
         `${getBackendUrl()}/api/v2/tasks`,
         data,
         { headers: { Authorization: bearerToken } }
+    )
+
+    return response.data
+}
+
+export async function getPaymentByIdAction(id: string): Promise<TPayment> {
+    const token = await authService.getAccessToken()
+
+    if (!token) {
+        toast.error("User is not authenticated", {
+            style: {
+                background: "linear-gradient(90deg, #E53E3E, #C53030)",
+                color: "white",
+                fontWeight: "bolder",
+                fontSize: "13px",
+                letterSpacing: "1px"
+            }
+        })
+        localStorage.clear()
+        throw new Error("User is not authenticated")
+    }
+    const bearerToken = `Bearer ${token}`
+
+    const response = await axios.get(
+        `${getBackendUrl()}/api/v2/payments/get/${id}`,
+        { headers: {Authorization: bearerToken}}
     )
 
     return response.data

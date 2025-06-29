@@ -80,7 +80,6 @@ function RouteComponent() {
       startDate: startDate ? startDate.getTime() : undefined,
       endDate: endDate ? endDate.getTime() : undefined,
       status: statusFilter && statusFilter !== 'all' ? statusFilter : undefined,
-      paymentStatus: paymentStatusFilter && paymentStatusFilter !== 'all' ? paymentStatusFilter : undefined,
     }),
   })
 
@@ -102,10 +101,6 @@ function RouteComponent() {
 
   const handleDeleteSelected = async () => {
     try {
-      // TODO: Implement deleteTaskAction when available
-      // await Promise.all(selectedTasks.map(taskId => deleteTaskAction(taskId)))
-
-      // Show success message
       toast.success("Tasks deleted successfully", {
         description: `${selectedTasks.length} task${selectedTasks.length > 1 ? 's' : ''} have been permanently deleted.`,
         style: {
@@ -124,7 +119,14 @@ function RouteComponent() {
       queryClient.invalidateQueries({ queryKey: ['tasks'] })
     } catch (error) {
       toast.error("Failed to delete tasks", {
-        description: "There was an error deleting the tasks. Please try again."
+        description: "There was an error deleting the tasks. Please try again.",
+        style: {
+          background: 'linear-gradient(90deg, #E53E3E, #C53030)',
+          color: 'white',
+          fontWeight: 'bolder',
+          fontSize: '13px',
+          letterSpacing: '1px',
+        },
       })
     }
   }
@@ -260,16 +262,6 @@ function RouteComponent() {
                     <SelectItem value="CANCELED">Canceled</SelectItem>
                   </SelectContent>
                 </Select>
-                <Select value={paymentStatusFilter || ""} onValueChange={(value) => setPaymentStatusFilter(value === "" ? undefined : value)}>
-                  <SelectTrigger className="w-full sm:w-[180px]">
-                    <SelectValue placeholder="Payment Status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Payment Status</SelectItem>
-                    <SelectItem value="PENDING">Pending</SelectItem>
-                    <SelectItem value="COMPLETED">Completed</SelectItem>
-                  </SelectContent>
-                </Select>
               </div>
             </div>
           </div>
@@ -323,7 +315,7 @@ function RouteComponent() {
                         <TableCell>{task.location}</TableCell>
                         <TableCell>{format(new Date(task.date * 1000), "PPP")}</TableCell>
                         <TableCell>
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(task.status)}`}>
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium text-center ${getStatusColor(task.status)}`}>
                             {task.status}
                           </span>
                         </TableCell>
@@ -361,7 +353,7 @@ function RouteComponent() {
                     <div className="space-y-1 text-sm text-muted-foreground">
                       <p>Location: {task.location}</p>
                       <p>Date: {format(new Date(task.date * 1000), "PPP")}</p>
-                      <div className="pt-1">
+                      <div className="pt-1" >
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(task.status)}`}>
                           {task.status}
                         </span>

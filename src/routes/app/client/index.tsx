@@ -219,7 +219,7 @@ function RouteComponent() {
                   </TableRow>
                 ) : clientsData?.length === 0 ? (
                   <TableRow >
-                    <TableCell colSpan={5} className="text-center mx-auto">No clients found</TableCell>
+                    <TableCell colSpan={6} className="text-center">No clients found</TableCell>
                   </TableRow>
                 ) : (
                   clientsData?.map((client, index) => (

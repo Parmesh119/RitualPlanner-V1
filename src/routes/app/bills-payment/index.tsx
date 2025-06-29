@@ -107,6 +107,18 @@ function RouteComponent() {
     }
   }
 
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'COMPLETED':
+        return 'text-green-600 bg-green-100 dark:bg-green-900 dark:text-green-400'
+      case 'CANCELED':
+        return 'text-red-600 bg-red-100 dark:bg-red-900 dark:text-red-400'
+      case 'PENDING':
+      default:
+        return 'text-yellow-600 bg-yellow-100 dark:bg-yellow-900 dark:text-yellow-400'
+    }
+  }
+
   return <>
     <SidebarInset className='w-full'>
       <header className="flex h-16 shrink-0 items-center gap-2">
@@ -256,7 +268,7 @@ function RouteComponent() {
                   </TableRow>
                 ) : billsData?.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={4} className="text-center">No bills found</TableCell>
+                    <TableCell colSpan={5} className="text-center">No bills found</TableCell>
                   </TableRow>
                 ) : (
                   billsData?.map((bill, index) => (
@@ -277,13 +289,11 @@ function RouteComponent() {
                       <TableCell className="px-6 text-center">{bill.name}</TableCell>
                       <TableCell className="px-6 text-center">
                         <Badge
-                          className={`rounded-full px-4 py-1 font-bold uppercase tracking-wider
-                            ${bill.paymentstatus === 'PENDING'
-                              ? 'bg-[#7a4400] text-[#ffe600]'
-                              : 'bg-green-500 text-white'}
+                          className={`px-2 py-1 rounded-full text-xs font-medium
+                            ${getStatusColor(bill.paymentstatus || '')}
                           `}
                         >
-                          {bill.paymentstatus}
+                          {bill.paymentstatus || '-'}
                         </Badge>
                       </TableCell>
                       <TableCell className="px-6 text-center">

@@ -112,7 +112,6 @@ export type ListTask = {
     startDate?: number | null
     endDate?: number | null
     status?: string | null
-    paymentStatus?: string | null
 }
 
 export const validateSearch = z.object({
