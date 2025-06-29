@@ -93,7 +93,6 @@ class TaskRepository(
         return try {
             val task = requestTask.task
             val taskId = UUID.randomUUID().toString()
-            print(task.date)
 
             // Insert Task
             val taskSql = """
@@ -423,6 +422,11 @@ class TaskRepository(
             listTask.endDate?.let {
                 sqlBuilder.append(" AND created_at <= to_timestamp(?)")
                 params.add(it / 1000)
+            }
+
+            listTask.status?.let {
+                sqlBuilder.append(" AND (status ILIKE ? )")
+                params.add("%$it%")
             }
 
             val page = (listTask.page ?: 1).coerceAtLeast(1)

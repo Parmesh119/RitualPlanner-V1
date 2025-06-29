@@ -63,6 +63,5 @@ data class ListTask (
     val size: Int? = 10,
     val startDate: Long? = null,
     val endDate: Long? = null,
-    val status: String? = null,
-    val paymentStatus: String? = null,
+    val status: String? = null
 )
