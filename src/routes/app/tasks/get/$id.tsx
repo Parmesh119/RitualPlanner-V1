@@ -506,7 +506,10 @@ function RouteComponent() {
                                     </Badge>
                                   </div>
                                   <div>
-                                    <span className="font-medium">Method:</span> {assistantPaymentQuery.data.paymentmode}
+                                    <span className="font-medium">Method:</span> {assistantPaymentQuery.data.paymentmode === "CASH" ? "Cash" : "Online"}
+                                  </div>
+                                  <div>
+                                    <span className="font-medium">Online Payment Method:</span> {assistantPaymentQuery.data.onlinepaymentmode || "-"}
                                   </div>
                                   <div>
                                     <span className="font-medium">Date:</span> {assistantPaymentQuery.data.paymentdate ? format(new Date(assistantPaymentQuery.data.paymentdate * 1000), "PPP") : "-"}

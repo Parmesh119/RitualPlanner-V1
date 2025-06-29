@@ -36,7 +36,6 @@ import { Route as AppTasksEditIdImport } from './routes/app/tasks/edit/$id'
 import { Route as AppNotesGetIdImport } from './routes/app/notes/get/$id'
 import { Route as AppCoWorkerGetIdImport } from './routes/app/co-worker/get/$id'
 import { Route as AppClientGetIdImport } from './routes/app/client/get/$id'
-import { Route as AppClientEditIdImport } from './routes/app/client/edit/$id'
 import { Route as AppBillsPaymentGetIdImport } from './routes/app/bills-payment/get/$id'
 import { Route as AppBillsPaymentEditIdImport } from './routes/app/bills-payment/edit/$id'
 
@@ -189,12 +188,6 @@ const AppCoWorkerGetIdRoute = AppCoWorkerGetIdImport.update({
 const AppClientGetIdRoute = AppClientGetIdImport.update({
   id: '/client/get/$id',
   path: '/client/get/$id',
-  getParentRoute: () => AppRouteRoute,
-} as any)
-
-const AppClientEditIdRoute = AppClientEditIdImport.update({
-  id: '/client/edit/$id',
-  path: '/client/edit/$id',
   getParentRoute: () => AppRouteRoute,
 } as any)
 
@@ -354,13 +347,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppBillsPaymentGetIdImport
       parentRoute: typeof AppRouteImport
     }
-    '/app/client/edit/$id': {
-      id: '/app/client/edit/$id'
-      path: '/client/edit/$id'
-      fullPath: '/app/client/edit/$id'
-      preLoaderRoute: typeof AppClientEditIdImport
-      parentRoute: typeof AppRouteImport
-    }
     '/app/client/get/$id': {
       id: '/app/client/get/$id'
       path: '/client/get/$id'
@@ -430,7 +416,6 @@ interface AppRouteRouteChildren {
   AppTemplateIndexRoute: typeof AppTemplateIndexRoute
   AppBillsPaymentEditIdRoute: typeof AppBillsPaymentEditIdRoute
   AppBillsPaymentGetIdRoute: typeof AppBillsPaymentGetIdRoute
-  AppClientEditIdRoute: typeof AppClientEditIdRoute
   AppClientGetIdRoute: typeof AppClientGetIdRoute
   AppCoWorkerGetIdRoute: typeof AppCoWorkerGetIdRoute
   AppNotesGetIdRoute: typeof AppNotesGetIdRoute
@@ -455,7 +440,6 @@ const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppTemplateIndexRoute: AppTemplateIndexRoute,
   AppBillsPaymentEditIdRoute: AppBillsPaymentEditIdRoute,
   AppBillsPaymentGetIdRoute: AppBillsPaymentGetIdRoute,
-  AppClientEditIdRoute: AppClientEditIdRoute,
   AppClientGetIdRoute: AppClientGetIdRoute,
   AppCoWorkerGetIdRoute: AppCoWorkerGetIdRoute,
   AppNotesGetIdRoute: AppNotesGetIdRoute,
@@ -490,7 +474,6 @@ export interface FileRoutesByFullPath {
   '/app/template': typeof AppTemplateIndexRoute
   '/app/bills-payment/edit/$id': typeof AppBillsPaymentEditIdRoute
   '/app/bills-payment/get/$id': typeof AppBillsPaymentGetIdRoute
-  '/app/client/edit/$id': typeof AppClientEditIdRoute
   '/app/client/get/$id': typeof AppClientGetIdRoute
   '/app/co-worker/get/$id': typeof AppCoWorkerGetIdRoute
   '/app/notes/get/$id': typeof AppNotesGetIdRoute
@@ -521,7 +504,6 @@ export interface FileRoutesByTo {
   '/app/template': typeof AppTemplateIndexRoute
   '/app/bills-payment/edit/$id': typeof AppBillsPaymentEditIdRoute
   '/app/bills-payment/get/$id': typeof AppBillsPaymentGetIdRoute
-  '/app/client/edit/$id': typeof AppClientEditIdRoute
   '/app/client/get/$id': typeof AppClientGetIdRoute
   '/app/co-worker/get/$id': typeof AppCoWorkerGetIdRoute
   '/app/notes/get/$id': typeof AppNotesGetIdRoute
@@ -553,7 +535,6 @@ export interface FileRoutesById {
   '/app/template/': typeof AppTemplateIndexRoute
   '/app/bills-payment/edit/$id': typeof AppBillsPaymentEditIdRoute
   '/app/bills-payment/get/$id': typeof AppBillsPaymentGetIdRoute
-  '/app/client/edit/$id': typeof AppClientEditIdRoute
   '/app/client/get/$id': typeof AppClientGetIdRoute
   '/app/co-worker/get/$id': typeof AppCoWorkerGetIdRoute
   '/app/notes/get/$id': typeof AppNotesGetIdRoute
@@ -586,7 +567,6 @@ export interface FileRouteTypes {
     | '/app/template'
     | '/app/bills-payment/edit/$id'
     | '/app/bills-payment/get/$id'
-    | '/app/client/edit/$id'
     | '/app/client/get/$id'
     | '/app/co-worker/get/$id'
     | '/app/notes/get/$id'
@@ -616,7 +596,6 @@ export interface FileRouteTypes {
     | '/app/template'
     | '/app/bills-payment/edit/$id'
     | '/app/bills-payment/get/$id'
-    | '/app/client/edit/$id'
     | '/app/client/get/$id'
     | '/app/co-worker/get/$id'
     | '/app/notes/get/$id'
@@ -646,7 +625,6 @@ export interface FileRouteTypes {
     | '/app/template/'
     | '/app/bills-payment/edit/$id'
     | '/app/bills-payment/get/$id'
-    | '/app/client/edit/$id'
     | '/app/client/get/$id'
     | '/app/co-worker/get/$id'
     | '/app/notes/get/$id'
@@ -713,7 +691,6 @@ export const routeTree = rootRoute
         "/app/template/",
         "/app/bills-payment/edit/$id",
         "/app/bills-payment/get/$id",
-        "/app/client/edit/$id",
         "/app/client/get/$id",
         "/app/co-worker/get/$id",
         "/app/notes/get/$id",
@@ -789,10 +766,6 @@ export const routeTree = rootRoute
     },
     "/app/bills-payment/get/$id": {
       "filePath": "app/bills-payment/get/$id.tsx",
-      "parent": "/app"
-    },
-    "/app/client/edit/$id": {
-      "filePath": "app/client/edit/$id.tsx",
       "parent": "/app"
     },
     "/app/client/get/$id": {

@@ -1142,3 +1142,29 @@ export async function getPaymentByIdAction(id: string): Promise<TPayment> {
 
     return response.data
 }
+
+export async function getClientTaskById(clientId: string): Promise<TTask[]> {
+    const token = await authService.getAccessToken()
+
+    if (!token) {
+        toast.error("User is not authenticated", {
+            style: {
+                background: "linear-gradient(90deg, #E53E3E, #C53030)",
+                color: "white",
+                fontWeight: "bolder",
+                fontSize: "13px",
+                letterSpacing: "1px"
+            }
+        })
+        localStorage.clear()
+        throw new Error("User is not authenticated")
+    }
+    const bearerToken = `Bearer ${token}`
+
+    const response = await axios.get(
+        `${getBackendUrl()}/api/v2/tasks/client/${clientId}`,
+        { headers: {Authorization: bearerToken}}
+    )
+
+    return response.data
+}

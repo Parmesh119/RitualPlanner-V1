@@ -333,6 +333,13 @@ function RouteComponent() {
                   <div className="space-y-1 text-sm text-muted-foreground">
                     <p>Created Date: {bill.createdAt ? format(new Date(bill.createdAt * 1000), "PPP") : '-'}</p>
                     <p>Updated Date: {bill.updatedAt ? format(new Date(bill.updatedAt * 1000), "PPP") : '-'}</p>
+                    <div className="mb-2">
+                      Payment Status: <Badge
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(bill.paymentstatus || '')}`}
+                      >
+                        {bill.paymentstatus || '-'}
+                      </Badge>
+                    </div>
                   </div>
                 </div>
               ))

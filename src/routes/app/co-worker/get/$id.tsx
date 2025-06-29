@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { getCoWorkerById, sendInviteAction } from '@/lib/actions'
 import { type TCoWorker } from '@/schemas/CoWorker'
 import { useMutation, useQuery } from '@tanstack/react-query'
@@ -13,14 +13,14 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-import { Clock, Pencil, Send } from "lucide-react"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { Clock, Pencil, Send, Mail, Phone, User, Calendar } from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { CreateCoWorkerDialog } from "@/components/co-worker/create-dialog"
 import { useState } from "react"
 import { Link } from '@tanstack/react-router'
 import { toast } from 'sonner'
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription } from "@/components/ui/alert-dialog"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 
 export const Route = createFileRoute('/app/co-worker/get/$id')({
@@ -34,6 +34,7 @@ export const Route = createFileRoute('/app/co-worker/get/$id')({
 
 function RouteComponent() {
   const { coWorkerId } = Route.useLoaderData()
+  const navigate = useNavigate()
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false)
 
@@ -45,7 +46,6 @@ function RouteComponent() {
   const sendInvite = useMutation({
     mutationFn: () => {
       if (!coWorker) {
-        // Optionally, you could throw an error or return a rejected promise
         throw new Error("Co-worker data is not loaded");
       }
       return sendInviteAction(coWorker);
@@ -80,7 +80,10 @@ function RouteComponent() {
     return (
       <SidebarInset className='w-full'>
         <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
-          <div className="animate-pulse text-muted-foreground">Loading co-worker...</div>
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+            <p className="mt-2 text-muted-foreground">Loading co-worker details...</p>
+          </div>
         </div>
       </SidebarInset>
     )
@@ -90,7 +93,14 @@ function RouteComponent() {
     return (
       <SidebarInset className='w-full'>
         <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
-          <div className="text-destructive">Co-worker not found</div>
+          <div className="text-center">
+            <h2 className="text-2xl font-bold mb-2">Co-Worker Not Found</h2>
+            <p className="text-muted-foreground mb-4">The co-worker you're looking for doesn't exist or has been removed.</p>
+            <Button onClick={() => navigate({ to: '/app/co-worker' })}>
+              <User className="mr-2 h-4 w-4" />
+              Back to Co-Workers
+            </Button>
+          </div>
         </div>
       </SidebarInset>
     )
@@ -98,16 +108,16 @@ function RouteComponent() {
 
   return (
     <SidebarInset className='w-full'>
-      <header className="flex h-16 shrink-0 items-center gap-2 border-b">
+      <header className="flex h-16 shrink-0 items-center gap-2 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="flex items-center gap-2 px-4 tracking-wider">
           <SidebarTrigger className="-ml-1" />
           <Separator orientation="vertical" className="mr-2 h-4" />
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem>
-                <Link to={"/app/co-worker"}><BreadcrumbLink>Co-Worker</BreadcrumbLink></Link>
+                <BreadcrumbLink onClick={() => navigate({ to: '/app/co-worker' })}>Co-Worker</BreadcrumbLink>
               </BreadcrumbItem>
-              <BreadcrumbSeparator />
+              <BreadcrumbSeparator className='mt-1' />
               <BreadcrumbItem>
                 <BreadcrumbPage>{coWorker.name}</BreadcrumbPage>
               </BreadcrumbItem>
@@ -116,83 +126,177 @@ function RouteComponent() {
         </div>
       </header>
 
-      <div className="flex flex-col gap-6 px-4 md:px-8 py-6">
-        <div className="flex flex-col gap-6">
-          <Tabs defaultValue="details" className="w-full">
-            <TabsList className="w-full">
-              <TabsTrigger value="details" className="flex-1">Details</TabsTrigger>
-              <TabsTrigger value="tasks" className="flex-1">Tasks</TabsTrigger>
-              <TabsTrigger value="payments" className="flex-1">Payments</TabsTrigger>
-            </TabsList>
-            <TabsContent value="details">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h1 className="text-3xl font-bold tracking-tight">{coWorker.name}</h1>
-                  <span className='flex flex-row justify-end gap-4'>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setIsEditDialogOpen(true)}
-                      className="gap-2 cursor-pointer"
-                    >
-                      <Pencil className="h-4 w-4" />
-                      Edit Co-Worker
-                    </Button>
-                    <Button onClick={() => setIsInviteDialogOpen(true)} variant={'outline'} className='cursor-pointer' size={"sm"} >
-                      <Send className='h-4 w-4' />Invite Co-Worker on this platform?
-                    </Button>
-                  </span>
-                </div>
-                <div className="flex items-center gap-4 text-sm text-muted-foreground justify-between">
-                  <div className="flex items-center gap-1">
-                    <Clock className="h-4 w-4" />
-                    <span>Created Date: {format(new Date(coWorker.createdAt * 1000), "PPP")}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Clock className="h-4 w-4" />
-                    <span>Updated Date: {format(new Date(coWorker.updatedAt * 1000), "PPP")}</span>
-                  </div>
-                </div>
-                <Card>
-                  <CardHeader className="pb-2">
-                    <h2 className="text-lg font-semibold">Contact Information</h2>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid gap-2">
-                      <h3 className="text-sm font-medium">Email</h3>
-                      <p className="text-muted-foreground">
-                        {coWorker.email || 'No email provided'}
-                      </p>
-                    </div>
-                    <div className="grid gap-2">
-                      <h3 className="text-sm font-medium">Phone</h3>
-                      <p className="text-muted-foreground">
-                        {coWorker.phone}
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
+      <div className="flex flex-col gap-6 p-6">
+        {/* Co-Worker Header Section */}
+        <div className="flex items-start justify-between">
+          <div className="space-y-2">
+            <div className="flex items-center gap-3">
+              <div className="h-16 w-16 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center">
+                <User className="h-8 w-8 text-primary" />
               </div>
-            </TabsContent>
-            <TabsContent value="tasks">
-              <div className="space-y-4">
-                <h2 className="text-lg font-semibold">Tasks</h2>
-                <p className="text-muted-foreground">Task information for this co-worker will appear here.</p>
+              <div>
+                <h1 className="text-3xl font-bold tracking-tight">{coWorker.name}</h1>
               </div>
-            </TabsContent>
-            <TabsContent value="payments">
-              <div className="space-y-4">
-                <h2 className="text-lg font-semibold">Payments</h2>
-                <p className="text-muted-foreground">Payment information for this co-worker will appear here.</p>
-              </div>
-            </TabsContent>
-          </Tabs>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <Button variant="outline" size="sm" className="gap-2 cursor-pointer" onClick={() => setIsEditDialogOpen(true)}>
+              <Pencil className="h-4 w-4" />
+              Edit Co-Worker
+            </Button>
+            <Button onClick={() => setIsInviteDialogOpen(true)} variant={'outline'} className='cursor-pointer' size={"sm"}>
+              <Send className='h-4 w-4' />Invite
+            </Button>
+          </div>
         </div>
+
+        {/* Contact Information Cards */}
+        <div className="grid gap-4 md:grid-cols-2">
+          <Card className="border-l-4 border-l-blue-500">
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-2">
+                <Mail className="h-4 w-4 text-blue-500" />
+                <CardTitle className="text-sm font-medium">Email</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <p className="text-lg font-medium">{coWorker.email || "Not provided"}</p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-l-4 border-l-green-500">
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-2">
+                <Phone className="h-4 w-4 text-green-500" />
+                <CardTitle className="text-sm font-medium">Phone</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <p className="text-lg font-medium">{coWorker.phone || "Not provided"}</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Main Content Tabs */}
+        <Tabs defaultValue="details" className="w-full">
+          <div className="flex items-center justify-between mb-4">
+            <TabsList className="w-full max-w-full flex flex-row">
+              <TabsTrigger value="details">Details</TabsTrigger>
+              <TabsTrigger value="tasks">Tasks</TabsTrigger>
+              <TabsTrigger value="payments">Payments</TabsTrigger>
+            </TabsList>
+          </div>
+
+          <TabsContent value="details" className="space-y-6">
+            <div className="grid grid-cols-1">
+
+              {/* Additional Information */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Calendar className="h-5 w-5" />
+                    Additional Information
+                  </CardTitle>
+                  <CardDescription>Additional details and metadata</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4 pt-4 border-t">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Created</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Clock className="h-4 w-4 text-muted-foreground" />
+                        <p className="text-sm font-medium">
+                          {coWorker.createdAt ? new Date(coWorker.createdAt * 1000).toLocaleDateString() : "-"}
+                        </p>
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Last Updated</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Clock className="h-4 w-4 text-muted-foreground" />
+                        <p className="text-sm font-medium">
+                          {coWorker.updatedAt ? new Date(coWorker.updatedAt * 1000).toLocaleDateString() : "-"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="tasks">
+            <Card>
+              <CardHeader>
+                <CardTitle>Co-Worker Tasks</CardTitle>
+                <CardDescription>Tasks associated with this co-worker</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="py-12 text-center">
+                  <div className="mx-auto h-12 w-12 text-muted-foreground/50 mb-4">
+                    <svg
+                      className="h-full w-full"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={1}
+                        d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
+                      />
+                    </svg>
+                  </div>
+                  <h3 className="text-lg font-medium mb-2">No tasks yet</h3>
+                  <p className="text-muted-foreground mb-4">Tasks for this co-worker will appear here when they are created.</p>
+                  <Button variant="outline" onClick={() => navigate({to: "/app/tasks/create"})}>
+                    Create Task
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="payments">
+            <Card>
+              <CardHeader>
+                <CardTitle>Payments</CardTitle>
+                <CardDescription>Payment information for this co-worker</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="py-12 text-center">
+                  <div className="mx-auto h-12 w-12 text-muted-foreground/50 mb-4">
+                    <svg
+                      className="h-full w-full"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={1}
+                        d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
+                      />
+                    </svg>
+                  </div>
+                  <h3 className="text-lg font-medium mb-2">No payments yet</h3>
+                  <p className="text-muted-foreground mb-4">Payments for this co-worker will appear here when they are created.</p>
+                  <Button variant="outline">
+                    Add Payment
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
 
       {/* Invite Confirmation Dialog */}
       <AlertDialog open={isInviteDialogOpen} onOpenChange={(open) => {
-        // Prevent closing on outside click
         if (!open) return;
         setIsInviteDialogOpen(open);
       }}>

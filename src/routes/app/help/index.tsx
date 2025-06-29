@@ -165,9 +165,9 @@ function RouteComponent() {
         <div className="container mx-auto py-6 px-4">
           <Card className="max-w-2xl mx-auto border-0 shadow-xl bg-gradient-to-br from-card to-card/50 backdrop-blur-sm">
             <CardHeader>
-              <CardTitle className="text-2xl font-bold">Contact Support</CardTitle>
+              <CardTitle className="text-2xl font-bold">Contact</CardTitle>
               <CardDescription>
-                Have a question or need help? Send us a message and we'll get back to you as soon as possible.
+                Have a question, need help or suggest anything that we can implement in this software? Send us a message and we'll get back to you as soon as possible.
               </CardDescription>
             </CardHeader>
             <CardContent>
