@@ -68,7 +68,7 @@ function RouteComponent() {
   if (isError) {
     // Optionally handle user error (logout, etc.)
     return (
-      <SidebarInset className='w-full'>
+      <SidebarInset className='w-full rounded-t-xl'>
         <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
           <div className="text-destructive">Error loading user info</div>
         </div>
@@ -89,7 +89,7 @@ function RouteComponent() {
 
   if (!data) {
     return (
-      <SidebarInset className='w-full'>
+      <SidebarInset className='w-full rounded-t-xl'>
         <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
           <div className="text-destructive">Bill not found</div>
         </div>
@@ -255,24 +255,25 @@ function RouteComponent() {
   }
 
   return (
-    <SidebarInset className='w-full'>
-      <header className="flex h-16 shrink-0 items-center gap-2 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <SidebarInset className='w-full rounded-t-xl'>
+      <header className="flex h-16 shrink-0 items-center gap-2">
         <div className="flex items-center gap-2 px-4 tracking-wider">
           <SidebarTrigger className="-ml-1" />
           <Separator orientation="vertical" className="mr-2 h-4" />
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem>
-                <Link to="/app/bills-payment"><BreadcrumbLink>Bills & Payment</BreadcrumbLink></Link>
+                <BreadcrumbLink href="/app/bills-payment">Bills & Payment</BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
-                <BreadcrumbPage className="font-medium">{bill?.name}</BreadcrumbPage>
+                <BreadcrumbPage>{bill?.name}</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
         </div>
       </header>
+      <Separator className="mb-4" />
       <div className="max-w-7xl w-full mx-auto p-6 space-y-6">
         {/* Header Section */}
         <div className="space-y-2">

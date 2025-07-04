@@ -519,7 +519,7 @@ function RouteComponent() {
 
     return (
         <>
-            <SidebarInset className='w-full'>
+            <SidebarInset className='w-full rounded-t-xl'>
                 <header className="flex h-16 shrink-0 items-center gap-2">
                     <div className="flex items-center gap-2 px-4 tracking-wider">
                         <SidebarTrigger className="-ml-1" />
@@ -538,7 +538,7 @@ function RouteComponent() {
                     </div>
                 </header>
                 <Separator className="mb-4" />
-                <div className="w-full min-h-screen bg-gradient-to-br from-background via-background/95 to-muted/30">
+                <div className="w-full min-h-screen bg-sidebar from-background via-background/95 to-muted/30">
                     <div className="container mx-auto py-4 px-10">
                         {/* Header Section */}
                         <div className="mb-8">

@@ -78,7 +78,7 @@ function RouteComponent() {
 
   if (isLoading) {
     return (
-      <SidebarInset className='w-full'>
+      <SidebarInset className='w-full rounded-t-xl'>
         <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
@@ -91,7 +91,7 @@ function RouteComponent() {
 
   if (!coWorker) {
     return (
-      <SidebarInset className='w-full'>
+      <SidebarInset className='w-full rounded-t-xl'>
         <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
           <div className="text-center">
             <h2 className="text-2xl font-bold mb-2">Co-Worker Not Found</h2>
@@ -107,17 +107,17 @@ function RouteComponent() {
   }
 
   return (
-    <SidebarInset className='w-full'>
-      <header className="flex h-16 shrink-0 items-center gap-2 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <SidebarInset className='w-full rounded-t-xl'>
+      <header className="flex h-16 shrink-0 items-center gap-2 border-b">
         <div className="flex items-center gap-2 px-4 tracking-wider">
           <SidebarTrigger className="-ml-1" />
           <Separator orientation="vertical" className="mr-2 h-4" />
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem>
-                <BreadcrumbLink onClick={() => navigate({ to: '/app/co-worker' })}>Co-Worker</BreadcrumbLink>
+                <Link to={"/app/co-worker"}><BreadcrumbLink>Co-Worker</BreadcrumbLink></Link>
               </BreadcrumbItem>
-              <BreadcrumbSeparator className='mt-1' />
+              <BreadcrumbSeparator />
               <BreadcrumbItem>
                 <BreadcrumbPage>{coWorker.name}</BreadcrumbPage>
               </BreadcrumbItem>
@@ -251,7 +251,7 @@ function RouteComponent() {
                   </div>
                   <h3 className="text-lg font-medium mb-2">No tasks yet</h3>
                   <p className="text-muted-foreground mb-4">Tasks for this co-worker will appear here when they are created.</p>
-                  <Button variant="outline" onClick={() => navigate({to: "/app/tasks/create"})}>
+                  <Button variant="outline" onClick={() => navigate({ to: "/app/tasks/create" })}>
                     Create Task
                   </Button>
                 </div>

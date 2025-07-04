@@ -40,7 +40,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { format } from "date-fns"
-import { Plus, Trash2, List, Grid, Search, Calendar as CalendarIcon } from "lucide-react"
+import { Plus, Trash2, List, Grid, Search, Calendar as CalendarIcon, Download } from "lucide-react"
 import {
   Table,
   TableBody,
@@ -145,7 +145,7 @@ function RouteComponent() {
 
   return (
     <>
-      <SidebarInset className='w-full'>
+      <SidebarInset className='w-full rounded-t-xl'>
         <header className="flex h-16 shrink-0 items-center gap-2">
           <div className="flex items-center gap-2 px-4 tracking-wider">
             <SidebarTrigger className="-ml-1" />
@@ -198,6 +198,13 @@ function RouteComponent() {
                     Delete Selected ({selectedTasks.length})
                   </Button>
                 )}
+                <Button
+                  variant="outline"
+                  className="flex items-center gap-2 px-4 py-2 font-medium"
+                >
+                  <Download className="w-4 h-4" />
+                  Import
+                </Button>
                 <Button onClick={() => navigate({ to: '/app/tasks/create' })} className='cursor-pointer'>
                   <abbr title="Add Task" className="sm:hidden">
                     <Plus className="h-4 w-4" />
@@ -219,6 +226,17 @@ function RouteComponent() {
                 />
               </div>
               <div className="flex flex-col sm:flex-row gap-2">
+                <Select value={statusFilter || ""} onValueChange={(value) => setStatusFilter(value === "" ? undefined : value)}>
+                  <SelectTrigger className="w-full sm:w-[180px]">
+                    <SelectValue placeholder="Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Status</SelectItem>
+                    <SelectItem value="PENDING">Pending</SelectItem>
+                    <SelectItem value="COMPLETED">Completed</SelectItem>
+                    <SelectItem value="CANCELED">Canceled</SelectItem>
+                  </SelectContent>
+                </Select>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button variant="outline" className="w-full sm:w-[200px] justify-start text-left font-normal">
@@ -251,17 +269,6 @@ function RouteComponent() {
                     />
                   </PopoverContent>
                 </Popover>
-                <Select value={statusFilter || ""} onValueChange={(value) => setStatusFilter(value === "" ? undefined : value)}>
-                  <SelectTrigger className="w-full sm:w-[180px]">
-                    <SelectValue placeholder="Status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Status</SelectItem>
-                    <SelectItem value="PENDING">Pending</SelectItem>
-                    <SelectItem value="COMPLETED">Completed</SelectItem>
-                    <SelectItem value="CANCELED">Canceled</SelectItem>
-                  </SelectContent>
-                </Select>
               </div>
             </div>
           </div>

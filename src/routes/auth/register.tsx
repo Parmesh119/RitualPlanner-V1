@@ -495,7 +495,7 @@ function RegisterPage() {
                     onChange={() => setTerms(!terms)}
                   />
                   <label htmlFor="terms" className="text-sm text-black font-semibold tracking-wide">
-                    I agree to the Terms and Conditions
+                    I agree to the <Link to={"/auth/terms-conditions"} className='font-semibold text-blue-600 hover:text-blue-700'>Terms and Conditions</Link>
                   </label>
                 </div>
 

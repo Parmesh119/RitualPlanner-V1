@@ -39,7 +39,7 @@ function RouteComponent() {
 
   if (isLoading) {
     return (
-      <SidebarInset className='w-full'>
+      <SidebarInset className='w-full rounded-t-xl'>
         <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
           <div className="animate-pulse text-muted-foreground">Loading note...</div>
         </div>
@@ -49,7 +49,7 @@ function RouteComponent() {
 
   if (!note) {
     return (
-      <SidebarInset className='w-full'>
+      <SidebarInset className='w-full rounded-t-xl'>
         <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
           <div className="text-destructive">Note not found</div>
         </div>
@@ -58,7 +58,7 @@ function RouteComponent() {
   }
 
   return (
-    <SidebarInset className='w-full'>
+    <SidebarInset className='w-full rounded-t-xl'>
       <header className="flex h-16 shrink-0 items-center gap-2 border-b">
         <div className="flex items-center gap-2 px-4 tracking-wider">
           <SidebarTrigger className="-ml-1" />

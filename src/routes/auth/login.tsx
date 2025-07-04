@@ -4,7 +4,6 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { User, Lock, LogIn, Flame, Eye, EyeOff } from "lucide-react"
 import { useMutation } from "@tanstack/react-query"
 import { useNavigate } from "@tanstack/react-router"
-import { Helmet } from "react-helmet"
 import { useEffect, useState } from "react"
 import {
   Card,
@@ -221,9 +220,6 @@ function LoginPage() {
 
   return (
     <>
-      <Helmet>
-        <title>Login - RitualPlanner</title>
-      </Helmet>
       <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
         <Card className="w-full max-w-md bg-white text-black shadow-lg">
           <CardHeader className="space-y-1 flex flex-col items-center justify-center">

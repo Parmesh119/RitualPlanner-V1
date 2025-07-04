@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { ChevronUp, User2, CircleHelp, ReceiptIndianRupee, LayoutDashboard, UsersRound, Flame, BadgeCheck, ListTodo, LogOut, Moon, Sun, NotebookText, IndianRupee, NotebookPen, BookUser, Calendar, List, ScrollText, GraduationCap } from 'lucide-react'
+import { ChevronUp, User2, CircleHelp, ReceiptIndianRupee, LayoutDashboard, UsersRound, Flame, BadgeCheck, ListTodo, LogOut, Moon, Sun, NotebookText, IndianRupee, NotebookPen, BookUser, Calendar, List, ScrollText, GraduationCap, User, Plus } from 'lucide-react'
 import {
     Sidebar,
     SidebarContent,
@@ -85,11 +85,6 @@ const items = [
         icon: NotebookPen,
     },
     {
-        title: "Feedback & Help",
-        url: "/app/help",
-        icon: CircleHelp
-    },
-    {
         title: "Tutorial",
         url: "/app/tutorial",
         icon: GraduationCap
@@ -142,6 +137,12 @@ export function AppSidebar() {
         queryClient.clear()
         localStorage.clear()
         navigate({ to: "/auth/login" })
+    }
+
+    const handleAddAccount = () => {
+        queryClient.clear()
+        localStorage.clear()
+        navigate({ to: "/auth/register" })
     }
 
 
@@ -214,9 +215,9 @@ export function AppSidebar() {
                                     <DropdownMenuSeparator />
 
                                     <DropdownMenuItem className="cursor-pointer flex items-center space-x-3 px-3 py-2 rounded-md hover:bg-accent">
-                                        <BadgeCheck className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                                        <User className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                                         <Link to="/app/account" className="flex-1 truncate">
-                                            <span className="text-sm">Account</span>
+                                            <span className="text-sm">My Account</span>
                                         </Link>
                                     </DropdownMenuItem>
 
@@ -237,6 +238,22 @@ export function AppSidebar() {
                                     </DropdownMenuItem>
 
                                     <DropdownMenuSeparator />
+                                    <DropdownMenuItem
+                                        onClick={handleAddAccount}
+                                        className="cursor-pointer flex items-center space-x-3 px-3 py-2 rounded-md hover:bg-destructive hover:text-destructive-foreground"
+                                    >
+                                        <Plus className="w-4 h-4 flex-shrink-0" />
+                                        <span className="text-sm truncate">Add Account</span>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem
+                                        onClick={() => navigate({to: "/app/help"})}
+                                        className="cursor-pointer flex items-center space-x-3 px-3 py-2 rounded-md hover:bg-destructive hover:text-destructive-foreground"
+                                    >
+                                        <CircleHelp className="w-4 h-4 flex-shrink-0" />
+                                        <span className="text-sm truncate">Feedback & Help</span>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator />
 
                                     <DropdownMenuItem
                                         onClick={handleLogout}
@@ -245,7 +262,7 @@ export function AppSidebar() {
                                         <LogOut className="w-4 h-4 flex-shrink-0" />
                                         <span className="text-sm truncate">Sign Out</span>
                                     </DropdownMenuItem>
-
+                                    
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         </SidebarMenuItem>

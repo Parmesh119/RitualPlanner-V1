@@ -17,6 +17,7 @@ import { Route as AuthResetPasswordImport } from './routes/auth/reset-password'
 import { Route as AuthRegisterImport } from './routes/auth/register'
 import { Route as AuthLoginImport } from './routes/auth/login'
 import { Route as AuthForgotPasswordImport } from './routes/auth/forgot-password'
+import { Route as AuthTermsConditionsIndexImport } from './routes/auth/terms-conditions/index'
 import { Route as AppTemplateIndexImport } from './routes/app/template/index'
 import { Route as AppTasksIndexImport } from './routes/app/tasks/index'
 import { Route as AppNotesIndexImport } from './routes/app/notes/index'
@@ -74,6 +75,12 @@ const AuthLoginRoute = AuthLoginImport.update({
 const AuthForgotPasswordRoute = AuthForgotPasswordImport.update({
   id: '/auth/forgot-password',
   path: '/auth/forgot-password',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const AuthTermsConditionsIndexRoute = AuthTermsConditionsIndexImport.update({
+  id: '/auth/terms-conditions/',
+  path: '/auth/terms-conditions/',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -333,6 +340,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppTemplateIndexImport
       parentRoute: typeof AppRouteImport
     }
+    '/auth/terms-conditions/': {
+      id: '/auth/terms-conditions/'
+      path: '/auth/terms-conditions'
+      fullPath: '/auth/terms-conditions'
+      preLoaderRoute: typeof AuthTermsConditionsIndexImport
+      parentRoute: typeof rootRoute
+    }
     '/app/bills-payment/edit/$id': {
       id: '/app/bills-payment/edit/$id'
       path: '/bills-payment/edit/$id'
@@ -472,6 +486,7 @@ export interface FileRoutesByFullPath {
   '/app/notes': typeof AppNotesIndexRoute
   '/app/tasks': typeof AppTasksIndexRoute
   '/app/template': typeof AppTemplateIndexRoute
+  '/auth/terms-conditions': typeof AuthTermsConditionsIndexRoute
   '/app/bills-payment/edit/$id': typeof AppBillsPaymentEditIdRoute
   '/app/bills-payment/get/$id': typeof AppBillsPaymentGetIdRoute
   '/app/client/get/$id': typeof AppClientGetIdRoute
@@ -502,6 +517,7 @@ export interface FileRoutesByTo {
   '/app/notes': typeof AppNotesIndexRoute
   '/app/tasks': typeof AppTasksIndexRoute
   '/app/template': typeof AppTemplateIndexRoute
+  '/auth/terms-conditions': typeof AuthTermsConditionsIndexRoute
   '/app/bills-payment/edit/$id': typeof AppBillsPaymentEditIdRoute
   '/app/bills-payment/get/$id': typeof AppBillsPaymentGetIdRoute
   '/app/client/get/$id': typeof AppClientGetIdRoute
@@ -533,6 +549,7 @@ export interface FileRoutesById {
   '/app/notes/': typeof AppNotesIndexRoute
   '/app/tasks/': typeof AppTasksIndexRoute
   '/app/template/': typeof AppTemplateIndexRoute
+  '/auth/terms-conditions/': typeof AuthTermsConditionsIndexRoute
   '/app/bills-payment/edit/$id': typeof AppBillsPaymentEditIdRoute
   '/app/bills-payment/get/$id': typeof AppBillsPaymentGetIdRoute
   '/app/client/get/$id': typeof AppClientGetIdRoute
@@ -565,6 +582,7 @@ export interface FileRouteTypes {
     | '/app/notes'
     | '/app/tasks'
     | '/app/template'
+    | '/auth/terms-conditions'
     | '/app/bills-payment/edit/$id'
     | '/app/bills-payment/get/$id'
     | '/app/client/get/$id'
@@ -594,6 +612,7 @@ export interface FileRouteTypes {
     | '/app/notes'
     | '/app/tasks'
     | '/app/template'
+    | '/auth/terms-conditions'
     | '/app/bills-payment/edit/$id'
     | '/app/bills-payment/get/$id'
     | '/app/client/get/$id'
@@ -623,6 +642,7 @@ export interface FileRouteTypes {
     | '/app/notes/'
     | '/app/tasks/'
     | '/app/template/'
+    | '/auth/terms-conditions/'
     | '/app/bills-payment/edit/$id'
     | '/app/bills-payment/get/$id'
     | '/app/client/get/$id'
@@ -642,6 +662,7 @@ export interface RootRouteChildren {
   AuthLoginRoute: typeof AuthLoginRoute
   AuthRegisterRoute: typeof AuthRegisterRoute
   AuthResetPasswordRoute: typeof AuthResetPasswordRoute
+  AuthTermsConditionsIndexRoute: typeof AuthTermsConditionsIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -651,6 +672,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthLoginRoute: AuthLoginRoute,
   AuthRegisterRoute: AuthRegisterRoute,
   AuthResetPasswordRoute: AuthResetPasswordRoute,
+  AuthTermsConditionsIndexRoute: AuthTermsConditionsIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -668,7 +690,8 @@ export const routeTree = rootRoute
         "/auth/forgot-password",
         "/auth/login",
         "/auth/register",
-        "/auth/reset-password"
+        "/auth/reset-password",
+        "/auth/terms-conditions/"
       ]
     },
     "/": {
@@ -759,6 +782,9 @@ export const routeTree = rootRoute
     "/app/template/": {
       "filePath": "app/template/index.tsx",
       "parent": "/app"
+    },
+    "/auth/terms-conditions/": {
+      "filePath": "auth/terms-conditions/index.tsx"
     },
     "/app/bills-payment/edit/$id": {
       "filePath": "app/bills-payment/edit/$id.tsx",

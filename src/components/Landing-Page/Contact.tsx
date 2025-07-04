@@ -1,21 +1,24 @@
-import { useMutation } from "@tanstack/react-query"
+"use client"
+
 import { Send, Mail, User, MessageSquare } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-
+import { z } from "zod"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
-import { Container } from "@/components/ui/container"
 import { Card, CardContent } from "@/components/ui/card"
-import { contactFormSchema, type ContactFormData } from "@/schemas/ContactUs"
-import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormMessage,
-} from "@/components/ui/form"
+import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form"
+import { toast } from "sonner"
+
+const contactFormSchema = z.object({
+    name: z.string().min(2, "Name must be at least 2 characters"),
+    email: z.string().email("Please enter a valid email address"),
+    subject: z.string().min(5, "Subject must be at least 5 characters"),
+    message: z.string().min(10, "Message must be at least 10 characters"),
+})
+
+type ContactFormData = z.infer<typeof contactFormSchema>
 
 export default function Contact() {
     const form = useForm<ContactFormData>({
@@ -28,153 +31,144 @@ export default function Contact() {
         },
     })
 
-    const contactMutation = useMutation({
-        mutationFn: async (data: ContactFormData) => {
-            // Replace with your actual API endpoint
-            const response = await fetch("/api/contact", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(data),
-            })
-            if (!response.ok) {
-                throw new Error("Failed to send message")
-            }
-            return response.json()
-        },
-    })
-
     const onSubmit = (data: ContactFormData) => {
-        contactMutation.mutate(data)
+        toast.success("Message sent successfully! We'll get back to you soon.")
+        form.reset()
     }
 
     return (
-        <Container id="contact" className="py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-3xl mx-auto">
-                <div className="text-center mb-12">
-                    <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl mb-4">
-                        Contact Us
-                    </h1>
-                    <p className="text-lg text-gray-600">
-                        Have questions? We'd love to hear from you. Send us a message and we'll
-                        respond as soon as possible.
+        <section id="contact" className="py-20 px-6 bg-gradient-to-b from-white to-gray-50">
+            <div className="container mx-auto max-w-6xl">
+                <div className="text-center mb-16">
+                    <div className="inline-flex items-center gap-2 bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-medium mb-6 border border-green-200">
+                        <Mail className="w-4 h-4" />
+                        Get in Touch
+                    </div>
+                    <h2 className="text-4xl sm:text-5xl font-bold tracking-tight text-gray-900 mb-6">
+                        Let's Start a
+                        <span className="bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
+                            {" "}
+                            Conversation
+                        </span>
+                    </h2>
+                    <p className="text-xl text-gray-600 leading-relaxed max-w-3xl mx-auto">
+                        Have questions about RitualPlanner? We'd love to hear from you. Send us a message and we'll respond as soon
+                        as possible.
                     </p>
                 </div>
 
-                <Card className="bg-white">
-                    <CardContent className="p-6">
-                        <Form {...form}>
-                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                                <FormField
-                                    control={form.control}
-                                    name="name"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <div className="relative">
-                                                <User className="absolute left-3 top-2 h-5 w-5 text-gray-600" />
-                                                <FormControl>
-                                                    <Input
-                                                        placeholder="Your Name"
-                                                        className="pl-10 !bg-white !text-black !placeholder-black !border !border-gray-300"
-                                                        {...field}
-                                                    />
-                                                </FormControl>
-                                            </div>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
+                <div className="grid lg:grid-cols-3 gap-12">
+                    {/* Contact Info */}
+                    <div className="lg:col-span-1 space-y-8">
+                        <div>
+                            <h3 className="text-2xl font-bold text-gray-900 mb-6">Get in Touch</h3>
+                            <p className="text-gray-600 leading-relaxed mb-8">
+                                We're here to help you with any questions about RitualPlanner. Fill out the form and we'll get back to
+                                you as soon as possible.
+                            </p>
+                        </div>
+                    </div>
 
-                                <FormField
-                                    control={form.control}
-                                    name="email"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <div className="relative">
-                                                <Mail className="absolute left-3 top-2 h-5 w-5 text-gray-600" />
-                                                <FormControl>
-                                                    <Input
-                                                        type="email"
-                                                        placeholder="Your Email"
-                                                        className="pl-10 !bg-white !text-black !placeholder-black !border !border-gray-300"
-                                                        {...field}
-                                                    />
-                                                </FormControl>
-                                            </div>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
+                    {/* Contact Form */}
+                    <div className="lg:col-span-2">
+                        <Card className="shadow-2xl border-0 bg-white">
+                            <CardContent className="p-8">
+                                <Form {...form}>
+                                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                                        <div className="grid md:grid-cols-2 gap-6">
+                                            <FormField
+                                                control={form.control}
+                                                name="name"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <div className="relative">
+                                                            <User className="absolute left-4 top-4 h-5 w-5 text-black mt-1" />
+                                                            <FormControl>
+                                                                <Input
+                                                                    placeholder="Your Name"
+                                                                    className="pl-12 h-14 bg-gray-50 border-gray-200 focus:bg-white focus:border-orange-300 focus:ring-orange-200 rounded-xl text-gray-900 placeholder:text-black"
+                                                                    {...field}
+                                                                />
+                                                            </FormControl>
+                                                        </div>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
 
-                                <FormField
-                                    control={form.control}
-                                    name="subject"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <div className="relative">
-                                                <MessageSquare className="absolute left-3 top-2 h-5 w-5 text-gray-600" />
-                                                <FormControl>
-                                                    <Input
-                                                        placeholder="Subject"
-                                                        className="pl-10 !bg-white !text-black !placeholder-black !border !border-gray-300"
-                                                        {...field}
-                                                    />
-                                                </FormControl>
-                                            </div>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
+                                            <FormField
+                                                control={form.control}
+                                                name="email"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <div className="relative">
+                                                            <Mail className="absolute left-4 top-4 h-5 w-5 text-black mt-1" />
+                                                            <FormControl>
+                                                                <Input
+                                                                    type="email"
+                                                                    placeholder="Your Email"
+                                                                    className="pl-12 h-14 bg-gray-50 border-gray-200 focus:bg-white focus:border-orange-300 focus:ring-orange-200 rounded-xl text-gray-900 placeholder:text-black"
+                                                                    {...field}
+                                                                />
+                                                            </FormControl>
+                                                        </div>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
 
-                                <FormField
-                                    control={form.control}
-                                    name="message"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormControl>
-                                                <Textarea
-                                                    placeholder="Your Message"
-                                                    className="min-h-[150px] !bg-white !text-black !placeholder-black"
-                                                    {...field}
-                                                />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
+                                        <FormField
+                                            control={form.control}
+                                            name="subject"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <div className="relative">
+                                                        <MessageSquare className="absolute left-4 top-4 h-5 w-5 text-black mt-1" />
+                                                        <FormControl>
+                                                            <Input
+                                                                placeholder="Subject"
+                                                                className="pl-12 h-14 bg-gray-50 border-gray-200 focus:bg-white focus:border-orange-300 focus:ring-orange-200 rounded-xl text-gray-900  placeholder:text-black"
+                                                                {...field}
+                                                            />
+                                                        </FormControl>
+                                                    </div>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
 
-                                <Button
-                                    type="submit"
-                                    className="w-full text-white bg-black hover:bg-gray-800"
-                                    disabled={contactMutation.isPending}
-                                >
-                                    {contactMutation.isPending ? (
-                                        "Sending..."
-                                    ) : (
-                                        <>
+                                        <FormField
+                                            control={form.control}
+                                            name="message"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormControl>
+                                                        <Textarea
+                                                            placeholder="Tell us more about your inquiry..."
+                                                            className="min-h-[150px] bg-gray-50 border-gray-200 focus:bg-white focus:border-orange-300 focus:ring-orange-200 rounded-xl text-gray-900 placeholder:text-black resize-none"
+                                                            {...field}
+                                                        />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <Button
+                                            type="submit"
+                                            className="w-full h-14 text-white bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 font-semibold text-lg rounded-xl shadow-lg hover:shadow-xl transition-all group"
+                                        >
                                             Send Message
-                                            <Send className="ml-2 h-4 w-4" />
-                                        </>
-                                    )}
-                                </Button>
-
-                                {contactMutation.isSuccess && (
-                                    <p className="text-green-600 text-center mt-4">
-                                        Message sent successfully!
-                                    </p>
-                                )}
-
-                                {contactMutation.isError && (
-                                    <p className="text-red-600 text-center mt-4">
-                                        Failed to send message. Please try again.
-                                    </p>
-                                )}
-                            </form>
-                        </Form>
-                    </CardContent>
-                </Card>
+                                            <Send className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                                        </Button>
+                                    </form>
+                                </Form>
+                            </CardContent>
+                        </Card>
+                    </div>
+                </div>
             </div>
-        </Container>
+        </section>
     )
 }

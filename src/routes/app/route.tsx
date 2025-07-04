@@ -10,7 +10,7 @@ export const Route = createFileRoute('/app')({
 function RouteComponent() {
   return (
     <SidebarProvider>
-      <AppSidebar />
+      <AppSidebar  />
       <Outlet />
     </SidebarProvider>
   )

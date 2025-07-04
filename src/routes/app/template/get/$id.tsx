@@ -85,7 +85,7 @@ function RouteComponent() {
 
   if (error) {
     return (
-      <SidebarInset className='w-full'>
+      <SidebarInset className='w-full rounded-t-xl'>
         <header className="flex h-16 shrink-0 items-center gap-2 border-b">
           <div className="flex items-center gap-2 px-4 tracking-wider">
             <SidebarTrigger className="-ml-1" />
@@ -238,25 +238,19 @@ function RouteComponent() {
   }
 
   return (
-    <SidebarInset className='w-full'>
-      <header className="flex h-16 shrink-0 items-center gap-2 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <SidebarInset className='w-full rounded-t-xl'>
+      <header className="flex h-16 shrink-0 items-center gap-2 border-b">
         <div className="flex items-center gap-2 px-4 tracking-wider">
           <SidebarTrigger className="-ml-1" />
           <Separator orientation="vertical" className="mr-2 h-4" />
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem>
-                <BreadcrumbLink
-                  href="#"
-                  onClick={() => navigate({ to: "/app/template" })}
-                  className="hover:text-foreground transition-colors"
-                >
-                  Templates
-                </BreadcrumbLink>
+                <BreadcrumbLink href="#" onClick={() => navigate({ to: "/app/template" })}>Templates</BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
-                <BreadcrumbPage className="font-medium">{template?.name || 'Loading...'}</BreadcrumbPage>
+                <BreadcrumbPage>{template?.name}</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>

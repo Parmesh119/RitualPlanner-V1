@@ -175,7 +175,7 @@ function RouteComponent() {
     </div>
   }
   if (isError || !bill) {
-    return <SidebarInset className='w-full'>
+    return <SidebarInset className='w-full rounded-t-xl'>
       <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
         <div className="text-destructive">Failed to load bill for editing.</div>
       </div>
@@ -183,7 +183,7 @@ function RouteComponent() {
   }
 
   return (
-    <SidebarInset className='w-full'>
+    <SidebarInset className='w-full rounded-t-xl'>
       <header className="flex h-16 shrink-0 items-center gap-2">
         <div className="flex items-center gap-2 px-4 tracking-wider">
           <SidebarTrigger className="-ml-1" />

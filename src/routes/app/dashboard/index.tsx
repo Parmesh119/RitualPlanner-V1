@@ -17,7 +17,7 @@ export const Route = createFileRoute('/app/dashboard/')({
 function RouteComponent() {
   return (
     <>
-      <SidebarInset className='w-full'>
+      <SidebarInset className='w-full rounded-t-xl'>
         <header className="flex h-16 shrink-0 items-center gap-2">
           <div className="flex items-center gap-2 px-4 tracking-wider">
             <SidebarTrigger className="-ml-1" />

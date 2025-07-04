@@ -202,7 +202,7 @@ function RouteComponent() {
 
   if (error || !taskData) {
     return (
-      <SidebarInset className='w-full'>
+      <SidebarInset className='w-full rounded-t-xl'>
         <header className="flex h-16 shrink-0 items-center gap-2">
           <div className="flex items-center gap-2 px-4 tracking-wider">
             <SidebarTrigger className="-ml-1" />
@@ -244,7 +244,7 @@ function RouteComponent() {
   const { task, note, assistant, payment, assistantPayment } = taskData
 
   return (
-    <SidebarInset className='w-full'>
+    <SidebarInset className='w-full rounded-t-xl'>
       <header className="flex h-16 shrink-0 items-center gap-2">
         <div className="flex items-center gap-2 px-4 tracking-wider">
           <SidebarTrigger className="-ml-1" />
