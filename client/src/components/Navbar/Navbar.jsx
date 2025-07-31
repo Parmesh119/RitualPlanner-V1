@@ -136,14 +136,14 @@ const Navbar = () => {
             <Bars3Icon aria-hidden="true" className="h-6 w-6" />
           </button>
         </div>
-        <div className={`hidden navbar lg:flex lg:gap-x-20 ${isScrolled ? 'rounded-full p-4 px-10 m-auto items-center bg-gray-700' : 'bg-zinc-700 text-white p-4 px-10 rounded-full'} `} >
+        <div className={`hidden navbar lg:flex lg:gap-x-20 ${isScrolled ? 'rounded-sm p-4 px-10 m-auto items-center bg-gray-700' : 'bg-none text-black p-4 px-10 rounded-none'} `} >
           {navigation.map((item) =>
             item.dropdown && item.name === 'Notes' ? (
               <Menu as="div" className="relative inline-block text-left" key={item.name}>
                 <div>
                   <Menu.Button className="text-sm font-semibold leading-6 gap-2 inline-flex items-center" onClick={changeDropDown1}>
                     {item.name}
-                    {isDropDownOpen1 ? <ChevronUpIcon className="-mr-1 h-5 w-5 text-white" aria-hidden="true" /> : <ChevronDownIcon className="-mr-1 h-5 w-5 text-white" aria-hidden="true" />}
+                    {isDropDownOpen1 ? <ChevronUpIcon className="-mr-1 h-5 w-5 text-black" aria-hidden="true" /> : <ChevronDownIcon className="-mr-1 h-5 w-5 text-black" aria-hidden="true" />}
                   </Menu.Button>
                 </div>
                 <Transition
@@ -189,9 +189,9 @@ const Navbar = () => {
             ) : (
               item.name === "Task Management" ? <Menu as="div" className="relative inline-block text-left" key={item.name}>
                 <div>
-                  <Menu.Button className="text-sm font-semibold leading-6 text-white gap-2 inline-flex items-center" onClick={changeDropDown2}>
+                  <Menu.Button className="text-sm font-semibold leading-6 text-black gap-2 inline-flex items-center" onClick={changeDropDown2}>
                     {item.name}
-                    {isDropDownOpen2 ? <ChevronUpIcon className="-mr-1 h-5 w-5 text-white" aria-hidden="true" /> : <ChevronDownIcon className="-mr-1 h-5 w-5 text-white" aria-hidden="true" />}
+                    {isDropDownOpen2 ? <ChevronUpIcon className="-mr-1 h-5 w-5 text-black" aria-hidden="true" /> : <ChevronDownIcon className="-mr-1 h-5 w-5 text-black" aria-hidden="true" />}
                   </Menu.Button>
                 </div>
                 <Transition
@@ -235,9 +235,9 @@ const Navbar = () => {
               </Menu>
                 : (item.name === 'More' ? <Menu as="div" className="relative inline-block text-left" key={item.name}>
                   <div>
-                    <Menu.Button  className="text-sm font-semibold leading-6 text-white gap-2 inline-flex items-center" onClick={changeDropDown3}>
+                    <Menu.Button  className="text-sm font-semibold leading-6 text-black gap-2 inline-flex items-center" onClick={changeDropDown3}>
                       {item.name}
-                      {isDropDownOpen3 ? <ChevronUpIcon className="-mr-1 h-5 w-5 text-white" aria-hidden="true" /> : <ChevronDownIcon className="-mr-1 h-5 w-5 text-white" aria-hidden="true" />}
+                      {isDropDownOpen3 ? <ChevronUpIcon className="-mr-1 h-5 w-5 text-black" aria-hidden="true" /> : <ChevronDownIcon className="-mr-1 h-5 w-5 text-black" aria-hidden="true" />}
                     </Menu.Button>
                   </div>
                   <Transition
@@ -295,7 +295,7 @@ const Navbar = () => {
                     <NavLink
                       key={item.name}
                       to={item.href}
-                      className="text-sm font-semibold leading-6 text-white tracking-wide"
+                      className="text-sm font-semibold leading-6 text-black tracking-wide"
                       onClick={handleLinkClick}
                     >
                       {item.name}

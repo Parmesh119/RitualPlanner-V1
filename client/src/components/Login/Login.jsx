@@ -3,13 +3,13 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { Helmet } from "react-helmet";
 import { NavLink } from "react-router-dom";
-import {jwtDecode} from 'jwt-decode'
+import { jwtDecode } from 'jwt-decode'
 import axios from "axios";
 
 const LoginForm = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
-}, []);
+  }, []);
   const [credentials, setCredentials] = useState("");
   const [password, setPassword] = useState("");
 
@@ -20,43 +20,39 @@ const LoginForm = () => {
     if (!credentials || !password) {
       return toast.error("Provide all details...!");
     }
-  
+
     try {
-      const response = await fetch(import.meta.env.VITE_BASE_URL + '/api/users/login', {
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
-        },
-        body: JSON.stringify({ credentials, password }),
-      });
-  
-      const response_data = await response.json();
-  
+      const response = await axios.post(import.meta.env.VITE_BASE_URL + '/api/users/login', {
+        credentials: credentials, password: password
+      })
+
+      const response_data = await response.data;
+
       if (response_data.error) {
         return toast.error(response_data.error);
       } else {
         setCredentials("");
         setPassword("");
         toast.success(response_data.success);
-  
+
         const token = response_data?.token;
         localStorage.setItem("token", token);
-  
+
         // Decoding the token
         const decode = jwtDecode(token);
-  
+
         // Verifying the token with the backend
         try {
           const res = await axios.post(
             import.meta.env.VITE_BASE_URL + "/api/users/verifyuser",
             { token }
           );
-  
+
           if (res.data.isValid) {
             // Setting user details in localStorage
             localStorage.setItem("userId", decode.user.id);
             localStorage.setItem("userEmail", decode.user.email);
-  
+
             // Navigating to the home page after successful verification
             navigate("/");
           } else {
@@ -67,10 +63,11 @@ const LoginForm = () => {
         }
       }
     } catch (error) {
+      console.log(error)
       toast.error(error.message);
     }
   };
-  
+
 
   function myFunction() {
     var x = document.getElementById("password");
