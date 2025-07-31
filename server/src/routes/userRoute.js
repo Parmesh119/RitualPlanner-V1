@@ -54,7 +54,6 @@ router.post("/login", async (req, res) => {
 
     try {
         let user;
-"token"
         if (!isNaN(credentials)) {
             user = await User.findOne({ number: credentials });
         } else {
@@ -77,7 +76,7 @@ router.post("/login", async (req, res) => {
             },
         )
     } catch (error) {
-        console.log(error.message)
+        console.log(error)
         return res.status(500).send({ error: "Server error...!" });
     }
 });

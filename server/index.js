@@ -15,7 +15,7 @@ const UpdateTask = require('./src/routes/Task/UpdateTask')
 const DeleteAllTask = require('./src/routes/Task/DeleteAllTask')
 
 const app = express()
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT || 3000
 
 app.use(express.json())
 app.use(
