@@ -27,6 +27,7 @@ import CookieConsent from './components/Cookie/Cookie';
 import DeletTask from './components/Task/DeleteTask'
 import UpdateTask from './components/Task/UpdateTask'
 import Calendar_View from './components/Task/Calendar_View'
+import DeprecationAlert from './components/DeprecationAlert/DeprecationAlert';
 
 import './App.css';
 
@@ -44,6 +45,7 @@ function App() {
   return (
     <Router>
       <div className="flex flex-col min-h-screen example">
+        <DeprecationAlert />
         <Navbar />
             <CookieConsent />
         <main className="flex-grow">
