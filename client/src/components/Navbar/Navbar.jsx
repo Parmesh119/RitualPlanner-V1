@@ -39,8 +39,7 @@ const Navbar = () => {
   const changeDropDown4 = () => {
     setDropDownOpen4(!isDropDownOpen4)
   }
-
-  const { isLoggedIn, logout } = useAuth();
+  
   const navigate = useNavigate();
 
   const handleLinkClick = () => {
